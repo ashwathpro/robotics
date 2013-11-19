@@ -1,0 +1,233 @@
+   1               		.file	"SumoTesting.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.global __do_copy_data
+   8               		.global __do_clear_bss
+  16               	.Ltext0:
+  17               	.global	initi_IO
+  19               	initi_IO:
+  20               	.LFB6:
+  21               	.LM1:
+  22               	/* prologue: frame size=0 */
+  23               	/* prologue end (size=0) */
+  24               	.LM2:
+  25 0000 8FE0      		ldi r24,lo8(15)
+  26 0002 81BB      		out 49-0x20,r24
+  27               	.LM3:
+  28 0004 14BA      		out 52-0x20,__zero_reg__
+  29               	.LM4:
+  30 0006 87E0      		ldi r24,lo8(7)
+  31 0008 87BB      		out 55-0x20,r24
+  32               	.LM5:
+  33 000a C59A      		sbi 56-0x20,5
+  34               	/* epilogue: frame size=0 */
+  35 000c 0895      		ret
+  36               	/* epilogue end (size=1) */
+  37               	/* function initi_IO size 7 (6) */
+  38               	.LFE6:
+  40               	.global	initi_ADC
+  42               	initi_ADC:
+  43               	.LFB7:
+  44               	.LM6:
+  45               	/* prologue: frame size=0 */
+  46               	/* prologue end (size=0) */
+  47               	.LM7:
+  48 000e 86B1      		in r24,38-0x20
+  49 0010 8360      		ori r24,lo8(3)
+  50 0012 86B9      		out 38-0x20,r24
+  51               	.LM8:
+  52 0014 3E9A      		sbi 39-0x20,6
+  53               	.LM9:
+  54 0016 3D9A      		sbi 39-0x20,5
+  55               	.LM10:
+  56 0018 379A      		sbi 38-0x20,7
+  57               	/* epilogue: frame size=0 */
+  58 001a 0895      		ret
+  59               	/* epilogue end (size=1) */
+  60               	/* function initi_ADC size 7 (6) */
+  61               	.LFE7:
+  63               	.global	initi_PWM
+  65               	initi_PWM:
+  66               	.LFB8:
+  67               	.LM11:
+  68               	/* prologue: frame size=0 */
+  69               	/* prologue end (size=0) */
+  70               	.LM12:
+  71 001c 81EA      		ldi r24,lo8(-95)
+  72 001e 8FBD      		out 79-0x20,r24
+  73               	.LM13:
+  74 0020 85E0      		ldi r24,lo8(5)
+  75 0022 8EBD      		out 78-0x20,r24
+  76               	/* epilogue: frame size=0 */
+  77 0024 0895      		ret
+  78               	/* epilogue end (size=1) */
+  79               	/* function initi_PWM size 5 (4) */
+  80               	.LFE8:
+  82               	.global	getDigitalValueOf
+  84               	getDigitalValueOf:
+  85               	.LFB9:
+  86               	.LM14:
+  87               	/* prologue: frame size=0 */
+  88               	/* prologue end (size=0) */
+  89               	.LVL0:
+  90               	.LM15:
+  91 0026 97B1      		in r25,39-0x20
+  92 0028 907F      		andi r25,lo8(-16)
+  93 002a 97B9      		out 39-0x20,r25
+  94               	.LM16:
+  95 002c 97B1      		in r25,39-0x20
+  96 002e 982B      		or r25,r24
+  97 0030 97B9      		out 39-0x20,r25
+  98               	.LM17:
+  99 0032 369A      		sbi 38-0x20,6
+ 100               	.L8:
+ 101               	.LM18:
+ 102 0034 349B      		sbis 38-0x20,4
+ 103 0036 00C0      		rjmp .L8
+ 104               	.LM19:
+ 105 0038 85B1      		in r24,37-0x20
+ 106               	.LVL1:
+ 107               	.LM20:
+ 108 003a 9927      		clr r25
+ 109               	/* epilogue: frame size=0 */
+ 110 003c 0895      		ret
+ 111               	/* epilogue end (size=1) */
+ 112               	/* function getDigitalValueOf size 12 (11) */
+ 113               	.LFE9:
+ 115               	.global	main
+ 117               	main:
+ 118               	.LFB10:
+ 119               	.LM21:
+ 120               	/* prologue: frame size=0 */
+ 121 003e C0E0      		ldi r28,lo8(__stack - 0)
+ 122 0040 D0E0      		ldi r29,hi8(__stack - 0)
+ 123 0042 DEBF      		out __SP_H__,r29
+ 124 0044 CDBF      		out __SP_L__,r28
+ 125               	/* prologue end (size=4) */
+ 126               	.LM22:
+ 127 0046 00D0      		rcall initi_IO
+ 128               	.LM23:
+ 129 0048 00D0      		rcall initi_ADC
+ 130               	.LBB4:
+ 131               	.LBB5:
+ 132               	.LM24:
+ 133 004a 81EA      		ldi r24,lo8(-95)
+ 134 004c 8FBD      		out 79-0x20,r24
+ 135               	.LM25:
+ 136 004e 85E0      		ldi r24,lo8(5)
+ 137 0050 8EBD      		out 78-0x20,r24
+ 138               	.LVL2:
+ 139               	.L31:
+ 140               	.LBE5:
+ 141               	.LBE4:
+ 142               	.LM26:
+ 143 0052 B59B      		sbis 54-0x20,5
+ 144 0054 00C0      		rjmp .L15
+ 145               	.LM27:
+ 146 0056 C09A      		sbi 56-0x20,0
+ 147 0058 00C0      		rjmp .L17
+ 148               	.L15:
+ 149               	.LM28:
+ 150 005a C098      		cbi 56-0x20,0
+ 151               	.L17:
+ 152               	.LM29:
+ 153 005c 85E0      		ldi r24,lo8(5)
+ 154 005e 00D0      		rcall getDigitalValueOf
+ 155 0060 182F      		mov r17,r24
+ 156               	.LM30:
+ 157 0062 80E0      		ldi r24,lo8(0)
+ 158 0064 00D0      		rcall getDigitalValueOf
+ 159 0066 082F      		mov r16,r24
+ 160               	.LM31:
+ 161 0068 81E0      		ldi r24,lo8(1)
+ 162 006a 00D0      		rcall getDigitalValueOf
+ 163               	.LM32:
+ 164 006c 8739      		cpi r24,lo8(-105)
+ 165 006e 00F0      		brlo .L18
+ 166 0070 92E0      		ldi r25,lo8(2)
+ 167 0072 00C0      		rjmp .L20
+ 168               	.L18:
+ 169 0074 90E0      		ldi r25,lo8(0)
+ 170               	.L20:
+ 171 0076 80E0      		ldi r24,lo8(0)
+ 172 0078 0739      		cpi r16,lo8(-105)
+ 173 007a 00F0      		brlo .L21
+ 174 007c 81E0      		ldi r24,lo8(1)
+ 175               	.L21:
+ 176 007e 892B      		or r24,r25
+ 177               	.LM33:
+ 178 0080 8130      		cpi r24,lo8(1)
+ 179 0082 01F0      		breq .L23
+ 180 0084 8130      		cpi r24,lo8(1)
+ 181 0086 00F0      		brlo .L22
+ 182 0088 8230      		cpi r24,lo8(2)
+ 183 008a 01F0      		breq .L24
+ 184 008c 8330      		cpi r24,lo8(3)
+ 185 008e 01F4      		brne .L31
+ 186 0090 00C0      		rjmp .L25
+ 187               	.L22:
+ 188               	.LM34:
+ 189 0092 1BBC      		out (74)+1-0x20,__zero_reg__
+ 190 0094 1ABC      		out 74-0x20,__zero_reg__
+ 191 0096 19BC      		out (72)+1-0x20,__zero_reg__
+ 192 0098 18BC      		out 72-0x20,__zero_reg__
+ 193 009a 12BA      		out 50-0x20,__zero_reg__
+ 194 009c 00C0      		rjmp .L31
+ 195               	.L23:
+ 196               	.LM35:
+ 197 009e 812F      		mov r24,r17
+ 198 00a0 9927      		clr r25
+ 199 00a2 9BBD      		out (74)+1-0x20,r25
+ 200 00a4 8ABD      		out 74-0x20,r24
+ 201 00a6 19BC      		out (72)+1-0x20,__zero_reg__
+ 202 00a8 18BC      		out 72-0x20,__zero_reg__
+ 203 00aa 82E0      		ldi r24,lo8(2)
+ 204 00ac 00C0      		rjmp .L30
+ 205               	.L24:
+ 206               	.LM36:
+ 207 00ae 1BBC      		out (74)+1-0x20,__zero_reg__
+ 208 00b0 1ABC      		out 74-0x20,__zero_reg__
+ 209 00b2 812F      		mov r24,r17
+ 210 00b4 9927      		clr r25
+ 211 00b6 99BD      		out (72)+1-0x20,r25
+ 212 00b8 88BD      		out 72-0x20,r24
+ 213 00ba 88E0      		ldi r24,lo8(8)
+ 214 00bc 00C0      		rjmp .L30
+ 215               	.L25:
+ 216               	.LM37:
+ 217 00be 812F      		mov r24,r17
+ 218 00c0 9927      		clr r25
+ 219 00c2 9BBD      		out (74)+1-0x20,r25
+ 220 00c4 8ABD      		out 74-0x20,r24
+ 221 00c6 99BD      		out (72)+1-0x20,r25
+ 222 00c8 88BD      		out 72-0x20,r24
+ 223 00ca 8AE0      		ldi r24,lo8(10)
+ 224               	.L30:
+ 225 00cc 82BB      		out 50-0x20,r24
+ 226 00ce 00C0      		rjmp .L31
+ 227               	/* epilogue: frame size=0 */
+ 228               	/* epilogue: noreturn */
+ 229               	/* epilogue end (size=0) */
+ 230               	/* function main size 73 (69) */
+ 231               	.LFE10:
+ 289               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 SumoTesting.c
+     /tmp/ccv07V1b.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccv07V1b.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccv07V1b.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccv07V1b.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccv07V1b.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccv07V1b.s:19     .text:00000000 initi_IO
+     /tmp/ccv07V1b.s:42     .text:0000000e initi_ADC
+     /tmp/ccv07V1b.s:65     .text:0000001c initi_PWM
+     /tmp/ccv07V1b.s:84     .text:00000026 getDigitalValueOf
+     /tmp/ccv07V1b.s:117    .text:0000003e main
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+__stack

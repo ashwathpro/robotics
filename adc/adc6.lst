@@ -1,0 +1,260 @@
+   1               		.file	"adc6.c"
+   2               		.arch atmega8
+   3               	__SREG__ = 0x3f
+   4               	__SP_H__ = 0x3e
+   5               	__SP_L__ = 0x3d
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   8               		.global __do_copy_data
+   9               		.global __do_clear_bss
+  11               		.text
+  12               	.Ltext0:
+  71               	.global	calc
+  73               	calc:
+   1:adc6.c        **** #include <inttypes.h>
+   2:adc6.c        **** 	#include <avr/io.h>
+   3:adc6.c        **** 	#include <avr/sleep.h>
+   4:adc6.c        **** 	#include <assert.h>	
+   5:adc6.c        **** 	#include<util/delay.h>
+   6:adc6.c        **** 	
+   7:adc6.c        **** 
+   8:adc6.c        **** 	//#define  M_OUTPUT PORTB 	
+   9:adc6.c        **** 	
+  10:adc6.c        **** //conversion starts...returns ADCH....calculates values for on and //off position
+  11:adc6.c        **** 
+  12:adc6.c        **** 
+  13:adc6.c        **** uint8_t calc(uint8_t w){
+  75               	.LM1:
+  76               	/* prologue: frame size=0 */
+  77               	/* prologue end (size=0) */
+  14:adc6.c        **** 	ADCSRA&=~(1<<ADIF);
+  79               	.LM2:
+  80 0000 3498      		cbi 38-0x20,4
+  15:adc6.c        **** 	ADMUX=w;
+  82               	.LM3:
+  83 0002 87B9      		out 39-0x20,r24
+  16:adc6.c        **** 	ADMUX|=_BV(ADLAR);
+  85               	.LM4:
+  86 0004 3D9A      		sbi 39-0x20,5
+  17:adc6.c        **** 	//start conversion
+  18:adc6.c        **** 	ADCSRA|=_BV(ADEN);
+  88               	.LM5:
+  89 0006 379A      		sbi 38-0x20,7
+  19:adc6.c        **** 	ADCSRA|=(_BV(ADPS2) | _BV(ADPS1) );
+  91               	.LM6:
+  92 0008 86B1      		in r24,38-0x20
+  93 000a 8660      		ori r24,lo8(6)
+  94 000c 86B9      		out 38-0x20,r24
+  20:adc6.c        **** 	ADCSRA|= (1<<ADSC);
+  96               	.LM7:
+  97 000e 369A      		sbi 38-0x20,6
+  98               	.L2:
+  21:adc6.c        **** 	while(!(ADCSRA & 0x10));//ADIF is set.will come out of loop 
+ 100               	.LM8:
+ 101 0010 349B      		sbis 38-0x20,4
+ 102 0012 FECF      		rjmp .L2
+  22:adc6.c        **** 	ADCSRA=(0<<ADEN);// added by me to switc off the adc , so as it doesnt consume power
+ 104               	.LM9:
+ 105 0014 16B8      		out 38-0x20,__zero_reg__
+  23:adc6.c        **** 	return ADCH;
+ 107               	.LM10:
+ 108 0016 85B1      		in r24,37-0x20
+  24:adc6.c        **** 	}	
+ 110               	.LM11:
+ 111 0018 9927      		clr r25
+ 112               	/* epilogue: frame size=0 */
+ 113 001a 0895      		ret
+ 114               	/* epilogue end (size=1) */
+ 115               	/* function calc size 14 (13) */
+ 117               	.Lscope0:
+ 119               	.global	main
+ 121               	main:
+  25:adc6.c        **** 
+  26:adc6.c        **** 
+  27:adc6.c        **** int main()
+  28:adc6.c        **** {
+ 123               	.LM12:
+ 124               	/* prologue: frame size=0 */
+ 125 001c C0E0      		ldi r28,lo8(__stack - 0)
+ 126 001e D0E0      		ldi r29,hi8(__stack - 0)
+ 127 0020 DEBF      		out __SP_H__,r29
+ 128 0022 CDBF      		out __SP_L__,r28
+ 129               	/* prologue end (size=4) */
+  29:adc6.c        **** 			uint8_t ADC_output,count,temp,temp1;		
+  30:adc6.c        **** 			DDRB=0xff;   //Check intital_setting_pwm() for description  ,, output port
+ 131               	.LM13:
+ 132 0024 8FEF      		ldi r24,lo8(-1)
+ 133 0026 87BB      		out 55-0x20,r24
+  31:adc6.c        **** 			DDRD=0xff;  // will give de comparator output
+ 135               	.LM14:
+ 136 0028 81BB      		out 49-0x20,r24
+  32:adc6.c        **** 			DDRC=0x00;
+ 138               	.LM15:
+ 139 002a 14BA      		out 52-0x20,__zero_reg__
+  33:adc6.c        **** 			PORTB=7;
+ 141               	.LM16:
+ 142 002c 87E0      		ldi r24,lo8(7)
+ 143 002e 88BB      		out 56-0x20,r24
+  34:adc6.c        **** 			PORTD=0;
+ 145               	.LM17:
+ 146 0030 12BA      		out 50-0x20,__zero_reg__
+ 147               	.L29:
+  35:adc6.c        **** 				
+  36:adc6.c        **** while(1)
+  37:adc6.c        **** 	{
+  38:adc6.c        **** 		temp=0x00;
+ 149               	.LM18:
+ 150 0032 10E0      		ldi r17,lo8(0)
+  39:adc6.c        **** 		for(count=0;count<=5;count++)
+ 152               	.LM19:
+ 153 0034 012F      		mov r16,r17
+ 154 0036 C0E0      		ldi r28,lo8(0)
+ 155 0038 D0E0      		ldi r29,hi8(0)
+ 156               	.L13:
+  40:adc6.c        **** 		{	
+  41:adc6.c        **** 			ADC_output=calc(count);
+ 158               	.LM20:
+ 159 003a 802F      		mov r24,r16
+ 160 003c E1DF      		rcall calc
+  42:adc6.c        **** 			if(ADC_output>=130)
+ 162               	.LM21:
+ 163 003e 8238      		cpi r24,lo8(-126)
+ 164 0040 48F0      		brlo .L10
+  43:adc6.c        **** 			{
+  44:adc6.c        **** 				temp|=0x01<<count;
+ 166               	.LM22:
+ 167 0042 81E0      		ldi r24,lo8(1)
+ 168 0044 90E0      		ldi r25,hi8(1)
+ 169 0046 0C2E      		mov r0,r28
+ 170 0048 02C0      		rjmp 2f
+ 171 004a 880F      	1:	lsl r24
+ 172 004c 991F      		rol r25
+ 173 004e 0A94      	2:	dec r0
+ 174 0050 E2F7      		brpl 1b
+ 175 0052 182B      		or r17,r24
+ 176               	.L10:
+ 178               	.LM23:
+ 179 0054 0F5F      		subi r16,lo8(-(1))
+ 180 0056 2196      		adiw r28,1
+ 181 0058 0630      		cpi r16,lo8(6)
+ 182 005a 78F3      		brlo .L13
+  45:adc6.c        **** 			}
+  46:adc6.c        **** 			else;
+  47:adc6.c        **** 		}
+  48:adc6.c        **** 		//PORTD=temp;
+  49:adc6.c        **** 		
+  50:adc6.c        **** 				
+  51:adc6.c        **** 		
+  52:adc6.c        **** 		temp1=63;
+  53:adc6.c        **** 		temp&=temp1;	//only LSB 6 bit need to be considered	
+ 184               	.LM24:
+ 185 005c 1F73      		andi r17,lo8(63)
+  54:adc6.c        **** 		
+  55:adc6.c        **** 		
+  56:adc6.c        **** 	switch(~temp)
+ 187               	.LM25:
+ 188 005e 812F      		mov r24,r17
+ 189 0060 9927      		clr r25
+ 190 0062 8095      		com r24
+ 191 0064 9095      		com r25
+ 192 0066 8430      		cpi r24,4
+ 193 0068 9105      		cpc r25,__zero_reg__
+ 194 006a C9F0      		breq .L17
+ 195 006c 8530      		cpi r24,5
+ 196 006e 9105      		cpc r25,__zero_reg__
+ 197 0070 34F4      		brge .L21
+ 198 0072 8130      		cpi r24,1
+ 199 0074 9105      		cpc r25,__zero_reg__
+ 200 0076 79F0      		breq .L15
+ 201 0078 0297      		sbiw r24,2
+ 202 007a 79F0      		breq .L16
+ 203 007c DACF      		rjmp .L29
+ 204               	.L21:
+ 205 007e 8031      		cpi r24,16
+ 206 0080 9105      		cpc r25,__zero_reg__
+ 207 0082 89F0      		breq .L19
+ 208 0084 8131      		cpi r24,17
+ 209 0086 9105      		cpc r25,__zero_reg__
+ 210 0088 1CF4      		brge .L22
+ 211 008a 0897      		sbiw r24,8
+ 212 008c 51F0      		breq .L18
+ 213 008e D1CF      		rjmp .L29
+ 214               	.L22:
+ 215 0090 8097      		sbiw r24,32
+ 216 0092 59F0      		breq .L20
+ 217 0094 CECF      		rjmp .L29
+ 218               	.L15:
+  57:adc6.c        **** 		{
+  58:adc6.c        **** 		
+  59:adc6.c        **** 		case 0b000001: 
+  60:adc6.c        ****             
+  61:adc6.c        **** 			PORTD=1;
+ 220               	.LM26:
+ 221 0096 81E0      		ldi r24,lo8(1)
+ 222 0098 09C0      		rjmp .L28
+ 223               	.L16:
+  62:adc6.c        **** 			break; 
+  63:adc6.c        **** 		case 0b000010: 
+  64:adc6.c        **** 
+  65:adc6.c        **** 			PORTD=2;
+ 225               	.LM27:
+ 226 009a 82E0      		ldi r24,lo8(2)
+ 227 009c 07C0      		rjmp .L28
+ 228               	.L17:
+  66:adc6.c        **** 			break;
+  67:adc6.c        **** 		case 0b000100:
+  68:adc6.c        **** 			PORTD=4;
+ 230               	.LM28:
+ 231 009e 84E0      		ldi r24,lo8(4)
+ 232 00a0 05C0      		rjmp .L28
+ 233               	.L18:
+  69:adc6.c        **** 			break;				
+  70:adc6.c        **** 		case 0b001000:          
+  71:adc6.c        **** 
+  72:adc6.c        **** 			PORTD=8;
+ 235               	.LM29:
+ 236 00a2 88E0      		ldi r24,lo8(8)
+ 237 00a4 03C0      		rjmp .L28
+ 238               	.L19:
+  73:adc6.c        **** 			break;
+  74:adc6.c        **** 		case 0b010000:                                 
+  75:adc6.c        **** 
+  76:adc6.c        **** 			PORTD=5;
+ 240               	.LM30:
+ 241 00a6 85E0      		ldi r24,lo8(5)
+ 242 00a8 01C0      		rjmp .L28
+ 243               	.L20:
+  77:adc6.c        **** 			break;
+  78:adc6.c        **** 		case 0b100000:
+  79:adc6.c        **** 
+  80:adc6.c        **** 			PORTD=10;
+ 245               	.LM31:
+ 246 00aa 8AE0      		ldi r24,lo8(10)
+ 247               	.L28:
+ 248 00ac 82BB      		out 50-0x20,r24
+  81:adc6.c        **** 			break;	
+ 250               	.LM32:
+ 251 00ae C1CF      		rjmp .L29
+ 252               	/* epilogue: frame size=0 */
+ 253               	/* epilogue: noreturn */
+ 254               	/* epilogue end (size=0) */
+ 255               	/* function main size 77 (73) */
+ 261               	.Lscope1:
+ 262               		.text
+ 264               	Letext:
+ 265               	/* File "adc6.c": code   91 = 0x005b (  86), prologues   4, epilogues   1 */
+DEFINED SYMBOLS
+                            *ABS*:00000000 adc6.c
+C:\DOCUME~1\Mayur\LOCALS~1\Temp/ccySaaaa.s:3      *ABS*:0000003f __SREG__
+C:\DOCUME~1\Mayur\LOCALS~1\Temp/ccySaaaa.s:4      *ABS*:0000003e __SP_H__
+C:\DOCUME~1\Mayur\LOCALS~1\Temp/ccySaaaa.s:5      *ABS*:0000003d __SP_L__
+C:\DOCUME~1\Mayur\LOCALS~1\Temp/ccySaaaa.s:6      *ABS*:00000000 __tmp_reg__
+C:\DOCUME~1\Mayur\LOCALS~1\Temp/ccySaaaa.s:7      *ABS*:00000001 __zero_reg__
+C:\DOCUME~1\Mayur\LOCALS~1\Temp/ccySaaaa.s:73     .text:00000000 calc
+C:\DOCUME~1\Mayur\LOCALS~1\Temp/ccySaaaa.s:121    .text:0000001c main
+C:\DOCUME~1\Mayur\LOCALS~1\Temp/ccySaaaa.s:264    .text:000000b0 Letext
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+__stack

@@ -1,0 +1,16 @@
+clear;
+clc;
+
+
+global vid;
+vid = videoinput('winvideo',2,'RGB24_640x480');
+preview(vid);
+
+
+%serial port init
+
+global rawImage
+rawImage = getsnapshot(vid);
+imtool(rawImage);
+
+

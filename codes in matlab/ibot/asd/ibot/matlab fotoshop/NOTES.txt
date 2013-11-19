@@ -1,0 +1,6 @@
+% color components>>
+%handles.colorb
+%handles.hue_sat_light
+%handles.rgb2gray
+%handles.autocolor
+%handles.posterize

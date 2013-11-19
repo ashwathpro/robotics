@@ -1,0 +1,456 @@
+
+whitie.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000001da  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000000  00800060  000001da  0000026e  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000000  00800060  000001da  0000026e  2**0
+                  ALLOC
+  3 .noinit       00000000  00800060  00800060  0000026e  2**0
+                  CONTENTS
+  4 .eeprom       00000000  00810000  00810000  0000026e  2**0
+                  CONTENTS
+  5 .stab         00000984  00000000  00000000  00000270  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  6 .stabstr      00000722  00000000  00000000  00000bf4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	31 c0       	rjmp	.+98     	; 0x64 <__init>
+   2:	4a c0       	rjmp	.+148    	; 0x98 <__bad_interrupt>
+   4:	49 c0       	rjmp	.+146    	; 0x98 <__bad_interrupt>
+   6:	48 c0       	rjmp	.+144    	; 0x98 <__bad_interrupt>
+   8:	47 c0       	rjmp	.+142    	; 0x98 <__bad_interrupt>
+   a:	46 c0       	rjmp	.+140    	; 0x98 <__bad_interrupt>
+   c:	45 c0       	rjmp	.+138    	; 0x98 <__bad_interrupt>
+   e:	44 c0       	rjmp	.+136    	; 0x98 <__bad_interrupt>
+  10:	43 c0       	rjmp	.+134    	; 0x98 <__bad_interrupt>
+  12:	42 c0       	rjmp	.+132    	; 0x98 <__bad_interrupt>
+  14:	41 c0       	rjmp	.+130    	; 0x98 <__bad_interrupt>
+  16:	40 c0       	rjmp	.+128    	; 0x98 <__bad_interrupt>
+  18:	3f c0       	rjmp	.+126    	; 0x98 <__bad_interrupt>
+  1a:	3e c0       	rjmp	.+124    	; 0x98 <__bad_interrupt>
+  1c:	3d c0       	rjmp	.+122    	; 0x98 <__bad_interrupt>
+  1e:	3c c0       	rjmp	.+120    	; 0x98 <__bad_interrupt>
+  20:	3b c0       	rjmp	.+118    	; 0x98 <__bad_interrupt>
+  22:	3a c0       	rjmp	.+116    	; 0x98 <__bad_interrupt>
+  24:	39 c0       	rjmp	.+114    	; 0x98 <__bad_interrupt>
+
+00000026 <__ctors_end>:
+  26:	a5 c0       	rjmp	.+330    	; 0x172 <main+0xbc>
+  28:	96 c0       	rjmp	.+300    	; 0x156 <main+0xa0>
+  2a:	b1 c0       	rjmp	.+354    	; 0x18e <main+0xd8>
+  2c:	7f c0       	rjmp	.+254    	; 0x12c <main+0x76>
+  2e:	af c0       	rjmp	.+350    	; 0x18e <main+0xd8>
+  30:	84 c0       	rjmp	.+264    	; 0x13a <main+0x84>
+  32:	c1 c0       	rjmp	.+386    	; 0x1b6 <main+0x100>
+  34:	99 c0       	rjmp	.+306    	; 0x168 <main+0xb2>
+  36:	ab c0       	rjmp	.+342    	; 0x18e <main+0xd8>
+  38:	cc c0       	rjmp	.+408    	; 0x1d2 <main+0x11c>
+  3a:	a9 c0       	rjmp	.+338    	; 0x18e <main+0xd8>
+  3c:	87 c0       	rjmp	.+270    	; 0x14c <main+0x96>
+  3e:	a7 c0       	rjmp	.+334    	; 0x18e <main+0xd8>
+  40:	ba c0       	rjmp	.+372    	; 0x1b6 <main+0x100>
+  42:	b9 c0       	rjmp	.+370    	; 0x1b6 <main+0x100>
+  44:	9b c0       	rjmp	.+310    	; 0x17c <main+0xc6>
+  46:	c5 c0       	rjmp	.+394    	; 0x1d2 <main+0x11c>
+  48:	ab c0       	rjmp	.+342    	; 0x1a0 <main+0xea>
+  4a:	b5 c0       	rjmp	.+362    	; 0x1b6 <main+0x100>
+  4c:	a9 c0       	rjmp	.+338    	; 0x1a0 <main+0xea>
+  4e:	c1 c0       	rjmp	.+386    	; 0x1d2 <main+0x11c>
+  50:	a7 c0       	rjmp	.+334    	; 0x1a0 <main+0xea>
+  52:	b1 c0       	rjmp	.+354    	; 0x1b6 <main+0x100>
+  54:	a5 c0       	rjmp	.+330    	; 0x1a0 <main+0xea>
+  56:	af c0       	rjmp	.+350    	; 0x1b6 <main+0x100>
+  58:	a3 c0       	rjmp	.+326    	; 0x1a0 <main+0xea>
+  5a:	ad c0       	rjmp	.+346    	; 0x1b6 <main+0x100>
+  5c:	ac c0       	rjmp	.+344    	; 0x1b6 <main+0x100>
+  5e:	ab c0       	rjmp	.+342    	; 0x1b6 <main+0x100>
+  60:	aa c0       	rjmp	.+340    	; 0x1b6 <main+0x100>
+  62:	a9 c0       	rjmp	.+338    	; 0x1b6 <main+0x100>
+
+00000064 <__init>:
+  64:	11 24       	eor	r1, r1
+  66:	1f be       	out	0x3f, r1	; 63
+  68:	cf e5       	ldi	r28, 0x5F	; 95
+  6a:	d4 e0       	ldi	r29, 0x04	; 4
+  6c:	de bf       	out	0x3e, r29	; 62
+  6e:	cd bf       	out	0x3d, r28	; 61
+
+00000070 <__do_copy_data>:
+  70:	10 e0       	ldi	r17, 0x00	; 0
+  72:	a0 e6       	ldi	r26, 0x60	; 96
+  74:	b0 e0       	ldi	r27, 0x00	; 0
+  76:	ea ed       	ldi	r30, 0xDA	; 218
+  78:	f1 e0       	ldi	r31, 0x01	; 1
+  7a:	02 c0       	rjmp	.+4      	; 0x80 <.do_copy_data_start>
+
+0000007c <.do_copy_data_loop>:
+  7c:	05 90       	lpm	r0, Z+
+  7e:	0d 92       	st	X+, r0
+
+00000080 <.do_copy_data_start>:
+  80:	a0 36       	cpi	r26, 0x60	; 96
+  82:	b1 07       	cpc	r27, r17
+  84:	d9 f7       	brne	.-10     	; 0x7c <.do_copy_data_loop>
+
+00000086 <__do_clear_bss>:
+  86:	10 e0       	ldi	r17, 0x00	; 0
+  88:	a0 e6       	ldi	r26, 0x60	; 96
+  8a:	b0 e0       	ldi	r27, 0x00	; 0
+  8c:	01 c0       	rjmp	.+2      	; 0x90 <.do_clear_bss_start>
+
+0000008e <.do_clear_bss_loop>:
+  8e:	1d 92       	st	X+, r1
+
+00000090 <.do_clear_bss_start>:
+  90:	a0 36       	cpi	r26, 0x60	; 96
+  92:	b1 07       	cpc	r27, r17
+  94:	e1 f7       	brne	.-8      	; 0x8e <.do_clear_bss_loop>
+  96:	0f c0       	rjmp	.+30     	; 0xb6 <main>
+
+00000098 <__bad_interrupt>:
+  98:	b3 cf       	rjmp	.-154    	; 0x0 <__vectors>
+
+0000009a <calc>:
+
+
+
+uint8_t calc(uint8_t w){
+	ADCSRA&=~(1<<ADIF);
+  9a:	34 98       	cbi	0x06, 4	; 6
+	ADMUX=w;
+  9c:	87 b9       	out	0x07, r24	; 7
+	ADMUX|=_BV(ADLAR);
+  9e:	3d 9a       	sbi	0x07, 5	; 7
+	//start conversion
+	ADCSRA|=_BV(ADEN);
+  a0:	37 9a       	sbi	0x06, 7	; 6
+	ADCSRA|=(_BV(ADPS2) | _BV(ADPS1) );
+  a2:	86 b1       	in	r24, 0x06	; 6
+  a4:	86 60       	ori	r24, 0x06	; 6
+  a6:	86 b9       	out	0x06, r24	; 6
+	ADCSRA|= (1<<ADSC);
+  a8:	36 9a       	sbi	0x06, 6	; 6
+	while(!(ADCSRA & 0x10));//ADIF is set.will come out of loop 
+  aa:	34 9b       	sbis	0x06, 4	; 6
+  ac:	fe cf       	rjmp	.-4      	; 0xaa <calc+0x10>
+	ADCSRA=(0<<ADEN);// added by me to switc off the adc , so as it doesnt consume power
+  ae:	16 b8       	out	0x06, r1	; 6
+	return ADCH;
+  b0:	85 b1       	in	r24, 0x05	; 5
+	}	
+  b2:	99 27       	eor	r25, r25
+  b4:	08 95       	ret
+
+000000b6 <main>:
+
+
+int main()
+{
+  b6:	cf e5       	ldi	r28, 0x5F	; 95
+  b8:	d4 e0       	ldi	r29, 0x04	; 4
+  ba:	de bf       	out	0x3e, r29	; 62
+  bc:	cd bf       	out	0x3d, r28	; 61
+			uint8_t ADC_output,count,temp;//,perLeftPWM,perRightPWM,motorDirection;		
+			DDRB=0xff;   //Check intital_setting_pwm() for description  ,, output port
+  be:	8f ef       	ldi	r24, 0xFF	; 255
+  c0:	87 bb       	out	0x17, r24	; 23
+			DDRD=0x07;  // will give de comparator output
+  c2:	87 e0       	ldi	r24, 0x07	; 7
+  c4:	81 bb       	out	0x11, r24	; 17
+			DDRC=0x00;
+  c6:	14 ba       	out	0x14, r1	; 20
+			PORTB=7;
+  c8:	88 bb       	out	0x18, r24	; 24
+			PORTD=0;
+  ca:	12 ba       	out	0x12, r1	; 18
+			
+		TCCR0=0x04;
+  cc:	84 e0       	ldi	r24, 0x04	; 4
+  ce:	83 bf       	out	0x33, r24	; 51
+		RIGHT_MOTOR_PWM=200;   // output compare flag for OC1A   for right motor  
+  d0:	88 ec       	ldi	r24, 0xC8	; 200
+  d2:	90 e0       	ldi	r25, 0x00	; 0
+  d4:	9b bd       	out	0x2b, r25	; 43
+  d6:	8a bd       	out	0x2a, r24	; 42
+		LEFT_MOTOR_PWM=200;	// output compare flag for OC1B   for left motor
+  d8:	99 bd       	out	0x29, r25	; 41
+  da:	88 bd       	out	0x28, r24	; 40
+		TCCR1A=0xA1;
+  dc:	81 ea       	ldi	r24, 0xA1	; 161
+  de:	8f bd       	out	0x2f, r24	; 47
+		TCCR1B=0x01;
+  e0:	81 e0       	ldi	r24, 0x01	; 1
+  e2:	8e bd       	out	0x2e, r24	; 46
+		
+while(1)
+	{
+		temp=0x00;
+  e4:	00 e0       	ldi	r16, 0x00	; 0
+		for(count=0;count<=4;count++)
+  e6:	10 2f       	mov	r17, r16
+  e8:	c0 e0       	ldi	r28, 0x00	; 0
+  ea:	d0 e0       	ldi	r29, 0x00	; 0
+		{	
+			ADC_output=calc(count);
+  ec:	81 2f       	mov	r24, r17
+  ee:	d5 df       	rcall	.-86     	; 0x9a <calc>
+			if(ADC_output>=130)
+  f0:	82 38       	cpi	r24, 0x82	; 130
+  f2:	48 f0       	brcs	.+18     	; 0x106 <main+0x50>
+			{
+				temp|=0x01<<count;
+  f4:	81 e0       	ldi	r24, 0x01	; 1
+  f6:	90 e0       	ldi	r25, 0x00	; 0
+  f8:	0c 2e       	mov	r0, r28
+  fa:	02 c0       	rjmp	.+4      	; 0x100 <main+0x4a>
+  fc:	88 0f       	add	r24, r24
+  fe:	99 1f       	adc	r25, r25
+ 100:	0a 94       	dec	r0
+ 102:	e2 f7       	brpl	.-8      	; 0xfc <main+0x46>
+ 104:	08 2b       	or	r16, r24
+ 106:	1f 5f       	subi	r17, 0xFF	; 255
+ 108:	21 96       	adiw	r28, 0x01	; 1
+ 10a:	15 30       	cpi	r17, 0x05	; 5
+ 10c:	78 f3       	brcs	.-34     	; 0xec <main+0x36>
+			}
+			else;
+		}
+	
+				
+		
+
+		temp=~temp&31;	//only LSB 6 bits need to be considered	
+ 10e:	80 2f       	mov	r24, r16
+ 110:	80 95       	com	r24
+ 112:	8f 71       	andi	r24, 0x1F	; 31
+		
+		
+	switch(temp)
+ 114:	99 27       	eor	r25, r25
+ 116:	aa 27       	eor	r26, r26
+ 118:	bb 27       	eor	r27, r27
+ 11a:	fc 01       	movw	r30, r24
+ 11c:	31 97       	sbiw	r30, 0x01	; 1
+ 11e:	ef 31       	cpi	r30, 0x1F	; 31
+ 120:	f1 05       	cpc	r31, r1
+ 122:	08 f0       	brcs	.+2      	; 0x126 <main+0x70>
+ 124:	56 c0       	rjmp	.+172    	; 0x1d2 <main+0x11c>
+ 126:	ed 5e       	subi	r30, 0xED	; 237
+ 128:	ff 4f       	sbci	r31, 0xFF	; 255
+ 12a:	09 94       	ijmp
+			{
+		//normal line follower cases
+		
+		case 0b00100:
+				
+					M_OUTPUT=0b1010;	//leftPWM=oc1a
+ 12c:	8a e0       	ldi	r24, 0x0A	; 10
+ 12e:	82 bb       	out	0x12, r24	; 18
+					OCR1A=(MASTER_PWM*100/100);   // enable for right
+ 130:	88 ec       	ldi	r24, 0xC8	; 200
+ 132:	90 e0       	ldi	r25, 0x00	; 0
+ 134:	9b bd       	out	0x2b, r25	; 43
+ 136:	8a bd       	out	0x2a, r24	; 42
+ 138:	3b c0       	rjmp	.+118    	; 0x1b0 <main+0xfa>
+					OCR1B=(MASTER_PWM*100/100);	 // enable for left
+			
+				break;
+		
+		case 0b00110:
+				
+					M_OUTPUT=0b1001;
+ 13a:	89 e0       	ldi	r24, 0x09	; 9
+ 13c:	82 bb       	out	0x12, r24	; 18
+		OCR1A=(MASTER_PWM*100/100);   // enable for right
+ 13e:	88 ec       	ldi	r24, 0xC8	; 200
+ 140:	90 e0       	ldi	r25, 0x00	; 0
+ 142:	9b bd       	out	0x2b, r25	; 43
+ 144:	8a bd       	out	0x2a, r24	; 42
+			OCR1B=(MASTER_PWM*30/100);	 // enable for left
+ 146:	8c e3       	ldi	r24, 0x3C	; 60
+ 148:	90 e0       	ldi	r25, 0x00	; 0
+ 14a:	32 c0       	rjmp	.+100    	; 0x1b0 <main+0xfa>
+					
+				break;
+		case 0b01100:
+				
+					M_OUTPUT=0b0110;
+ 14c:	86 e0       	ldi	r24, 0x06	; 6
+ 14e:	82 bb       	out	0x12, r24	; 18
+					OCR1A=(MASTER_PWM*30/100);   // enable for right
+ 150:	8c e3       	ldi	r24, 0x3C	; 60
+ 152:	90 e0       	ldi	r25, 0x00	; 0
+ 154:	29 c0       	rjmp	.+82     	; 0x1a8 <main+0xf2>
+					OCR1B=(MASTER_PWM*100/100);	 // enable for left
+			
+				break;
+		case 0b00010:
+				
+					M_OUTPUT=0b1001;
+ 156:	89 e0       	ldi	r24, 0x09	; 9
+ 158:	82 bb       	out	0x12, r24	; 18
+					OCR1A=(MASTER_PWM*100/100);   // enable for right
+ 15a:	88 ec       	ldi	r24, 0xC8	; 200
+ 15c:	90 e0       	ldi	r25, 0x00	; 0
+ 15e:	9b bd       	out	0x2b, r25	; 43
+ 160:	8a bd       	out	0x2a, r24	; 42
+					OCR1B=(MASTER_PWM*50/100);	 // enable for left
+ 162:	84 e6       	ldi	r24, 0x64	; 100
+ 164:	90 e0       	ldi	r25, 0x00	; 0
+ 166:	24 c0       	rjmp	.+72     	; 0x1b0 <main+0xfa>
+			 
+				break;
+		case 0b01000:
+					M_OUTPUT=0b0110;
+ 168:	86 e0       	ldi	r24, 0x06	; 6
+ 16a:	82 bb       	out	0x12, r24	; 18
+						OCR1A=(MASTER_PWM*50/100);   // enable for right
+ 16c:	84 e6       	ldi	r24, 0x64	; 100
+ 16e:	90 e0       	ldi	r25, 0x00	; 0
+ 170:	1b c0       	rjmp	.+54     	; 0x1a8 <main+0xf2>
+					OCR1B=(MASTER_PWM*100/100);	 // enable for left
+			
+				break;
+				
+		case 0b00001:
+					M_OUTPUT=0b1010;
+ 172:	8a e0       	ldi	r24, 0x0A	; 10
+ 174:	82 bb       	out	0x12, r24	; 18
+				OCR1A=(MASTER_PWM*70/100);   // enable for right
+ 176:	8c e8       	ldi	r24, 0x8C	; 140
+ 178:	90 e0       	ldi	r25, 0x00	; 0
+ 17a:	0d c0       	rjmp	.+26     	; 0x196 <main+0xe0>
+					OCR1B=(MASTER_PWM*10/100);	 // enable for left
+			
+				break;
+		case 0b10000:
+				    M_OUTPUT=0b1010;
+ 17c:	8a e0       	ldi	r24, 0x0A	; 10
+ 17e:	82 bb       	out	0x12, r24	; 18
+					OCR1A=(MASTER_PWM*10/100);   // enable for right
+ 180:	84 e1       	ldi	r24, 0x14	; 20
+ 182:	90 e0       	ldi	r25, 0x00	; 0
+ 184:	9b bd       	out	0x2b, r25	; 43
+ 186:	8a bd       	out	0x2a, r24	; 42
+					OCR1B=(MASTER_PWM*70/100);	 // enable for left
+ 188:	8c e8       	ldi	r24, 0x8C	; 140
+ 18a:	90 e0       	ldi	r25, 0x00	; 0
+ 18c:	11 c0       	rjmp	.+34     	; 0x1b0 <main+0xfa>
+			
+				break;
+		
+		
+		//near cross line follower cases	
+		case 0b00101:
+		case 0b01001:
+		case 0b00011:
+		case 0b01011:
+		case 0b01101:
+					M_OUTPUT=0b1001;
+ 18e:	89 e0       	ldi	r24, 0x09	; 9
+ 190:	82 bb       	out	0x12, r24	; 18
+						OCR1A=(MASTER_PWM*100/100);   // enable for right
+ 192:	88 ec       	ldi	r24, 0xC8	; 200
+ 194:	90 e0       	ldi	r25, 0x00	; 0
+ 196:	9b bd       	out	0x2b, r25	; 43
+ 198:	8a bd       	out	0x2a, r24	; 42
+					OCR1B=(MASTER_PWM*10/100);	 // enable for left
+ 19a:	84 e1       	ldi	r24, 0x14	; 20
+ 19c:	90 e0       	ldi	r25, 0x00	; 0
+ 19e:	08 c0       	rjmp	.+16     	; 0x1b0 <main+0xfa>
+			
+					break;
+				
+		case 0b10100:
+		case 0b10010:
+		case 0b11000:
+		case 0b11010:
+		case 0b10110:
+					M_OUTPUT=0b0110;
+ 1a0:	86 e0       	ldi	r24, 0x06	; 6
+ 1a2:	82 bb       	out	0x12, r24	; 18
+						OCR1A=(MASTER_PWM*10/100);   // enable for right
+ 1a4:	84 e1       	ldi	r24, 0x14	; 20
+ 1a6:	90 e0       	ldi	r25, 0x00	; 0
+ 1a8:	9b bd       	out	0x2b, r25	; 43
+ 1aa:	8a bd       	out	0x2a, r24	; 42
+					OCR1B=(MASTER_PWM*100/100);	 // enable for left
+ 1ac:	88 ec       	ldi	r24, 0xC8	; 200
+ 1ae:	90 e0       	ldi	r25, 0x00	; 0
+ 1b0:	99 bd       	out	0x29, r25	; 41
+ 1b2:	88 bd       	out	0x28, r24	; 40
+			
+				break;
+ 1b4:	0e c0       	rjmp	.+28     	; 0x1d2 <main+0x11c>
+		
+		// abnormal cases
+		// in these cases previous conditions will be concidered
+		case 0b00000:
+		case 0b01010:
+		case 0b10001:
+		case 0b10101:
+					break;
+		
+		
+		
+		// cross detected
+		// good cases
+		
+		case 0b11111:
+		case 0b11101:
+		case 0b10111:
+		case 0b11011:
+		case 0b11110:
+		case 0b01111:
+		
+		
+		
+		
+		// bad cases
+		
+		case 0b11100:
+		case 0b00111:
+		case 0b01110:
+		
+		case 0b11001:
+		case 0b10011:
+		M_OUTPUT=0b0110;
+ 1b6:	86 e0       	ldi	r24, 0x06	; 6
+ 1b8:	82 bb       	out	0x12, r24	; 18
+					OCR1A=(MASTER_PWM*20/100);   // enable for right
+ 1ba:	88 e2       	ldi	r24, 0x28	; 40
+ 1bc:	90 e0       	ldi	r25, 0x00	; 0
+ 1be:	9b bd       	out	0x2b, r25	; 43
+ 1c0:	8a bd       	out	0x2a, r24	; 42
+					OCR1B=(MASTER_PWM*90/100);	 // enable for left
+ 1c2:	84 eb       	ldi	r24, 0xB4	; 180
+ 1c4:	90 e0       	ldi	r25, 0x00	; 0
+ 1c6:	99 bd       	out	0x29, r25	; 41
+ 1c8:	88 bd       	out	0x28, r24	; 40
+	double __tmp = ((F_CPU) / 4e3) * __ms;
+	if (__tmp < 1.0)
+		__ticks = 1;
+	else if (__tmp > 65535)
+		__ticks = 0;	/* i.e. 65536 */
+ 1ca:	80 e0       	ldi	r24, 0x00	; 0
+ 1cc:	90 e0       	ldi	r25, 0x00	; 0
+ 1ce:	01 97       	sbiw	r24, 0x01	; 1
+ 1d0:	f1 f7       	brne	.-4      	; 0x1ce <main+0x118>
+			
+		_delay_ms(100);
+	}
+		return 0;
+}
+}
+ 1d2:	80 e0       	ldi	r24, 0x00	; 0
+ 1d4:	90 e0       	ldi	r25, 0x00	; 0
+ 1d6:	00 c0       	rjmp	.+0      	; 0x1d8 <_exit>
+
+000001d8 <_exit>:
+ 1d8:	ff cf       	rjmp	.-2      	; 0x1d8 <_exit>

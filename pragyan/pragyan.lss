@@ -1,0 +1,259 @@
+
+pragyan.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000104  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .bss          00000003  00800060  00000104  00000178  2**0
+                  ALLOC
+  2 .stab         0000084c  00000000  00000000  00000178  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  3 .stabstr      00000714  00000000  00000000  000009c4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	12 c0       	rjmp	.+36     	; 0x26 <__ctors_end>
+   2:	2c c0       	rjmp	.+88     	; 0x5c <__bad_interrupt>
+   4:	2b c0       	rjmp	.+86     	; 0x5c <__bad_interrupt>
+   6:	2a c0       	rjmp	.+84     	; 0x5c <__bad_interrupt>
+   8:	29 c0       	rjmp	.+82     	; 0x5c <__bad_interrupt>
+   a:	28 c0       	rjmp	.+80     	; 0x5c <__bad_interrupt>
+   c:	27 c0       	rjmp	.+78     	; 0x5c <__bad_interrupt>
+   e:	26 c0       	rjmp	.+76     	; 0x5c <__bad_interrupt>
+  10:	25 c0       	rjmp	.+74     	; 0x5c <__bad_interrupt>
+  12:	24 c0       	rjmp	.+72     	; 0x5c <__bad_interrupt>
+  14:	23 c0       	rjmp	.+70     	; 0x5c <__bad_interrupt>
+  16:	22 c0       	rjmp	.+68     	; 0x5c <__bad_interrupt>
+  18:	21 c0       	rjmp	.+66     	; 0x5c <__bad_interrupt>
+  1a:	20 c0       	rjmp	.+64     	; 0x5c <__bad_interrupt>
+  1c:	1f c0       	rjmp	.+62     	; 0x5c <__bad_interrupt>
+  1e:	1e c0       	rjmp	.+60     	; 0x5c <__bad_interrupt>
+  20:	1d c0       	rjmp	.+58     	; 0x5c <__bad_interrupt>
+  22:	1c c0       	rjmp	.+56     	; 0x5c <__bad_interrupt>
+  24:	1b c0       	rjmp	.+54     	; 0x5c <__bad_interrupt>
+
+00000026 <__ctors_end>:
+  26:	11 24       	eor	r1, r1
+  28:	1f be       	out	0x3f, r1	; 63
+  2a:	cf e5       	ldi	r28, 0x5F	; 95
+  2c:	d4 e0       	ldi	r29, 0x04	; 4
+  2e:	de bf       	out	0x3e, r29	; 62
+  30:	cd bf       	out	0x3d, r28	; 61
+
+00000032 <__do_copy_data>:
+  32:	10 e0       	ldi	r17, 0x00	; 0
+  34:	a0 e6       	ldi	r26, 0x60	; 96
+  36:	b0 e0       	ldi	r27, 0x00	; 0
+  38:	e4 e0       	ldi	r30, 0x04	; 4
+  3a:	f1 e0       	ldi	r31, 0x01	; 1
+  3c:	02 c0       	rjmp	.+4      	; 0x42 <.do_copy_data_start>
+
+0000003e <.do_copy_data_loop>:
+  3e:	05 90       	lpm	r0, Z+
+  40:	0d 92       	st	X+, r0
+
+00000042 <.do_copy_data_start>:
+  42:	a0 36       	cpi	r26, 0x60	; 96
+  44:	b1 07       	cpc	r27, r17
+  46:	d9 f7       	brne	.-10     	; 0x3e <__SP_H__>
+
+00000048 <__do_clear_bss>:
+  48:	10 e0       	ldi	r17, 0x00	; 0
+  4a:	a0 e6       	ldi	r26, 0x60	; 96
+  4c:	b0 e0       	ldi	r27, 0x00	; 0
+  4e:	01 c0       	rjmp	.+2      	; 0x52 <.do_clear_bss_start>
+
+00000050 <.do_clear_bss_loop>:
+  50:	1d 92       	st	X+, r1
+
+00000052 <.do_clear_bss_start>:
+  52:	a3 36       	cpi	r26, 0x63	; 99
+  54:	b1 07       	cpc	r27, r17
+  56:	e1 f7       	brne	.-8      	; 0x50 <.do_clear_bss_loop>
+  58:	21 d0       	rcall	.+66     	; 0x9c <main>
+  5a:	53 c0       	rjmp	.+166    	; 0x102 <_exit>
+
+0000005c <__bad_interrupt>:
+  5c:	d1 cf       	rjmp	.-94     	; 0x0 <__heap_end>
+
+0000005e <calc>:
+#define LEFT_MOTOR OCR1B
+#define rightdec 0
+uint8_t calc(uint8_t w)
+	{
+		//put adc code here...
+	ADMUX&=0xF0;
+  5e:	97 b1       	in	r25, 0x07	; 7
+  60:	90 7f       	andi	r25, 0xF0	; 240
+  62:	97 b9       	out	0x07, r25	; 7
+	ADMUX|=w;
+  64:	97 b1       	in	r25, 0x07	; 7
+  66:	98 2b       	or	r25, r24
+  68:	97 b9       	out	0x07, r25	; 7
+	ADCSRA|=_BV(ADEN);
+  6a:	37 9a       	sbi	0x06, 7	; 6
+	ADCSRA|= (1<<ADSC);
+  6c:	36 9a       	sbi	0x06, 6	; 6
+	while(!(ADCSRA & 0x10));//ADIF is set.will come out of loop 
+  6e:	34 9b       	sbis	0x06, 4	; 6
+  70:	fe cf       	rjmp	.-4      	; 0x6e <calc+0x10>
+	ADCSRA=(0<<ADEN);// added by me to switc off the adc , so as it doesnt consume power
+  72:	16 b8       	out	0x06, r1	; 6
+	return ADCH;
+  74:	85 b1       	in	r24, 0x05	; 5
+
+
+	//	return 0x0;		//change here
+	}
+  76:	99 27       	eor	r25, r25
+  78:	08 95       	ret
+
+0000007a <main_initialize>:
+
+
+void main_initialize()
+{
+		
+		ADCSRA&=~(1<<ADIF);  		// to disable the adc interrupt flag....
+  7a:	34 98       	cbi	0x06, 4	; 6
+		ADMUX |= (1 << REFS0); 		// set the voltage reference as AVcc 
+  7c:	3e 9a       	sbi	0x07, 6	; 7
+		ADMUX|=_BV(ADLAR);			// left adjusted Result
+  7e:	3d 9a       	sbi	0x07, 5	; 7
+		
+		ADCSRA|=(_BV(ADPS0) | _BV(ADPS1) );  // set the ADC input frequency at 125 Khz(Prescaling of 8)
+  80:	86 b1       	in	r24, 0x06	; 6
+  82:	83 60       	ori	r24, 0x03	; 3
+  84:	86 b9       	out	0x06, r24	; 6
+	
+		OCR1B=0xff;   	// output compare register  for right motor  
+  86:	8f ef       	ldi	r24, 0xFF	; 255
+  88:	90 e0       	ldi	r25, 0x00	; 0
+  8a:	99 bd       	out	0x29, r25	; 41
+  8c:	88 bd       	out	0x28, r24	; 40
+		OCR1A=0xff;		// output compare register  for left motor
+  8e:	9b bd       	out	0x2b, r25	; 43
+  90:	8a bd       	out	0x2a, r24	; 42
+		
+
+
+		/* TOP value is 00FFh for both OCR1A and OCR1B*/
+
+		TCCR1A=0xA1;	// define type of PWM	
+  92:	81 ea       	ldi	r24, 0xA1	; 161
+  94:	8f bd       	out	0x2f, r24	; 47
+
+		/*Timer/Counter 1 Control  and pwm at pin OCR1A(PB1) */
+
+		TCCR1B=0x04; //for start pwm
+  96:	84 e0       	ldi	r24, 0x04	; 4
+  98:	8e bd       	out	0x2e, r24	; 46
+  9a:	08 95       	ret
+
+0000009c <main>:
+}
+
+int main()
+{
+  9c:	cf e5       	ldi	r28, 0x5F	; 95
+  9e:	d4 e0       	ldi	r29, 0x04	; 4
+  a0:	de bf       	out	0x3e, r29	; 62
+  a2:	cd bf       	out	0x3d, r28	; 61
+			uint8_t SWAP=0,lastDir=0b0,botDir=0,forward=0b1010,count=0x0,sensorReference0,sensorReference1,sensorReference2,sensorReference3,sensorReference4,Actual_input=0b0;
+			uint16_t cnt=0,temp;
+			//uint8_t 
+			DDRD=0b00001111; 
+  a4:	8f e0       	ldi	r24, 0x0F	; 15
+  a6:	81 bb       	out	0x11, r24	; 17
+			DDRB=0x0f;
+  a8:	87 bb       	out	0x17, r24	; 23
+			PORTB=0xf0;
+  aa:	80 ef       	ldi	r24, 0xF0	; 240
+  ac:	88 bb       	out	0x18, r24	; 24
+			DDRC=0x00;  
+  ae:	14 ba       	out	0x14, r1	; 20
+
+		main_initialize();
+  b0:	e4 df       	rcall	.-56     	; 0x7a <main_initialize>
+    milliseconds can be achieved.
+ */
+void
+_delay_loop_2(uint16_t __count)
+{
+	__asm__ volatile (
+  b2:	80 e4       	ldi	r24, 0x40	; 64
+  b4:	9c e9       	ldi	r25, 0x9C	; 156
+  b6:	fc 01       	movw	r30, r24
+  b8:	31 97       	sbiw	r30, 0x01	; 1
+  ba:	f1 f7       	brne	.-4      	; 0xb8 <main+0x1c>
+  bc:	fc 01       	movw	r30, r24
+  be:	31 97       	sbiw	r30, 0x01	; 1
+  c0:	f1 f7       	brne	.-4      	; 0xbe <main+0x22>
+  c2:	fc 01       	movw	r30, r24
+  c4:	31 97       	sbiw	r30, 0x01	; 1
+  c6:	f1 f7       	brne	.-4      	; 0xc4 <main+0x28>
+  c8:	fc 01       	movw	r30, r24
+  ca:	31 97       	sbiw	r30, 0x01	; 1
+  cc:	f1 f7       	brne	.-4      	; 0xca <main+0x2e>
+  ce:	01 97       	sbiw	r24, 0x01	; 1
+  d0:	f1 f7       	brne	.-4      	; 0xce <main+0x32>
+				
+			for(temp=0;temp<5;temp++)
+				{
+				_delay_ms(20);
+				}
+				PORTB=0x00;
+  d2:	18 ba       	out	0x18, r1	; 24
+				//PORTD=0x1010;			
+
+		/* pwm at pin OCR1B(PB2) and clock freq. of timer(3 LSB 000 sys. clock) */ 
+		/* maximum MASTER_PWM value can be 00FFh */
+
+		MASTER_PWM=75;
+  d4:	8b e4       	ldi	r24, 0x4B	; 75
+  d6:	80 93 60 00 	sts	0x0060, r24
+		
+		while(1)
+		{	
+			test:
+			Actual_input=0x0;
+			if(calc(0)>sensorReference0)		//check
+  da:	80 e0       	ldi	r24, 0x00	; 0
+  dc:	c0 df       	rcall	.-128    	; 0x5e <calc>
+				Actual_input|=(1<<PC0);
+			if(calc(1)>sensorReference1)
+  de:	81 e0       	ldi	r24, 0x01	; 1
+  e0:	be df       	rcall	.-132    	; 0x5e <calc>
+				Actual_input|=(1<<PC1);
+			if(calc(2)>sensorReference2)
+  e2:	82 e0       	ldi	r24, 0x02	; 2
+  e4:	bc df       	rcall	.-136    	; 0x5e <calc>
+				Actual_input|=(1<<PC2);
+			if(calc(3)>sensorReference3)
+  e6:	83 e0       	ldi	r24, 0x03	; 3
+  e8:	ba df       	rcall	.-140    	; 0x5e <calc>
+				Actual_input|=(1<<PC3);
+			if(calc(4)>sensorReference4)
+  ea:	84 e0       	ldi	r24, 0x04	; 4
+  ec:	b8 df       	rcall	.-144    	; 0x5e <calc>
+				Actual_input|=(1<<PC4);
+			
+			Actual_input&=0b11111;  // make bits zero other than 4 LSB bits
+			//PORTD=Actual_input;
+			M_OUTPUT=0b1010;			 //	output for motors
+  ee:	8a e0       	ldi	r24, 0x0A	; 10
+  f0:	82 bb       	out	0x12, r24	; 18
+			RIGHT_MOTOR=MASTER_PWM;
+  f2:	80 91 60 00 	lds	r24, 0x0060
+  f6:	99 27       	eor	r25, r25
+  f8:	9b bd       	out	0x2b, r25	; 43
+  fa:	8a bd       	out	0x2a, r24	; 42
+			LEFT_MOTOR=MASTER_PWM;
+  fc:	99 bd       	out	0x29, r25	; 41
+  fe:	88 bd       	out	0x28, r24	; 40
+ 100:	ec cf       	rjmp	.-40     	; 0xda <main+0x3e>
+
+00000102 <_exit>:
+ 102:	ff cf       	rjmp	.-2      	; 0x102 <_exit>

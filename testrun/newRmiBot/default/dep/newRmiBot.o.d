@@ -1,0 +1,19 @@
+newRmiBot.o: ../newRmiBot.c d:/WinAVR/avr/include/avr/io.h \
+  d:/WinAVR/avr/include/avr/sfr_defs.h d:/WinAVR/avr/include/inttypes.h \
+  d:/WinAVR/avr/include/stdint.h d:/WinAVR/avr/include/avr/iom128.h \
+  d:/WinAVR/avr/include/avr/portpins.h \
+  d:/WinAVR/avr/include/avr/version.h
+
+d:/WinAVR/avr/include/avr/io.h:
+
+d:/WinAVR/avr/include/avr/sfr_defs.h:
+
+d:/WinAVR/avr/include/inttypes.h:
+
+d:/WinAVR/avr/include/stdint.h:
+
+d:/WinAVR/avr/include/avr/iom128.h:
+
+d:/WinAVR/avr/include/avr/portpins.h:
+
+d:/WinAVR/avr/include/avr/version.h:

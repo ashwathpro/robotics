@@ -1,0 +1,691 @@
+   1               		.file	"whitie.c"
+   2               		.arch atmega8
+   3               	__SREG__ = 0x3f
+   4               	__SP_H__ = 0x3e
+   5               	__SP_L__ = 0x3d
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   8               		.global __do_copy_data
+   9               		.global __do_clear_bss
+  11               		.text
+  12               	.Ltext0:
+  71               	.global	calc
+  73               	calc:
+   1:whitie.c      **** #include <inttypes.h>
+   2:whitie.c      **** 	#include <avr/io.h>
+   3:whitie.c      **** 	#include <avr/sleep.h>
+   4:whitie.c      **** 	#include <assert.h>	
+   5:whitie.c      **** 	#include<util/delay.h>
+   6:whitie.c      **** 	
+   7:whitie.c      **** 	#define M_OUTPUT PORTD
+   8:whitie.c      **** 	#define RIGHT_MOTOR_PWM OCR1A
+   9:whitie.c      **** 	#define LEFT_MOTOR_PWM OCR1B
+  10:whitie.c      **** 	#define MASTER_PWM 200
+  11:whitie.c      **** 
+  12:whitie.c      **** 
+  13:whitie.c      **** 
+  14:whitie.c      **** uint8_t calc(uint8_t w){
+  75               	.LM1:
+  76               	/* prologue: frame size=0 */
+  77               	/* prologue end (size=0) */
+  15:whitie.c      **** 	ADCSRA&=~(1<<ADIF);
+  79               	.LM2:
+  80 0000 3498      		cbi 38-0x20,4
+  16:whitie.c      **** 	ADMUX=w;
+  82               	.LM3:
+  83 0002 87B9      		out 39-0x20,r24
+  17:whitie.c      **** 	ADMUX|=_BV(ADLAR);
+  85               	.LM4:
+  86 0004 3D9A      		sbi 39-0x20,5
+  18:whitie.c      **** 	//start conversion
+  19:whitie.c      **** 	ADCSRA|=_BV(ADEN);
+  88               	.LM5:
+  89 0006 379A      		sbi 38-0x20,7
+  20:whitie.c      **** 	ADCSRA|=(_BV(ADPS2) | _BV(ADPS1) );
+  91               	.LM6:
+  92 0008 86B1      		in r24,38-0x20
+  93 000a 8660      		ori r24,lo8(6)
+  94 000c 86B9      		out 38-0x20,r24
+  21:whitie.c      **** 	ADCSRA|= (1<<ADSC);
+  96               	.LM7:
+  97 000e 369A      		sbi 38-0x20,6
+  98               	.L2:
+  22:whitie.c      **** 	while(!(ADCSRA & 0x10));//ADIF is set.will come out of loop 
+ 100               	.LM8:
+ 101 0010 349B      		sbis 38-0x20,4
+ 102 0012 FECF      		rjmp .L2
+  23:whitie.c      **** 	ADCSRA=(0<<ADEN);// added by me to switc off the adc , so as it doesnt consume power
+ 104               	.LM9:
+ 105 0014 16B8      		out 38-0x20,__zero_reg__
+  24:whitie.c      **** 	return ADCH;
+ 107               	.LM10:
+ 108 0016 85B1      		in r24,37-0x20
+  25:whitie.c      **** 	}	
+ 110               	.LM11:
+ 111 0018 9927      		clr r25
+ 112               	/* epilogue: frame size=0 */
+ 113 001a 0895      		ret
+ 114               	/* epilogue end (size=1) */
+ 115               	/* function calc size 14 (13) */
+ 117               	.Lscope0:
+ 119               	.global	main
+ 121               	main:
+  26:whitie.c      **** 
+  27:whitie.c      **** 
+  28:whitie.c      **** int main()
+  29:whitie.c      **** {
+ 123               	.LM12:
+ 124               	/* prologue: frame size=0 */
+ 125 001c C0E0      		ldi r28,lo8(__stack - 0)
+ 126 001e D0E0      		ldi r29,hi8(__stack - 0)
+ 127 0020 DEBF      		out __SP_H__,r29
+ 128 0022 CDBF      		out __SP_L__,r28
+ 129               	/* prologue end (size=4) */
+  30:whitie.c      **** 			uint8_t ADC_output,count,temp;//,perLeftPWM,perRightPWM,motorDirection;		
+  31:whitie.c      **** 			DDRB=0xff;   //Check intital_setting_pwm() for description  ,, output port
+ 131               	.LM13:
+ 132 0024 8FEF      		ldi r24,lo8(-1)
+ 133 0026 87BB      		out 55-0x20,r24
+  32:whitie.c      **** 			DDRD=0x07;  // will give de comparator output
+ 135               	.LM14:
+ 136 0028 87E0      		ldi r24,lo8(7)
+ 137 002a 81BB      		out 49-0x20,r24
+  33:whitie.c      **** 			DDRC=0x00;
+ 139               	.LM15:
+ 140 002c 14BA      		out 52-0x20,__zero_reg__
+  34:whitie.c      **** 			PORTB=7;
+ 142               	.LM16:
+ 143 002e 88BB      		out 56-0x20,r24
+  35:whitie.c      **** 			PORTD=0;
+ 145               	.LM17:
+ 146 0030 12BA      		out 50-0x20,__zero_reg__
+  36:whitie.c      **** 			
+  37:whitie.c      **** 		TCCR0=0x04;
+ 148               	.LM18:
+ 149 0032 84E0      		ldi r24,lo8(4)
+ 150 0034 83BF      		out 83-0x20,r24
+  38:whitie.c      **** 		RIGHT_MOTOR_PWM=200;   // output compare flag for OC1A   for right motor  
+ 152               	.LM19:
+ 153 0036 88EC      		ldi r24,lo8(200)
+ 154 0038 90E0      		ldi r25,hi8(200)
+ 155 003a 9BBD      		out (74)+1-0x20,r25
+ 156 003c 8ABD      		out 74-0x20,r24
+  39:whitie.c      **** 		LEFT_MOTOR_PWM=200;	// output compare flag for OC1B   for left motor
+ 158               	.LM20:
+ 159 003e 99BD      		out (72)+1-0x20,r25
+ 160 0040 88BD      		out 72-0x20,r24
+  40:whitie.c      **** 		TCCR1A=0xA1;
+ 162               	.LM21:
+ 163 0042 81EA      		ldi r24,lo8(-95)
+ 164 0044 8FBD      		out 79-0x20,r24
+  41:whitie.c      **** 		TCCR1B=0x01;
+ 166               	.LM22:
+ 167 0046 81E0      		ldi r24,lo8(1)
+ 168 0048 8EBD      		out 78-0x20,r24
+  42:whitie.c      **** 		
+  43:whitie.c      **** while(1)
+  44:whitie.c      **** 	{
+  45:whitie.c      **** 		temp=0x00;
+ 170               	.LM23:
+ 171 004a 00E0      		ldi r16,lo8(0)
+  46:whitie.c      **** 		for(count=0;count<=4;count++)
+ 173               	.LM24:
+ 174 004c 102F      		mov r17,r16
+ 175 004e C0E0      		ldi r28,lo8(0)
+ 176 0050 D0E0      		ldi r29,hi8(0)
+ 177               	.L13:
+  47:whitie.c      **** 		{	
+  48:whitie.c      **** 			ADC_output=calc(count);
+ 179               	.LM25:
+ 180 0052 812F      		mov r24,r17
+ 181 0054 D5DF      		rcall calc
+  49:whitie.c      **** 			if(ADC_output>=130)
+ 183               	.LM26:
+ 184 0056 8238      		cpi r24,lo8(-126)
+ 185 0058 48F0      		brlo .L10
+  50:whitie.c      **** 			{
+  51:whitie.c      **** 				temp|=0x01<<count;
+ 187               	.LM27:
+ 188 005a 81E0      		ldi r24,lo8(1)
+ 189 005c 90E0      		ldi r25,hi8(1)
+ 190 005e 0C2E      		mov r0,r28
+ 191 0060 02C0      		rjmp 2f
+ 192 0062 880F      	1:	lsl r24
+ 193 0064 991F      		rol r25
+ 194 0066 0A94      	2:	dec r0
+ 195 0068 E2F7      		brpl 1b
+ 196 006a 082B      		or r16,r24
+ 197               	.L10:
+ 199               	.LM28:
+ 200 006c 1F5F      		subi r17,lo8(-(1))
+ 201 006e 2196      		adiw r28,1
+ 202 0070 1530      		cpi r17,lo8(5)
+ 203 0072 78F3      		brlo .L13
+  52:whitie.c      **** 			}
+  53:whitie.c      **** 			else;
+  54:whitie.c      **** 		}
+  55:whitie.c      **** 	
+  56:whitie.c      **** 				
+  57:whitie.c      **** 		
+  58:whitie.c      **** 
+  59:whitie.c      **** 		temp=~temp&31;	//only LSB 6 bits need to be considered	
+ 205               	.LM29:
+ 206 0074 802F      		mov r24,r16
+ 207 0076 8095      		com r24
+ 208 0078 8F71      		andi r24,lo8(31)
+  60:whitie.c      **** 		
+  61:whitie.c      **** 		
+  62:whitie.c      **** 	switch(temp)
+ 210               	.LM30:
+ 211 007a 9927      		clr r25
+ 212 007c AA27      		clr r26
+ 213 007e BB27      		clr r27
+ 214 0080 FC01      		movw r30,r24
+ 215 0082 3197      		sbiw r30,1
+ 216 0084 EF31      		cpi r30,31
+ 217 0086 F105      		cpc r31,__zero_reg__
+ 218 0088 08F0      		brlo .+2
+ 219 008a 56C0      		rjmp .L14
+ 220 008c E050      		subi r30,lo8(-(pm(.L55)))
+ 221 008e F040      		sbci r31,hi8(-(pm(.L55)))
+ 222 0090 0994      		ijmp
+ 223               		.data
+ 224               		.section .progmem.gcc_sw_table, "ax", @progbits
+ 225               		.p2align 1
+ 226               	.L55:
+ 227 0000 00C0      		rjmp .L20
+ 228 0002 00C0      		rjmp .L18
+ 229 0004 00C0      		rjmp .L26
+ 230 0006 00C0      		rjmp .L15
+ 231 0008 00C0      		rjmp .L26
+ 232 000a 00C0      		rjmp .L16
+ 233 000c 00C0      		rjmp .L46
+ 234 000e 00C0      		rjmp .L19
+ 235 0010 00C0      		rjmp .L26
+ 236 0012 00C0      		rjmp .L14
+ 237 0014 00C0      		rjmp .L26
+ 238 0016 00C0      		rjmp .L17
+ 239 0018 00C0      		rjmp .L26
+ 240 001a 00C0      		rjmp .L46
+ 241 001c 00C0      		rjmp .L46
+ 242 001e 00C0      		rjmp .L21
+ 243 0020 00C0      		rjmp .L14
+ 244 0022 00C0      		rjmp .L31
+ 245 0024 00C0      		rjmp .L46
+ 246 0026 00C0      		rjmp .L31
+ 247 0028 00C0      		rjmp .L14
+ 248 002a 00C0      		rjmp .L31
+ 249 002c 00C0      		rjmp .L46
+ 250 002e 00C0      		rjmp .L31
+ 251 0030 00C0      		rjmp .L46
+ 252 0032 00C0      		rjmp .L31
+ 253 0034 00C0      		rjmp .L46
+ 254 0036 00C0      		rjmp .L46
+ 255 0038 00C0      		rjmp .L46
+ 256 003a 00C0      		rjmp .L46
+ 257 003c 00C0      		rjmp .L46
+ 258               		.text
+ 259               	.L15:
+  63:whitie.c      **** 			{
+  64:whitie.c      **** 		//normal line follower cases
+  65:whitie.c      **** 		
+  66:whitie.c      **** 		case 0b00100:
+  67:whitie.c      **** 				
+  68:whitie.c      **** 					M_OUTPUT=0b1010;	//leftPWM=oc1a
+ 261               	.LM31:
+ 262 0092 8AE0      		ldi r24,lo8(10)
+ 263 0094 82BB      		out 50-0x20,r24
+  69:whitie.c      **** 					OCR1A=(MASTER_PWM*100/100);   // enable for right
+ 265               	.LM32:
+ 266 0096 88EC      		ldi r24,lo8(200)
+ 267 0098 90E0      		ldi r25,hi8(200)
+ 268 009a 9BBD      		out (74)+1-0x20,r25
+ 269 009c 8ABD      		out 74-0x20,r24
+ 270 009e 3BC0      		rjmp .L58
+ 271               	.L16:
+  70:whitie.c      **** 					OCR1B=(MASTER_PWM*100/100);	 // enable for left
+  71:whitie.c      **** 			
+  72:whitie.c      **** 				break;
+  73:whitie.c      **** 		
+  74:whitie.c      **** 		case 0b00110:
+  75:whitie.c      **** 				
+  76:whitie.c      **** 					M_OUTPUT=0b1001;
+ 273               	.LM33:
+ 274 00a0 89E0      		ldi r24,lo8(9)
+ 275 00a2 82BB      		out 50-0x20,r24
+  77:whitie.c      **** 		OCR1A=(MASTER_PWM*100/100);   // enable for right
+ 277               	.LM34:
+ 278 00a4 88EC      		ldi r24,lo8(200)
+ 279 00a6 90E0      		ldi r25,hi8(200)
+ 280 00a8 9BBD      		out (74)+1-0x20,r25
+ 281 00aa 8ABD      		out 74-0x20,r24
+  78:whitie.c      **** 			OCR1B=(MASTER_PWM*30/100);	 // enable for left
+ 283               	.LM35:
+ 284 00ac 8CE3      		ldi r24,lo8(60)
+ 285 00ae 90E0      		ldi r25,hi8(60)
+ 286 00b0 32C0      		rjmp .L58
+ 287               	.L17:
+  79:whitie.c      **** 					
+  80:whitie.c      **** 				break;
+  81:whitie.c      **** 		case 0b01100:
+  82:whitie.c      **** 				
+  83:whitie.c      **** 					M_OUTPUT=0b0110;
+ 289               	.LM36:
+ 290 00b2 86E0      		ldi r24,lo8(6)
+ 291 00b4 82BB      		out 50-0x20,r24
+  84:whitie.c      **** 					OCR1A=(MASTER_PWM*30/100);   // enable for right
+ 293               	.LM37:
+ 294 00b6 8CE3      		ldi r24,lo8(60)
+ 295 00b8 90E0      		ldi r25,hi8(60)
+ 296 00ba 29C0      		rjmp .L59
+ 297               	.L18:
+  85:whitie.c      **** 					OCR1B=(MASTER_PWM*100/100);	 // enable for left
+  86:whitie.c      **** 			
+  87:whitie.c      **** 				break;
+  88:whitie.c      **** 		case 0b00010:
+  89:whitie.c      **** 				
+  90:whitie.c      **** 					M_OUTPUT=0b1001;
+ 299               	.LM38:
+ 300 00bc 89E0      		ldi r24,lo8(9)
+ 301 00be 82BB      		out 50-0x20,r24
+  91:whitie.c      **** 					OCR1A=(MASTER_PWM*100/100);   // enable for right
+ 303               	.LM39:
+ 304 00c0 88EC      		ldi r24,lo8(200)
+ 305 00c2 90E0      		ldi r25,hi8(200)
+ 306 00c4 9BBD      		out (74)+1-0x20,r25
+ 307 00c6 8ABD      		out 74-0x20,r24
+  92:whitie.c      **** 					OCR1B=(MASTER_PWM*50/100);	 // enable for left
+ 309               	.LM40:
+ 310 00c8 84E6      		ldi r24,lo8(100)
+ 311 00ca 90E0      		ldi r25,hi8(100)
+ 312 00cc 24C0      		rjmp .L58
+ 313               	.L19:
+  93:whitie.c      **** 			 
+  94:whitie.c      **** 				break;
+  95:whitie.c      **** 		case 0b01000:
+  96:whitie.c      **** 					M_OUTPUT=0b0110;
+ 315               	.LM41:
+ 316 00ce 86E0      		ldi r24,lo8(6)
+ 317 00d0 82BB      		out 50-0x20,r24
+  97:whitie.c      **** 						OCR1A=(MASTER_PWM*50/100);   // enable for right
+ 319               	.LM42:
+ 320 00d2 84E6      		ldi r24,lo8(100)
+ 321 00d4 90E0      		ldi r25,hi8(100)
+ 322 00d6 1BC0      		rjmp .L59
+ 323               	.L20:
+  98:whitie.c      **** 					OCR1B=(MASTER_PWM*100/100);	 // enable for left
+  99:whitie.c      **** 			
+ 100:whitie.c      **** 				break;
+ 101:whitie.c      **** 				
+ 102:whitie.c      **** 		case 0b00001:
+ 103:whitie.c      **** 					M_OUTPUT=0b1010;
+ 325               	.LM43:
+ 326 00d8 8AE0      		ldi r24,lo8(10)
+ 327 00da 82BB      		out 50-0x20,r24
+ 104:whitie.c      **** 				OCR1A=(MASTER_PWM*70/100);   // enable for right
+ 329               	.LM44:
+ 330 00dc 8CE8      		ldi r24,lo8(140)
+ 331 00de 90E0      		ldi r25,hi8(140)
+ 332 00e0 0DC0      		rjmp .L60
+ 333               	.L21:
+ 105:whitie.c      **** 					OCR1B=(MASTER_PWM*10/100);	 // enable for left
+ 106:whitie.c      **** 			
+ 107:whitie.c      **** 				break;
+ 108:whitie.c      **** 		case 0b10000:
+ 109:whitie.c      **** 				    M_OUTPUT=0b1010;
+ 335               	.LM45:
+ 336 00e2 8AE0      		ldi r24,lo8(10)
+ 337 00e4 82BB      		out 50-0x20,r24
+ 110:whitie.c      **** 					OCR1A=(MASTER_PWM*10/100);   // enable for right
+ 339               	.LM46:
+ 340 00e6 84E1      		ldi r24,lo8(20)
+ 341 00e8 90E0      		ldi r25,hi8(20)
+ 342 00ea 9BBD      		out (74)+1-0x20,r25
+ 343 00ec 8ABD      		out 74-0x20,r24
+ 111:whitie.c      **** 					OCR1B=(MASTER_PWM*70/100);	 // enable for left
+ 345               	.LM47:
+ 346 00ee 8CE8      		ldi r24,lo8(140)
+ 347 00f0 90E0      		ldi r25,hi8(140)
+ 348 00f2 11C0      		rjmp .L58
+ 349               	.L26:
+ 112:whitie.c      **** 			
+ 113:whitie.c      **** 				break;
+ 114:whitie.c      **** 		
+ 115:whitie.c      **** 		
+ 116:whitie.c      **** 		//near cross line follower cases	
+ 117:whitie.c      **** 		case 0b00101:
+ 118:whitie.c      **** 		case 0b01001:
+ 119:whitie.c      **** 		case 0b00011:
+ 120:whitie.c      **** 		case 0b01011:
+ 121:whitie.c      **** 		case 0b01101:
+ 122:whitie.c      **** 					M_OUTPUT=0b1001;
+ 351               	.LM48:
+ 352 00f4 89E0      		ldi r24,lo8(9)
+ 353 00f6 82BB      		out 50-0x20,r24
+ 123:whitie.c      **** 						OCR1A=(MASTER_PWM*100/100);   // enable for right
+ 355               	.LM49:
+ 356 00f8 88EC      		ldi r24,lo8(200)
+ 357 00fa 90E0      		ldi r25,hi8(200)
+ 358               	.L60:
+ 359 00fc 9BBD      		out (74)+1-0x20,r25
+ 360 00fe 8ABD      		out 74-0x20,r24
+ 124:whitie.c      **** 					OCR1B=(MASTER_PWM*10/100);	 // enable for left
+ 362               	.LM50:
+ 363 0100 84E1      		ldi r24,lo8(20)
+ 364 0102 90E0      		ldi r25,hi8(20)
+ 365 0104 08C0      		rjmp .L58
+ 366               	.L31:
+ 125:whitie.c      **** 			
+ 126:whitie.c      **** 					break;
+ 127:whitie.c      **** 				
+ 128:whitie.c      **** 		case 0b10100:
+ 129:whitie.c      **** 		case 0b10010:
+ 130:whitie.c      **** 		case 0b11000:
+ 131:whitie.c      **** 		case 0b11010:
+ 132:whitie.c      **** 		case 0b10110:
+ 133:whitie.c      **** 					M_OUTPUT=0b0110;
+ 368               	.LM51:
+ 369 0106 86E0      		ldi r24,lo8(6)
+ 370 0108 82BB      		out 50-0x20,r24
+ 134:whitie.c      **** 						OCR1A=(MASTER_PWM*10/100);   // enable for right
+ 372               	.LM52:
+ 373 010a 84E1      		ldi r24,lo8(20)
+ 374 010c 90E0      		ldi r25,hi8(20)
+ 375               	.L59:
+ 376 010e 9BBD      		out (74)+1-0x20,r25
+ 377 0110 8ABD      		out 74-0x20,r24
+ 135:whitie.c      **** 					OCR1B=(MASTER_PWM*100/100);	 // enable for left
+ 379               	.LM53:
+ 380 0112 88EC      		ldi r24,lo8(200)
+ 381 0114 90E0      		ldi r25,hi8(200)
+ 382               	.L58:
+ 383 0116 99BD      		out (72)+1-0x20,r25
+ 384 0118 88BD      		out 72-0x20,r24
+ 136:whitie.c      **** 			
+ 137:whitie.c      **** 				break;
+ 386               	.LM54:
+ 387 011a 0EC0      		rjmp .L14
+ 388               	.L46:
+ 138:whitie.c      **** 		
+ 139:whitie.c      **** 		// abnormal cases
+ 140:whitie.c      **** 		// in these cases previous conditions will be concidered
+ 141:whitie.c      **** 		case 0b00000:
+ 142:whitie.c      **** 		case 0b01010:
+ 143:whitie.c      **** 		case 0b10001:
+ 144:whitie.c      **** 		case 0b10101:
+ 145:whitie.c      **** 					break;
+ 146:whitie.c      **** 		
+ 147:whitie.c      **** 		
+ 148:whitie.c      **** 		
+ 149:whitie.c      **** 		// cross detected
+ 150:whitie.c      **** 		// good cases
+ 151:whitie.c      **** 		
+ 152:whitie.c      **** 		case 0b11111:
+ 153:whitie.c      **** 		case 0b11101:
+ 154:whitie.c      **** 		case 0b10111:
+ 155:whitie.c      **** 		case 0b11011:
+ 156:whitie.c      **** 		case 0b11110:
+ 157:whitie.c      **** 		case 0b01111:
+ 158:whitie.c      **** 		
+ 159:whitie.c      **** 		
+ 160:whitie.c      **** 		
+ 161:whitie.c      **** 		
+ 162:whitie.c      **** 		// bad cases
+ 163:whitie.c      **** 		
+ 164:whitie.c      **** 		case 0b11100:
+ 165:whitie.c      **** 		case 0b00111:
+ 166:whitie.c      **** 		case 0b01110:
+ 167:whitie.c      **** 		
+ 168:whitie.c      **** 		case 0b11001:
+ 169:whitie.c      **** 		case 0b10011:
+ 170:whitie.c      **** 		M_OUTPUT=0b0110;
+ 390               	.LM55:
+ 391 011c 86E0      		ldi r24,lo8(6)
+ 392 011e 82BB      		out 50-0x20,r24
+ 171:whitie.c      **** 					OCR1A=(MASTER_PWM*20/100);   // enable for right
+ 394               	.LM56:
+ 395 0120 88E2      		ldi r24,lo8(40)
+ 396 0122 90E0      		ldi r25,hi8(40)
+ 397 0124 9BBD      		out (74)+1-0x20,r25
+ 398 0126 8ABD      		out 74-0x20,r24
+ 172:whitie.c      **** 					OCR1B=(MASTER_PWM*90/100);	 // enable for left
+ 400               	.LM57:
+ 401 0128 84EB      		ldi r24,lo8(180)
+ 402 012a 90E0      		ldi r25,hi8(180)
+ 403 012c 99BD      		out (72)+1-0x20,r25
+ 404 012e 88BD      		out 72-0x20,r24
+ 405               	.LBB2:
+ 406               	.LBB3:
+ 408               	.Ltext1:
+   1:G:/WinAVR/avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:G:/WinAVR/avr/include/util/delay.h ****    Copyright (c) 2004,2005 Joerg Wunsch
+   3:G:/WinAVR/avr/include/util/delay.h ****    All rights reserved.
+   4:G:/WinAVR/avr/include/util/delay.h **** 
+   5:G:/WinAVR/avr/include/util/delay.h ****    Redistribution and use in source and binary forms, with or without
+   6:G:/WinAVR/avr/include/util/delay.h ****    modification, are permitted provided that the following conditions are met:
+   7:G:/WinAVR/avr/include/util/delay.h **** 
+   8:G:/WinAVR/avr/include/util/delay.h ****    * Redistributions of source code must retain the above copyright
+   9:G:/WinAVR/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer.
+  10:G:/WinAVR/avr/include/util/delay.h **** 
+  11:G:/WinAVR/avr/include/util/delay.h ****    * Redistributions in binary form must reproduce the above copyright
+  12:G:/WinAVR/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer in
+  13:G:/WinAVR/avr/include/util/delay.h ****      the documentation and/or other materials provided with the
+  14:G:/WinAVR/avr/include/util/delay.h ****      distribution.
+  15:G:/WinAVR/avr/include/util/delay.h **** 
+  16:G:/WinAVR/avr/include/util/delay.h ****    * Neither the name of the copyright holders nor the names of
+  17:G:/WinAVR/avr/include/util/delay.h ****      contributors may be used to endorse or promote products derived
+  18:G:/WinAVR/avr/include/util/delay.h ****      from this software without specific prior written permission.
+  19:G:/WinAVR/avr/include/util/delay.h **** 
+  20:G:/WinAVR/avr/include/util/delay.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  21:G:/WinAVR/avr/include/util/delay.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  22:G:/WinAVR/avr/include/util/delay.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  23:G:/WinAVR/avr/include/util/delay.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  24:G:/WinAVR/avr/include/util/delay.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  25:G:/WinAVR/avr/include/util/delay.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  26:G:/WinAVR/avr/include/util/delay.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  27:G:/WinAVR/avr/include/util/delay.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  28:G:/WinAVR/avr/include/util/delay.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  29:G:/WinAVR/avr/include/util/delay.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  30:G:/WinAVR/avr/include/util/delay.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  31:G:/WinAVR/avr/include/util/delay.h **** 
+  32:G:/WinAVR/avr/include/util/delay.h **** /* $Id: delay.h,v 1.1.2.1 2005/12/12 23:19:49 joerg_wunsch Exp $ */
+  33:G:/WinAVR/avr/include/util/delay.h **** 
+  34:G:/WinAVR/avr/include/util/delay.h **** #ifndef _UTIL_DELAY_H_
+  35:G:/WinAVR/avr/include/util/delay.h **** #define _UTIL_DELAY_H_ 1
+  36:G:/WinAVR/avr/include/util/delay.h **** 
+  37:G:/WinAVR/avr/include/util/delay.h **** #include <inttypes.h>
+  38:G:/WinAVR/avr/include/util/delay.h **** 
+  39:G:/WinAVR/avr/include/util/delay.h **** /** \defgroup util_delay <util/delay.h>: Busy-wait delay loops
+  40:G:/WinAVR/avr/include/util/delay.h ****     \code
+  41:G:/WinAVR/avr/include/util/delay.h ****     #define F_CPU 1000000UL  // 1 MHz
+  42:G:/WinAVR/avr/include/util/delay.h ****     //#define F_CPU 14.7456E6
+  43:G:/WinAVR/avr/include/util/delay.h ****     #include <util/delay.h>
+  44:G:/WinAVR/avr/include/util/delay.h ****     \endcode
+  45:G:/WinAVR/avr/include/util/delay.h **** 
+  46:G:/WinAVR/avr/include/util/delay.h ****     \note As an alternative method, it is possible to pass the
+  47:G:/WinAVR/avr/include/util/delay.h ****     F_CPU macro down to the compiler from the Makefile.
+  48:G:/WinAVR/avr/include/util/delay.h ****     Obviously, in that case, no \c \#define statement should be
+  49:G:/WinAVR/avr/include/util/delay.h ****     used.
+  50:G:/WinAVR/avr/include/util/delay.h **** 
+  51:G:/WinAVR/avr/include/util/delay.h ****     The functions in this header file implement simple delay loops
+  52:G:/WinAVR/avr/include/util/delay.h ****     that perform a busy-waiting.  They are typically used to
+  53:G:/WinAVR/avr/include/util/delay.h ****     facilitate short delays in the program execution.  They are
+  54:G:/WinAVR/avr/include/util/delay.h ****     implemented as count-down loops with a well-known CPU cycle
+  55:G:/WinAVR/avr/include/util/delay.h ****     count per loop iteration.  As such, no other processing can
+  56:G:/WinAVR/avr/include/util/delay.h ****     occur simultaneously.  It should be kept in mind that the
+  57:G:/WinAVR/avr/include/util/delay.h ****     functions described here do not disable interrupts.
+  58:G:/WinAVR/avr/include/util/delay.h **** 
+  59:G:/WinAVR/avr/include/util/delay.h ****     In general, for long delays, the use of hardware timers is
+  60:G:/WinAVR/avr/include/util/delay.h ****     much preferrable, as they free the CPU, and allow for
+  61:G:/WinAVR/avr/include/util/delay.h ****     concurrent processing of other events while the timer is
+  62:G:/WinAVR/avr/include/util/delay.h ****     running.  However, in particular for very short delays, the
+  63:G:/WinAVR/avr/include/util/delay.h ****     overhead of setting up a hardware timer is too much compared
+  64:G:/WinAVR/avr/include/util/delay.h ****     to the overall delay time.
+  65:G:/WinAVR/avr/include/util/delay.h **** 
+  66:G:/WinAVR/avr/include/util/delay.h ****     Two inline functions are provided for the actual delay algorithms.
+  67:G:/WinAVR/avr/include/util/delay.h **** 
+  68:G:/WinAVR/avr/include/util/delay.h ****     Two wrapper functions allow the specification of microsecond, and
+  69:G:/WinAVR/avr/include/util/delay.h ****     millisecond delays directly, using the application-supplied macro
+  70:G:/WinAVR/avr/include/util/delay.h ****     F_CPU as the CPU clock frequency (in Hertz).  These functions
+  71:G:/WinAVR/avr/include/util/delay.h ****     operate on double typed arguments, however when optimization is
+  72:G:/WinAVR/avr/include/util/delay.h ****     turned on, the entire floating-point calculation will be done at
+  73:G:/WinAVR/avr/include/util/delay.h ****     compile-time.
+  74:G:/WinAVR/avr/include/util/delay.h **** 
+  75:G:/WinAVR/avr/include/util/delay.h ****     \note When using _delay_us() and _delay_ms(), the expressions
+  76:G:/WinAVR/avr/include/util/delay.h ****     passed as arguments to these functions shall be compile-time
+  77:G:/WinAVR/avr/include/util/delay.h ****     constants, otherwise the floating-point calculations to setup the
+  78:G:/WinAVR/avr/include/util/delay.h ****     loops will be done at run-time, thereby drastically increasing
+  79:G:/WinAVR/avr/include/util/delay.h ****     both the resulting code size, as well as the time required to
+  80:G:/WinAVR/avr/include/util/delay.h ****     setup the loops.
+  81:G:/WinAVR/avr/include/util/delay.h **** */
+  82:G:/WinAVR/avr/include/util/delay.h **** 
+  83:G:/WinAVR/avr/include/util/delay.h **** #if !defined(__DOXYGEN__)
+  84:G:/WinAVR/avr/include/util/delay.h **** static inline void _delay_loop_1(uint8_t __count) __attribute__((always_inline));
+  85:G:/WinAVR/avr/include/util/delay.h **** static inline void _delay_loop_2(uint16_t __count) __attribute__((always_inline));
+  86:G:/WinAVR/avr/include/util/delay.h **** static inline void _delay_us(double __us) __attribute__((always_inline));
+  87:G:/WinAVR/avr/include/util/delay.h **** static inline void _delay_ms(double __ms) __attribute__((always_inline));
+  88:G:/WinAVR/avr/include/util/delay.h **** #endif
+  89:G:/WinAVR/avr/include/util/delay.h **** 
+  90:G:/WinAVR/avr/include/util/delay.h **** /** \ingroup util_delay
+  91:G:/WinAVR/avr/include/util/delay.h **** 
+  92:G:/WinAVR/avr/include/util/delay.h ****     Delay loop using an 8-bit counter \c __count, so up to 256
+  93:G:/WinAVR/avr/include/util/delay.h ****     iterations are possible.  (The value 256 would have to be passed
+  94:G:/WinAVR/avr/include/util/delay.h ****     as 0.)  The loop executes three CPU cycles per iteration, not
+  95:G:/WinAVR/avr/include/util/delay.h ****     including the overhead the compiler needs to setup the counter
+  96:G:/WinAVR/avr/include/util/delay.h ****     register.
+  97:G:/WinAVR/avr/include/util/delay.h **** 
+  98:G:/WinAVR/avr/include/util/delay.h ****     Thus, at a CPU speed of 1 MHz, delays of up to 768 microseconds
+  99:G:/WinAVR/avr/include/util/delay.h ****     can be achieved.
+ 100:G:/WinAVR/avr/include/util/delay.h **** */
+ 101:G:/WinAVR/avr/include/util/delay.h **** void
+ 102:G:/WinAVR/avr/include/util/delay.h **** _delay_loop_1(uint8_t __count)
+ 103:G:/WinAVR/avr/include/util/delay.h **** {
+ 104:G:/WinAVR/avr/include/util/delay.h **** 	__asm__ volatile (
+ 105:G:/WinAVR/avr/include/util/delay.h **** 		"1: dec %0" "\n\t"
+ 106:G:/WinAVR/avr/include/util/delay.h **** 		"brne 1b"
+ 107:G:/WinAVR/avr/include/util/delay.h **** 		: "=r" (__count)
+ 108:G:/WinAVR/avr/include/util/delay.h **** 		: "0" (__count)
+ 109:G:/WinAVR/avr/include/util/delay.h **** 	);
+ 110:G:/WinAVR/avr/include/util/delay.h **** }
+ 111:G:/WinAVR/avr/include/util/delay.h **** 
+ 112:G:/WinAVR/avr/include/util/delay.h **** /** \ingroup util_delay
+ 113:G:/WinAVR/avr/include/util/delay.h **** 
+ 114:G:/WinAVR/avr/include/util/delay.h ****     Delay loop using a 16-bit counter \c __count, so up to 65536
+ 115:G:/WinAVR/avr/include/util/delay.h ****     iterations are possible.  (The value 65536 would have to be
+ 116:G:/WinAVR/avr/include/util/delay.h ****     passed as 0.)  The loop executes four CPU cycles per iteration,
+ 117:G:/WinAVR/avr/include/util/delay.h ****     not including the overhead the compiler requires to setup the
+ 118:G:/WinAVR/avr/include/util/delay.h ****     counter register pair.
+ 119:G:/WinAVR/avr/include/util/delay.h **** 
+ 120:G:/WinAVR/avr/include/util/delay.h ****     Thus, at a CPU speed of 1 MHz, delays of up to about 262.1
+ 121:G:/WinAVR/avr/include/util/delay.h ****     milliseconds can be achieved.
+ 122:G:/WinAVR/avr/include/util/delay.h ****  */
+ 123:G:/WinAVR/avr/include/util/delay.h **** void
+ 124:G:/WinAVR/avr/include/util/delay.h **** _delay_loop_2(uint16_t __count)
+ 125:G:/WinAVR/avr/include/util/delay.h **** {
+ 126:G:/WinAVR/avr/include/util/delay.h **** 	__asm__ volatile (
+ 127:G:/WinAVR/avr/include/util/delay.h **** 		"1: sbiw %0,1" "\n\t"
+ 128:G:/WinAVR/avr/include/util/delay.h **** 		"brne 1b"
+ 129:G:/WinAVR/avr/include/util/delay.h **** 		: "=w" (__count)
+ 130:G:/WinAVR/avr/include/util/delay.h **** 		: "0" (__count)
+ 131:G:/WinAVR/avr/include/util/delay.h **** 	);
+ 132:G:/WinAVR/avr/include/util/delay.h **** }
+ 133:G:/WinAVR/avr/include/util/delay.h **** 
+ 134:G:/WinAVR/avr/include/util/delay.h **** #ifndef F_CPU
+ 135:G:/WinAVR/avr/include/util/delay.h **** /* prevent compiler error by supplying a default */
+ 136:G:/WinAVR/avr/include/util/delay.h **** # warning "F_CPU not defined for <util/delay.h>"
+ 137:G:/WinAVR/avr/include/util/delay.h **** # define F_CPU 1000000UL
+ 138:G:/WinAVR/avr/include/util/delay.h **** #endif
+ 139:G:/WinAVR/avr/include/util/delay.h **** 
+ 140:G:/WinAVR/avr/include/util/delay.h **** /**
+ 141:G:/WinAVR/avr/include/util/delay.h ****    \ingroup util_delay
+ 142:G:/WinAVR/avr/include/util/delay.h **** 
+ 143:G:/WinAVR/avr/include/util/delay.h ****    Perform a delay of \c __us microseconds, using _delay_loop_1().
+ 144:G:/WinAVR/avr/include/util/delay.h **** 
+ 145:G:/WinAVR/avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 146:G:/WinAVR/avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 147:G:/WinAVR/avr/include/util/delay.h **** 
+ 148:G:/WinAVR/avr/include/util/delay.h ****    The maximal possible delay is 768 us / F_CPU in MHz.
+ 149:G:/WinAVR/avr/include/util/delay.h ****  */
+ 150:G:/WinAVR/avr/include/util/delay.h **** void
+ 151:G:/WinAVR/avr/include/util/delay.h **** _delay_us(double __us)
+ 152:G:/WinAVR/avr/include/util/delay.h **** {
+ 153:G:/WinAVR/avr/include/util/delay.h **** 	uint8_t __ticks;
+ 154:G:/WinAVR/avr/include/util/delay.h **** 	double __tmp = ((F_CPU) / 3e6) * __us;
+ 155:G:/WinAVR/avr/include/util/delay.h **** 	if (__tmp < 1.0)
+ 156:G:/WinAVR/avr/include/util/delay.h **** 		__ticks = 1;
+ 157:G:/WinAVR/avr/include/util/delay.h **** 	else if (__tmp > 255)
+ 158:G:/WinAVR/avr/include/util/delay.h **** 		__ticks = 0;	/* i.e. 256 */
+ 159:G:/WinAVR/avr/include/util/delay.h **** 	else
+ 160:G:/WinAVR/avr/include/util/delay.h **** 		__ticks = (uint8_t)__tmp;
+ 161:G:/WinAVR/avr/include/util/delay.h **** 	_delay_loop_1(__ticks);
+ 162:G:/WinAVR/avr/include/util/delay.h **** }
+ 163:G:/WinAVR/avr/include/util/delay.h **** 
+ 164:G:/WinAVR/avr/include/util/delay.h **** 
+ 165:G:/WinAVR/avr/include/util/delay.h **** /**
+ 166:G:/WinAVR/avr/include/util/delay.h ****    \ingroup util_delay
+ 167:G:/WinAVR/avr/include/util/delay.h **** 
+ 168:G:/WinAVR/avr/include/util/delay.h ****    Perform a delay of \c __ms milliseconds, using _delay_loop_2().
+ 169:G:/WinAVR/avr/include/util/delay.h **** 
+ 170:G:/WinAVR/avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 171:G:/WinAVR/avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 172:G:/WinAVR/avr/include/util/delay.h **** 
+ 173:G:/WinAVR/avr/include/util/delay.h ****    The maximal possible delay is 262.14 ms / F_CPU in MHz.
+ 174:G:/WinAVR/avr/include/util/delay.h ****  */
+ 175:G:/WinAVR/avr/include/util/delay.h **** void
+ 176:G:/WinAVR/avr/include/util/delay.h **** _delay_ms(double __ms)
+ 177:G:/WinAVR/avr/include/util/delay.h **** {
+ 178:G:/WinAVR/avr/include/util/delay.h **** 	uint16_t __ticks;
+ 179:G:/WinAVR/avr/include/util/delay.h **** 	double __tmp = ((F_CPU) / 4e3) * __ms;
+ 180:G:/WinAVR/avr/include/util/delay.h **** 	if (__tmp < 1.0)
+ 181:G:/WinAVR/avr/include/util/delay.h **** 		__ticks = 1;
+ 182:G:/WinAVR/avr/include/util/delay.h **** 	else if (__tmp > 65535)
+ 183:G:/WinAVR/avr/include/util/delay.h **** 		__ticks = 0;	/* i.e. 65536 */
+ 410               	.LM58:
+ 411 0130 80E0      		ldi r24,lo8(0)
+ 412 0132 90E0      		ldi r25,hi8(0)
+ 413               	.LBB4:
+ 414               	.LBB5:
+ 416               	.LM59:
+ 417               	/* #APP */
+ 418 0134 0197      		1: sbiw r24,1
+ 419 0136 F1F7      		brne 1b
+ 420               	/* #NOAPP */
+ 421               	.L14:
+ 422               	.LBE5:
+ 423               	.LBE4:
+ 424               	.LBE3:
+ 425               	.LBE2:
+ 427               	.Ltext2:
+ 173:whitie.c      **** 			
+ 174:whitie.c      **** 		_delay_ms(100);
+ 175:whitie.c      **** 	}
+ 176:whitie.c      **** 		return 0;
+ 177:whitie.c      **** }
+ 178:whitie.c      **** }
+ 429               	.LM60:
+ 430 0138 80E0      		ldi r24,lo8(0)
+ 431 013a 90E0      		ldi r25,hi8(0)
+ 432               	/* epilogue: frame size=0 */
+ 433 013c 00C0      		rjmp exit
+ 434               	/* epilogue end (size=1) */
+ 435               	/* function main size 178 (173) */
+ 444               	.Lscope1:
+ 445               		.text
+ 447               	Letext:
+ 448               	/* File "whitie.c": code  192 = 0x00c0 ( 186), prologues   4, epilogues   2 */
+DEFINED SYMBOLS
+                            *ABS*:00000000 whitie.c
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccKOaaaa.s:3      *ABS*:0000003f __SREG__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccKOaaaa.s:4      *ABS*:0000003e __SP_H__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccKOaaaa.s:5      *ABS*:0000003d __SP_L__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccKOaaaa.s:6      *ABS*:00000000 __tmp_reg__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccKOaaaa.s:7      *ABS*:00000001 __zero_reg__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccKOaaaa.s:73     .text:00000000 calc
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccKOaaaa.s:121    .text:0000001c main
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccKOaaaa.s:447    .text:0000013e Letext
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+__stack
+exit

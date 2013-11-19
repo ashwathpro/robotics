@@ -1,0 +1,81 @@
+%% adding target points....
+
+targets=imread('target1.jpg');
+targets=imresize(targets,[480 640]);
+% imshow(targets);
+
+targetsToMove=[];
+targetsToMove=[size(toCirc,2)-(12.5/240)*size(toCirc,1)+orgX (12.5/240)*size(toCirc,1)+orgY;targetsToMove];            %instead of nos give bot init cordi
+p=[p;(12.5/240)*size(toCirc,1) size(toCirc,2)-(12.5/240)*size(toCirc,1)];
+% first sort via area and den append into targets to move
+% for red target
+redTarget=(final(:,:,1) > minRed & final(:,:,3) <= maxBlue & final(:,:,2) <= maxGreen ...
+            & final(:,:,1)-final(:,:,2)>= redOverGreen & final(:,:,1)-final(:,:,3)>=redOverBlue);
+redTarget=bwlabel(redTarget);
+
+redCordi=regionprops(redTarget);
+[maxArea ind]=max([redCordi(:).Area]);
+
+targetsToMove=[targetsToMove; redCordi(ind).Centroid];
+
+% for green target
+greenTarget=(final(:,:,1) <= maxRed & final(:,:,3) <= maxBlue & final(:,:,2) >= minGreen ...
+                & final(:,:,2)-final(:,:,1)>= greenOverRed & final(:,:,2)-final(:,:,3)>=greenOverBlue);
+greenTarget=bwlabel(greenTarget);
+
+greenCordi=regionprops(greenTarget);
+[maxArea ind]=max([greenCordi(:).Area]);
+
+targetsToMove=[targetsToMove; greenCordi(ind).Centroid];
+
+% for yellow target
+yellowTarget=(final(:,:,1) > minRed & final(:,:,3) <= maxBlue & final(:,:,2) >= minGreen ...
+                & final(:,:,1)-final(:,:,3)>= redOverBlue & final(:,:,2)-final(:,:,3)>=greenOverBlue);
+yellowTarget=bwlabel(yellowTarget);
+yellowCordi=regionprops(yellowTarget);
+[maxArea ind]=max([yellowCordi(:).Area]);
+
+targetsToMove=[targetsToMove; yellowCordi(ind).Centroid];
+
+% for pink target
+pinkTarget=(final(:,:,1) >= minRed & final(:,:,3) >= minBlue & final(:,:,2) <= maxGreen ...
+                & final(:,:,1)-final(:,:,2)>= redOverGreen & final(:,:,3)-final(:,:,2)>=blueOverGreen);
+
+se = strel('disk',5);                           % check dis if u loose white circles in pink
+pinkTarget=imopen(pinkTarget,se);
+
+pinkTarget=bwlabel(pinkTarget);
+
+pinkCordi=regionprops(pinkTarget);
+cnt=1;
+for i=1:size(pinkCordi,1)
+    if(pinkCordi(i).Area >= yellowCordi(ind).Area/2 )
+        pinks(cnt,:)=pinkCordi(i).Centroid;
+        cnt=cnt+1;
+    end
+end
+p=[p;targetsToMove(:,2)-orgY targetsToMove(:,1)-orgX];
+while(size(pinks,1)~=1)
+    lastP=p(end,:);
+    [q,w]=min(sum((repmat(lastP,size(pinks,1),1)-pinks).^2,2));
+
+    targetsToMove=[targetsToMove; pinks(w,:)];
+    p=[p;targetsToMove(end,2)-orgY targetsToMove(end,1)-orgX];
+    pinks(w,:)=[];
+end
+
+targetsToMove=[targetsToMove;pinks];
+p=[p;targetsToMove(end,2)-orgY targetsToMove(end,1)-orgX];
+pinks=[];
+
+
+
+
+
+% figure,imshow(final);
+
+% hold on;
+% 
+% plot(targetsToMove(:,1) , targetsToMove(:,2) , '*red')
+finalPoints=p;
+% p=[p;targetsToMove(:,2)-orgY targetsToMove(:,1)-orgX];

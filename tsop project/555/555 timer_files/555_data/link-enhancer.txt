@@ -1,0 +1,23 @@
+TTP/1.1 200 
+Content-Type: text/javascript
+nnCoection: close
+Content-Length: 540
+
+var amazon_retail_url       = "www.amazon.co.uk";
+var amazon_impression_url   = "www.assoc-amazon.co.uk";
+var amazon_popover_org      = 2;
+
+var amazon_impression_campaign = '2506';
+var amazon_impression_ccmids =  {
+    'as2'  : '9310',
+    '-as2' : '9490',
+    'as3'  : '9298',
+    'am2'  : '9306',
+    '-am2' : '9490',
+    'am3'  : '9302',
+    'ur2'  : '9490'
+    };
+
+document.write("<scr"+"ipt src='"+window.location.protocol+"//" 
+    + amazon_impression_url 
+    + "/s/link-enhancer-common.js' type='text/javascr"+"ipt'></scr"+"ipt>");

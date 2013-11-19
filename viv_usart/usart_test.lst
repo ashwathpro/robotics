@@ -1,0 +1,158 @@
+   1               		.file	"usart_test.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   8               		.global __do_copy_data
+   9               		.global __do_clear_bss
+  11               		.text
+  12               	.Ltext0:
+  71               	.global	USART_Init
+  73               	USART_Init:
+   1:usart_test.c  **** #include <avr/io.h>
+   2:usart_test.c  **** 
+   3:usart_test.c  **** 
+   4:usart_test.c  **** #define FOSC 8000000// Clock Speed
+   5:usart_test.c  **** #define BAUD 9600
+   6:usart_test.c  **** #define MYUBRR FOSC/16/BAUD-1
+   7:usart_test.c  **** 
+   8:usart_test.c  **** 
+   9:usart_test.c  **** void USART_Init( unsigned int ubrr)
+  10:usart_test.c  **** {
+  75               	.LM0:
+  76               	.LFBB1:
+  77               	/* prologue: function */
+  78               	/* frame size = 0 */
+  11:usart_test.c  **** UBRRH = (unsigned char)(ubrr>>8);	/* Set baud rate */
+  80               	.LM1:
+  81 0000 90BD      		out 64-32,r25
+  12:usart_test.c  **** UBRRL = (unsigned char)ubrr;
+  83               	.LM2:
+  84 0002 89B9      		out 41-32,r24
+  13:usart_test.c  **** UCSRB = (1<<RXEN);	/* Enable receiver and transmitter */
+  86               	.LM3:
+  87 0004 80E1      		ldi r24,lo8(16)
+  88 0006 8AB9      		out 42-32,r24
+  14:usart_test.c  **** UCSRC = (1<<URSEL)|(3<<UCSZ0);	/* Set frame format: 8data, 2stop bit */
+  90               	.LM4:
+  91 0008 86E8      		ldi r24,lo8(-122)
+  92 000a 80BD      		out 64-32,r24
+  93               	/* epilogue start */
+  15:usart_test.c  **** }
+  95               	.LM5:
+  96 000c 0895      		ret
+  98               	.Lscope1:
+ 100               	.global	USART_Receive
+ 102               	USART_Receive:
+  16:usart_test.c  **** 
+  17:usart_test.c  **** 
+  18:usart_test.c  **** unsigned char USART_Receive( void )
+  19:usart_test.c  **** {
+ 104               	.LM6:
+ 105               	.LFBB2:
+ 106               	/* prologue: function */
+ 107               	/* frame size = 0 */
+ 108               	.L4:
+  20:usart_test.c  **** while ( !(UCSRA & (1<<RXC)) );
+ 110               	.LM7:
+ 111 000e 5F9B      		sbis 43-32,7
+ 112 0010 00C0      		rjmp .L4
+  21:usart_test.c  **** return UDR;
+ 114               	.LM8:
+ 115 0012 8CB1      		in r24,44-32
+ 116               	/* epilogue start */
+  22:usart_test.c  **** }
+ 118               	.LM9:
+ 119 0014 0895      		ret
+ 121               	.Lscope2:
+ 123               	.global	main
+ 125               	main:
+  23:usart_test.c  **** 
+  24:usart_test.c  **** int main (void)
+  25:usart_test.c  **** {
+ 127               	.LM10:
+ 128               	.LFBB3:
+ 129               	/* prologue: function */
+ 130               	/* frame size = 0 */
+  26:usart_test.c  ****  uint8_t t; 
+  27:usart_test.c  ****  unsigned char c;
+  28:usart_test.c  ****  DDRD=0b00000000;
+ 132               	.LM11:
+ 133 0016 11BA      		out 49-32,__zero_reg__
+  29:usart_test.c  ****  DDRB=0b11111111;
+ 135               	.LM12:
+ 136 0018 8FEF      		ldi r24,lo8(-1)
+ 137 001a 87BB      		out 55-32,r24
+  30:usart_test.c  ****  DDRC=0b11111111;
+ 139               	.LM13:
+ 140 001c 84BB      		out 52-32,r24
+  31:usart_test.c  ****  PORTD=0b11111111;
+ 142               	.LM14:
+ 143 001e 82BB      		out 50-32,r24
+  32:usart_test.c  ****  PORTB=0b11111111;
+ 145               	.LM15:
+ 146 0020 88BB      		out 56-32,r24
+ 147               	.LBB6:
+ 148               	.LBB7:
+ 150               	.LM16:
+ 151 0022 10BC      		out 64-32,__zero_reg__
+ 153               	.LM17:
+ 154 0024 83E3      		ldi r24,lo8(51)
+ 155 0026 89B9      		out 41-32,r24
+ 157               	.LM18:
+ 158 0028 80E1      		ldi r24,lo8(16)
+ 159 002a 8AB9      		out 42-32,r24
+ 161               	.LM19:
+ 162 002c 86E8      		ldi r24,lo8(-122)
+ 163 002e 80BD      		out 64-32,r24
+ 164               	.LBE7:
+ 165               	.LBE6:
+  33:usart_test.c  ****  USART_Init ( MYUBRR );
+  34:usart_test.c  ****  while(1)
+  35:usart_test.c  ****  {
+  36:usart_test.c  ****  c= USART_Receive();
+  37:usart_test.c  ****  if(c=='a')
+  38:usart_test.c  ****  PORTC=0b11111111;
+ 167               	.LM20:
+ 168 0030 9FEF      		ldi r25,lo8(-1)
+ 169               	.L13:
+ 170               	.LBB8:
+ 171               	.LBB9:
+ 173               	.LM21:
+ 174 0032 5F9B      		sbis 43-32,7
+ 175 0034 00C0      		rjmp .L13
+ 177               	.LM22:
+ 178 0036 8CB1      		in r24,44-32
+ 179               	.LBE9:
+ 180               	.LBE8:
+ 182               	.LM23:
+ 183 0038 8136      		cpi r24,lo8(97)
+ 184 003a 01F4      		brne .L9
+ 186               	.LM24:
+ 187 003c 95BB      		out 53-32,r25
+ 188 003e 00C0      		rjmp .L13
+ 189               	.L9:
+  39:usart_test.c  ****  else
+  40:usart_test.c  ****  PORTC=0b00000000;}
+ 191               	.LM25:
+ 192 0040 15BA      		out 53-32,__zero_reg__
+ 193 0042 00C0      		rjmp .L13
+ 198               	.Lscope3:
+ 200               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 usart_test.c
+     /tmp/cc97o2Mw.s:2      *ABS*:0000003f __SREG__
+     /tmp/cc97o2Mw.s:3      *ABS*:0000003e __SP_H__
+     /tmp/cc97o2Mw.s:4      *ABS*:0000003d __SP_L__
+     /tmp/cc97o2Mw.s:5      *ABS*:00000034 __CCP__
+     /tmp/cc97o2Mw.s:6      *ABS*:00000000 __tmp_reg__
+     /tmp/cc97o2Mw.s:7      *ABS*:00000001 __zero_reg__
+     /tmp/cc97o2Mw.s:73     .text:00000000 USART_Init
+     /tmp/cc97o2Mw.s:102    .text:0000000e USART_Receive
+     /tmp/cc97o2Mw.s:125    .text:00000016 main
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss

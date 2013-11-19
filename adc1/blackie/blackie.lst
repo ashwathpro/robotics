@@ -1,0 +1,503 @@
+   1               		.file	"blackie.c"
+   2               		.arch atmega8
+   3               	__SREG__ = 0x3f
+   4               	__SP_H__ = 0x3e
+   5               	__SP_L__ = 0x3d
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   8               		.global __do_copy_data
+   9               		.global __do_clear_bss
+  11               		.text
+  12               	.Ltext0:
+  75               	.global	calc
+  77               	calc:
+   1:blackie.c     **** 	/*
+   2:blackie.c     **** 	
+   3:blackie.c     **** 	put adc code...
+   4:blackie.c     **** 
+   5:blackie.c     **** 	check 
+   6:blackie.c     **** 
+   7:blackie.c     **** 		*/
+   8:blackie.c     **** 	
+   9:blackie.c     **** 	#include <avr/io.h> //header file to include input output port
+  10:blackie.c     **** 
+  11:blackie.c     **** 	#include <util/delay.h>
+  12:blackie.c     **** 
+  13:blackie.c     **** 	/*port D as input PORT
+  14:blackie.c     **** 			2	  1  	0
+  15:blackie.c     **** 	      left        right 
+  16:blackie.c     **** 	  for line follower (on line=,not on line=) */
+  17:blackie.c     **** 	
+  18:blackie.c     **** //	#define  SENSOR_INPUTS (~PINC) 
+  19:blackie.c     **** 
+  20:blackie.c     **** 	//#define  CHECK_SENSORS_INPUTS (PINC) 
+  21:blackie.c     **** 	
+  22:blackie.c     **** 	/* 
+  23:blackie.c     **** 	At hardware level ( from comparator output ) we are getting 1 for white surface and 0 for black on
+  24:blackie.c     **** 	but we have black line and we also want line be taken as 1 thus we use NOT(~) before inputs.
+  25:blackie.c     ****  
+  26:blackie.c     **** 	*/
+  27:blackie.c     **** 		
+  28:blackie.c     **** 	#define  M_OUTPUT PORTD
+  29:blackie.c     **** 		
+  30:blackie.c     **** 	/*port B as output PORT*/
+  31:blackie.c     **** 		
+  32:blackie.c     **** 	uint8_t MASTER_PWM;
+  33:blackie.c     **** 	/* We set MASTER_PWM inversely proportional to battery voltage,
+  34:blackie.c     **** 	its also define the overall speed of line follower robot.
+  35:blackie.c     **** 	*/
+  36:blackie.c     **** 	//uint8_t PERCENTAGE_LEFT_PWM,PERCENTAGE_RIGHT_PWM;
+  37:blackie.c     **** 	// shows percentage PWM of left and right motor
+  38:blackie.c     **** 
+  39:blackie.c     **** 	//uint8_t PERCENTAGE_PWM_STEP_SIZE=10;
+  40:blackie.c     **** 	/* PERCENTAGE_PWM_STEP_SIZE shows,steps size we are increasing our PWM of each motor*/
+  41:blackie.c     ****  
+  42:blackie.c     **** 	//uint8_t M_OUTPUT=0;	
+  43:blackie.c     **** 	
+  44:blackie.c     **** 
+  45:blackie.c     **** 	uint8_t calc(uint8_t w)
+  46:blackie.c     **** 	{
+  79               	.LM1:
+  80               	/* prologue: frame size=0 */
+  81               	/* prologue end (size=0) */
+  47:blackie.c     **** 		//put adc code here...
+  48:blackie.c     **** 		ADCSRA&=~(1<<ADIF);
+  83               	.LM2:
+  84 0000 3498      		cbi 38-0x20,4
+  49:blackie.c     **** 	ADMUX=w;
+  86               	.LM3:
+  87 0002 87B9      		out 39-0x20,r24
+  50:blackie.c     **** 	ADMUX|=_BV(ADLAR);
+  89               	.LM4:
+  90 0004 3D9A      		sbi 39-0x20,5
+  51:blackie.c     **** 	//start conversion
+  52:blackie.c     **** 	ADCSRA|=_BV(ADEN);
+  92               	.LM5:
+  93 0006 379A      		sbi 38-0x20,7
+  53:blackie.c     **** 	ADCSRA|=(_BV(ADPS2) | _BV(ADPS1) );
+  95               	.LM6:
+  96 0008 86B1      		in r24,38-0x20
+  97 000a 8660      		ori r24,lo8(6)
+  98 000c 86B9      		out 38-0x20,r24
+  54:blackie.c     **** 	ADCSRA|= (1<<ADSC);
+ 100               	.LM7:
+ 101 000e 369A      		sbi 38-0x20,6
+ 102               	.L2:
+  55:blackie.c     **** 	while(!(ADCSRA & 0x10));//ADIF is set.will come out of loop 
+ 104               	.LM8:
+ 105 0010 349B      		sbis 38-0x20,4
+ 106 0012 FECF      		rjmp .L2
+  56:blackie.c     **** 	ADCSRA=(0<<ADEN);// added by me to switc off the adc , so as it doesnt consume power
+ 108               	.LM9:
+ 109 0014 16B8      		out 38-0x20,__zero_reg__
+  57:blackie.c     **** 	return ADCH;
+ 111               	.LM10:
+ 112 0016 85B1      		in r24,37-0x20
+  58:blackie.c     **** 
+  59:blackie.c     **** 
+  60:blackie.c     **** 	//	return 0x0;		//change here
+  61:blackie.c     **** 	}	
+ 114               	.LM11:
+ 115 0018 9927      		clr r25
+ 116               	/* epilogue: frame size=0 */
+ 117 001a 0895      		ret
+ 118               	/* epilogue end (size=1) */
+ 119               	/* function calc size 14 (13) */
+ 121               	.Lscope0:
+ 123               	.global	main
+ 125               	main:
+  62:blackie.c     **** 	
+  63:blackie.c     **** int main()
+  64:blackie.c     **** {
+ 127               	.LM12:
+ 128               	/* prologue: frame size=0 */
+ 129 001c C0E0      		ldi r28,lo8(__stack - 0)
+ 130 001e D0E0      		ldi r29,hi8(__stack - 0)
+ 131 0020 DEBF      		out __SP_H__,r29
+ 132 0022 CDBF      		out __SP_L__,r28
+ 133               	/* prologue end (size=4) */
+  65:blackie.c     **** 			uint8_t Actual_input=0b00100,LAST_INPUT=0b101010,count;	
+ 135               	.LM13:
+ 136 0024 8AE2      		ldi r24,lo8(42)
+ 137 0026 F82E      		mov r15,r24
+  66:blackie.c     **** 			
+  67:blackie.c     **** 			DDRD=0b00001111; 
+ 139               	.LM14:
+ 140 0028 9FE0      		ldi r25,lo8(15)
+ 141 002a 91BB      		out 49-0x20,r25
+  68:blackie.c     **** 			DDRB=0xff;
+ 143               	.LM15:
+ 144 002c 8FEF      		ldi r24,lo8(-1)
+ 145 002e 87BB      		out 55-0x20,r24
+  69:blackie.c     **** 			PORTB=0x0;
+ 147               	.LM16:
+ 148 0030 18BA      		out 56-0x20,__zero_reg__
+  70:blackie.c     **** 			PORTD=0b1111;
+ 150               	.LM17:
+ 151 0032 92BB      		out 50-0x20,r25
+  71:blackie.c     **** 
+  72:blackie.c     **** 		//	DDRC=0b11100000;  
+  73:blackie.c     **** 
+  74:blackie.c     **** 		OCR1A=0xff;   // output compare register  for right motor  
+ 153               	.LM18:
+ 154 0034 8FEF      		ldi r24,lo8(255)
+ 155 0036 90E0      		ldi r25,hi8(255)
+ 156 0038 9BBD      		out (74)+1-0x20,r25
+ 157 003a 8ABD      		out 74-0x20,r24
+  75:blackie.c     **** 		OCR1B=0xff;	// output compare register  for left motor
+ 159               	.LM19:
+ 160 003c 99BD      		out (72)+1-0x20,r25
+ 161 003e 88BD      		out 72-0x20,r24
+  76:blackie.c     **** 		
+  77:blackie.c     **** 
+  78:blackie.c     **** 
+  79:blackie.c     **** 		/* TOP value is 00FFh for both OCR1A and OCR1B*/
+  80:blackie.c     **** 
+  81:blackie.c     **** 		TCCR1A=0xA1;	// define type of PWM	
+ 163               	.LM20:
+ 164 0040 81EA      		ldi r24,lo8(-95)
+ 165 0042 8FBD      		out 79-0x20,r24
+  82:blackie.c     **** 
+  83:blackie.c     **** 		/*Timer/Counter 1 Control  and pwm at pin OCR1A(PB1) */
+  84:blackie.c     **** 
+  85:blackie.c     **** 		TCCR1B=0x01; //for start pwm
+ 167               	.LM21:
+ 168 0044 81E0      		ldi r24,lo8(1)
+ 169 0046 8EBD      		out 78-0x20,r24
+  86:blackie.c     **** 		
+  87:blackie.c     **** 
+  88:blackie.c     **** 		/* pwm at pin OCR1B(PB2) and clock freq. of timer(3 LSB 000 sys. clock) */ 
+  89:blackie.c     **** 			/*maximum MASTER_PWM value can be 00FFh */
+  90:blackie.c     **** 
+  91:blackie.c     **** 		MASTER_PWM=230;
+ 171               	.LM22:
+ 172 0048 86EE      		ldi r24,lo8(-26)
+ 173 004a 8093 0000 		sts MASTER_PWM,r24
+ 174               	.L6:
+ 175               	.L45:
+  92:blackie.c     **** 
+  93:blackie.c     **** 		//PERCENTAGE_LEFT_PWM=100;
+  94:blackie.c     **** 
+  95:blackie.c     **** 	//	PERCENTAGE_RIGHT_PWM=100;
+  96:blackie.c     **** 
+  97:blackie.c     **** 				
+  98:blackie.c     **** 			
+  99:blackie.c     **** line_following:
+ 100:blackie.c     **** 		
+ 101:blackie.c     **** 	//	Actual_input=SENSOR_INPUTS;		//check
+ 102:blackie.c     **** 
+ 103:blackie.c     **** 		Actual_input=0x0;
+ 177               	.LM23:
+ 178 004e 00E0      		ldi r16,lo8(0)
+ 104:blackie.c     **** 		for(count=0;count<=4;count++)
+ 180               	.LM24:
+ 181 0050 102F      		mov r17,r16
+ 182 0052 C0E0      		ldi r28,lo8(0)
+ 183 0054 D0E0      		ldi r29,hi8(0)
+ 184               	.L11:
+ 105:blackie.c     **** 		{
+ 106:blackie.c     **** 			if(calc(count)>130)		//check
+ 186               	.LM25:
+ 187 0056 812F      		mov r24,r17
+ 188 0058 D3DF      		rcall calc
+ 189 005a 8338      		cpi r24,lo8(-125)
+ 190 005c 48F0      		brlo .L9
+ 107:blackie.c     **** 			{
+ 108:blackie.c     **** 				Actual_input|=0x01<<count;
+ 192               	.LM26:
+ 193 005e 81E0      		ldi r24,lo8(1)
+ 194 0060 90E0      		ldi r25,hi8(1)
+ 195 0062 0C2E      		mov r0,r28
+ 196 0064 02C0      		rjmp 2f
+ 197 0066 880F      	1:	lsl r24
+ 198 0068 991F      		rol r25
+ 199 006a 0A94      	2:	dec r0
+ 200 006c E2F7      		brpl 1b
+ 201 006e 082B      		or r16,r24
+ 202               	.L9:
+ 204               	.LM27:
+ 205 0070 1F5F      		subi r17,lo8(-(1))
+ 206 0072 2196      		adiw r28,1
+ 207 0074 1530      		cpi r17,lo8(5)
+ 208 0076 78F3      		brlo .L11
+ 109:blackie.c     **** 			}
+ 110:blackie.c     **** 		}
+ 111:blackie.c     **** 
+ 112:blackie.c     **** 		Actual_input&=0b11111;
+ 210               	.LM28:
+ 211 0078 0F71      		andi r16,lo8(31)
+ 113:blackie.c     **** 
+ 114:blackie.c     **** 
+ 115:blackie.c     **** 		//if same input from sensor then no need to calculate PWM just follow as last
+ 116:blackie.c     **** 		if(LAST_INPUT==Actual_input)goto line_following;
+ 213               	.LM29:
+ 214 007a F016      		cp r15,r16
+ 215 007c 41F3      		breq .L45
+ 117:blackie.c     **** 		
+ 118:blackie.c     **** 	
+ 119:blackie.c     **** 	
+ 120:blackie.c     **** 		
+ 121:blackie.c     **** 	//	Actual_input^=0xff;
+ 122:blackie.c     **** 	switch((Actual_input))
+ 217               	.LM30:
+ 218 007e 802F      		mov r24,r16
+ 219 0080 9927      		clr r25
+ 220 0082 AA27      		clr r26
+ 221 0084 BB27      		clr r27
+ 222 0086 FC01      		movw r30,r24
+ 223 0088 8097      		sbiw r24,32
+ 224 008a 08F0      		brlo .+2
+ 225 008c 56C0      		rjmp .L13
+ 226 008e E050      		subi r30,lo8(-(pm(.L37)))
+ 227 0090 F040      		sbci r31,hi8(-(pm(.L37)))
+ 228 0092 0994      		ijmp
+ 229               		.data
+ 230               		.section .progmem.gcc_sw_table, "ax", @progbits
+ 231               		.p2align 1
+ 232               	.L37:
+ 233 0000 00C0      		rjmp .L20
+ 234 0002 00C0      		rjmp .L13
+ 235 0004 00C0      		rjmp .L33
+ 236 0006 00C0      		rjmp .L34
+ 237 0008 00C0      		rjmp .L33
+ 238 000a 00C0      		rjmp .L33
+ 239 000c 00C0      		rjmp .L33
+ 240 000e 00C0      		rjmp .L24
+ 241 0010 00C0      		rjmp .L33
+ 242 0012 00C0      		rjmp .L13
+ 243 0014 00C0      		rjmp .L13
+ 244 0016 00C0      		rjmp .L13
+ 245 0018 00C0      		rjmp .L33
+ 246 001a 00C0      		rjmp .L13
+ 247 001c 00C0      		rjmp .L13
+ 248 001e 00C0      		rjmp .L24
+ 249 0020 00C0      		rjmp .L13
+ 250 0022 00C0      		rjmp .L20
+ 251 0024 00C0      		rjmp .L13
+ 252 0026 00C0      		rjmp .L20
+ 253 0028 00C0      		rjmp .L33
+ 254 002a 00C0      		rjmp .L13
+ 255 002c 00C0      		rjmp .L13
+ 256 002e 00C0      		rjmp .L20
+ 257 0030 00C0      		rjmp .L33
+ 258 0032 00C0      		rjmp .L20
+ 259 0034 00C0      		rjmp .L13
+ 260 0036 00C0      		rjmp .L20
+ 261 0038 00C0      		rjmp .L22
+ 262 003a 00C0      		rjmp .L20
+ 263 003c 00C0      		rjmp .L22
+ 264 003e 00C0      		rjmp .L33
+ 265               		.text
+ 266               	.L20:
+ 123:blackie.c     **** 	{
+ 124:blackie.c     **** 	
+ 125:blackie.c     **** 		case 0b11011: // forward			done
+ 126:blackie.c     **** 		case 0b10111: 
+ 127:blackie.c     **** 		case 0b11101: 
+ 128:blackie.c     **** 		case 0b11001:  
+ 129:blackie.c     **** 		case 0b10011:
+ 130:blackie.c     **** 		case 0b10001:
+ 131:blackie.c     **** 		case 0b0:
+ 132:blackie.c     **** 		//case 0b00000000: 	
+ 133:blackie.c     ****             M_OUTPUT=0b1010;			 //	output for motors
+ 268               	.LM31:
+ 269 0094 8AE0      		ldi r24,lo8(10)
+ 270 0096 82BB      		out 50-0x20,r24
+ 134:blackie.c     **** 			OCR1A=(MASTER_PWM*80/100);   // enable for right
+ 272               	.LM32:
+ 273 0098 9091 0000 		lds r25,MASTER_PWM
+ 274 009c 80E5      		ldi r24,lo8(80)
+ 275 009e 989F      		mul r25,r24
+ 276 00a0 C001      		movw r24,r0
+ 277 00a2 1124      		clr r1
+ 278 00a4 64E6      		ldi r22,lo8(100)
+ 279 00a6 70E0      		ldi r23,hi8(100)
+ 280 00a8 00D0      		rcall __divmodhi4
+ 281 00aa CB01      		movw r24,r22
+ 282 00ac 7BBD      		out (74)+1-0x20,r23
+ 283 00ae 6ABD      		out 74-0x20,r22
+ 284 00b0 42C0      		rjmp .L44
+ 285               	.L22:
+ 135:blackie.c     **** 			OCR1B=(MASTER_PWM*80/100);	 // enable for left
+ 136:blackie.c     **** 			break; 
+ 137:blackie.c     **** 
+ 138:blackie.c     **** 
+ 139:blackie.c     **** 		case 0b11110: // sharp right		done
+ 140:blackie.c     **** 		case 0b11100: 
+ 141:blackie.c     **** 		
+ 142:blackie.c     **** 			M_OUTPUT=0b1001;
+ 287               	.LM33:
+ 288 00b2 89E0      		ldi r24,lo8(9)
+ 289 00b4 82BB      		out 50-0x20,r24
+ 143:blackie.c     **** 			OCR1A=(MASTER_PWM*30/100); 
+ 291               	.LM34:
+ 292 00b6 2091 0000 		lds r18,MASTER_PWM
+ 293 00ba 8EE1      		ldi r24,lo8(30)
+ 294 00bc 289F      		mul r18,r24
+ 295 00be C001      		movw r24,r0
+ 296 00c0 1124      		clr r1
+ 297 00c2 64E6      		ldi r22,lo8(100)
+ 298 00c4 70E0      		ldi r23,hi8(100)
+ 299 00c6 00D0      		rcall __divmodhi4
+ 300 00c8 7BBD      		out (74)+1-0x20,r23
+ 301 00ca 6ABD      		out 74-0x20,r22
+ 144:blackie.c     **** 			OCR1B=(MASTER_PWM*70/100);
+ 303               	.LM35:
+ 304 00cc 86E4      		ldi r24,lo8(70)
+ 305 00ce 2CC0      		rjmp .L43
+ 306               	.L24:
+ 145:blackie.c     **** 			break;
+ 146:blackie.c     **** 
+ 147:blackie.c     **** 
+ 148:blackie.c     **** 		case 0b01111:// sharp left			done
+ 149:blackie.c     **** 		case 0b00111:
+ 150:blackie.c     **** 
+ 151:blackie.c     **** 			M_OUTPUT=0b0110;
+ 308               	.LM36:
+ 309 00d0 86E0      		ldi r24,lo8(6)
+ 310 00d2 82BB      		out 50-0x20,r24
+ 152:blackie.c     **** 			OCR1A=(MASTER_PWM*70/100); 
+ 312               	.LM37:
+ 313 00d4 2091 0000 		lds r18,MASTER_PWM
+ 314 00d8 86E4      		ldi r24,lo8(70)
+ 315 00da 289F      		mul r18,r24
+ 316 00dc C001      		movw r24,r0
+ 317 00de 1124      		clr r1
+ 318 00e0 64E6      		ldi r22,lo8(100)
+ 319 00e2 70E0      		ldi r23,hi8(100)
+ 320 00e4 00D0      		rcall __divmodhi4
+ 321 00e6 7BBD      		out (74)+1-0x20,r23
+ 322 00e8 6ABD      		out 74-0x20,r22
+ 153:blackie.c     **** 			OCR1B=(MASTER_PWM*30/100);
+ 324               	.LM38:
+ 325 00ea 8EE1      		ldi r24,lo8(30)
+ 326 00ec 1DC0      		rjmp .L43
+ 327               	.L33:
+ 154:blackie.c     **** 			break;		
+ 155:blackie.c     **** 			
+ 156:blackie.c     **** 					
+ 157:blackie.c     **** 		case 0b11000:// sharp right with at slower speed   
+ 158:blackie.c     **** 
+ 159:blackie.c     **** 		
+ 160:blackie.c     **** 		case 0b01100: 	//some casses just immediately after nodes
+ 161:blackie.c     **** 		
+ 162:blackie.c     **** 		
+ 163:blackie.c     **** 		case 0b00110:
+ 164:blackie.c     **** 
+ 165:blackie.c     **** 		case 0b00100: 	//some casses at nodes
+ 166:blackie.c     **** 		
+ 167:blackie.c     **** 		case 0b01000: 	//bad casses
+ 168:blackie.c     **** 		case 0b00010: 
+ 169:blackie.c     **** 		
+ 170:blackie.c     **** 		case 0b10100: 	//very bad casses
+ 171:blackie.c     **** 		case 0b00101: 
+ 172:blackie.c     **** 		
+ 173:blackie.c     **** 		
+ 174:blackie.c     **** 		
+ 175:blackie.c     **** 		case 0b11111: 	//end or a node
+ 176:blackie.c     **** 		//case 0b00000: 	//end of a line
+ 177:blackie.c     **** 		
+ 178:blackie.c     **** 		
+ 179:blackie.c     **** 			M_OUTPUT=0b01001;
+ 329               	.LM39:
+ 330 00ee 89E0      		ldi r24,lo8(9)
+ 331 00f0 82BB      		out 50-0x20,r24
+ 180:blackie.c     **** 			OCR1A=(MASTER_PWM*40/100); 
+ 333               	.LM40:
+ 334 00f2 2091 0000 		lds r18,MASTER_PWM
+ 335 00f6 88E2      		ldi r24,lo8(40)
+ 336 00f8 289F      		mul r18,r24
+ 337 00fa C001      		movw r24,r0
+ 338 00fc 1124      		clr r1
+ 339 00fe 64E6      		ldi r22,lo8(100)
+ 340 0100 70E0      		ldi r23,hi8(100)
+ 341 0102 00D0      		rcall __divmodhi4
+ 342 0104 7BBD      		out (74)+1-0x20,r23
+ 343 0106 6ABD      		out 74-0x20,r22
+ 181:blackie.c     **** 			OCR1B=(MASTER_PWM*60/100);
+ 345               	.LM41:
+ 346 0108 8CE3      		ldi r24,lo8(60)
+ 347 010a 0EC0      		rjmp .L43
+ 348               	.L34:
+ 182:blackie.c     **** 			break;
+ 183:blackie.c     **** 
+ 184:blackie.c     **** 
+ 185:blackie.c     **** 		case 0b00011: // sharp left with at slower speed       
+ 186:blackie.c     **** 		                           
+ 187:blackie.c     **** 			M_OUTPUT=0b110;
+ 350               	.LM42:
+ 351 010c 86E0      		ldi r24,lo8(6)
+ 352 010e 82BB      		out 50-0x20,r24
+ 188:blackie.c     **** 			OCR1A=(MASTER_PWM*60/100); 
+ 354               	.LM43:
+ 355 0110 2091 0000 		lds r18,MASTER_PWM
+ 356 0114 8CE3      		ldi r24,lo8(60)
+ 357 0116 289F      		mul r18,r24
+ 358 0118 C001      		movw r24,r0
+ 359 011a 1124      		clr r1
+ 360 011c 64E6      		ldi r22,lo8(100)
+ 361 011e 70E0      		ldi r23,hi8(100)
+ 362 0120 00D0      		rcall __divmodhi4
+ 363 0122 7BBD      		out (74)+1-0x20,r23
+ 364 0124 6ABD      		out 74-0x20,r22
+ 189:blackie.c     **** 			OCR1B=(MASTER_PWM*40/100);
+ 366               	.LM44:
+ 367 0126 88E2      		ldi r24,lo8(40)
+ 368               	.L43:
+ 369 0128 289F      		mul r18,r24
+ 370 012a C001      		movw r24,r0
+ 371 012c 1124      		clr r1
+ 372 012e 64E6      		ldi r22,lo8(100)
+ 373 0130 70E0      		ldi r23,hi8(100)
+ 374 0132 00D0      		rcall __divmodhi4
+ 375 0134 CB01      		movw r24,r22
+ 376               	.L44:
+ 377 0136 99BD      		out (72)+1-0x20,r25
+ 378 0138 88BD      		out 72-0x20,r24
+ 379               	.L13:
+ 190:blackie.c     **** 			break;
+ 191:blackie.c     **** 			
+ 192:blackie.c     **** 		
+ 193:blackie.c     **** 		case 0b10000:// this may occur during larger turns( >135 degrees) or it may be noise therefor we 
+ 194:blackie.c     **** 		case 0b00001:			// output as same as previous condition.
+ 195:blackie.c     **** 		
+ 196:blackie.c     **** 			break;	
+ 197:blackie.c     **** 			
+ 198:blackie.c     **** 		
+ 199:blackie.c     **** 	}
+ 200:blackie.c     **** 		
+ 201:blackie.c     **** 				
+ 202:blackie.c     **** 		LAST_INPUT=Actual_input; //store last Actual_input
+ 381               	.LM45:
+ 382 013a F02E      		mov r15,r16
+ 203:blackie.c     **** 		
+ 204:blackie.c     **** 	
+ 205:blackie.c     **** 			goto line_following;//infinite loop
+ 384               	.LM46:
+ 385 013c 88CF      		rjmp .L45
+ 386               	/* epilogue: frame size=0 */
+ 387               	/* epilogue: noreturn */
+ 388               	/* epilogue end (size=0) */
+ 389               	/* function main size 178 (174) */
+ 396               	.Lscope1:
+ 397               		.comm MASTER_PWM,1,1
+ 399               		.text
+ 401               	Letext:
+ 402               	/* File "blackie.c": code  192 = 0x00c0 ( 187), prologues   4, epilogues   1 */
+DEFINED SYMBOLS
+                            *ABS*:00000000 blackie.c
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccCqaaaa.s:3      *ABS*:0000003f __SREG__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccCqaaaa.s:4      *ABS*:0000003e __SP_H__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccCqaaaa.s:5      *ABS*:0000003d __SP_L__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccCqaaaa.s:6      *ABS*:00000000 __tmp_reg__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccCqaaaa.s:7      *ABS*:00000001 __zero_reg__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccCqaaaa.s:77     .text:00000000 calc
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccCqaaaa.s:125    .text:0000001c main
+                            *COM*:00000001 MASTER_PWM
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccCqaaaa.s:401    .text:0000013e Letext
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+__stack
+__divmodhi4

@@ -1,0 +1,408 @@
+@charset "utf-8";
+/* CSS Document */
+
+/* Layout Style */
+
+body {
+	margin: 0px;
+	background: #eff0e2;
+	font-size: 62.5%;
+	color:#423f4f; /* this is the text colour */
+}
+
+p	{
+	font-size: 1.6em;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+table	{
+	font-size: 1.6em;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+#dh_container {
+	margin: auto;
+	width: 980px;
+	background: url(../Images_hp/dh_container_bg.gif) repeat-y #000000;
+
+}
+
+#dh_header {
+	position: relative;
+	margin: auto;
+	width: 960px;
+	background: url(../Images_hp/dh_header_bg.gif) no-repeat #423f4f;
+	background-position: bottom;
+}
+
+#dh_strapline {
+	margin: auto;
+	width: 960px;
+	background: url(../Images_hp/dh_strapline.gif) no-repeat #312e3e;
+	background-position: bottom;
+	font-size: 1.6em;
+}
+
+#dh_divider_top {
+	width: 980px;
+	height: 12px;
+	font-size: 0.0em;
+	background: url(../Images_hp/dh_divider_top_bg.gif) no-repeat;
+}
+
+#dh_content {
+	margin: auto;
+	width: 920px;
+	padding: 20px;
+	background: #FFFFFF;
+}
+
+#dh_divider_bottom {
+	width: 980px;
+	height: 12px;
+	font-size: 0.0em;
+	background: url(../Images_hp/dh_divider_bottom_bg.gif) no-repeat;
+}
+
+#dh_footer {
+	margin: auto;
+	width: 950px;
+	padding: 0 0 0 10px;
+	background: #2c293b;
+	font-size: 1.2em;
+	font-style: italic;
+	font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
+	color: #FFFFFF;
+}
+
+#dh_foot {
+	width: 980px;
+	height: 16px;
+	font-size: 0.0em;
+	background: url(../Images_hp/dh_foot_bg.gif) no-repeat;
+}
+
+/* Header Styles */
+
+h1.dh_h1_title {
+	color: #FFFFFF;
+	font-size: 3.6em;
+	font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
+	margin: 0 0 0 20px;
+	padding: 0px;
+	font-weight: normal;
+}
+
+h3.dh_h3_strapline {
+	color: #FFFFFF;
+	font-size: 1em;
+	font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
+	margin: 0 0 0 20px;
+	padding: 0px;
+	font-weight: normal;
+	font-style: italic;	
+}
+
+h3.dh_h3_footer {
+	display: inline;
+	margin: 0 0 0 10px;
+	position: 0px;
+	font-size: 1.0em;
+	color: #93C6C6;
+	font-weight: normal;
+}
+
+a.dh_a_footer {
+	color: #FFFFFF;
+	text-decoration: none;
+}
+
+a.dh_a_footer:hover {
+	text-decoration: underline;
+}
+
+/* Menu Styles */
+
+ul.dh_main_menu {
+	position: absolute;
+	right: 18px;
+	bottom: 1px;
+	padding: 0px;
+	margin: 0px;
+}
+
+ul.dh_main_menu li {
+	float: left;
+	padding: 0;
+	margin: 0 2px 0 2px;
+	list-style: none;
+	background: url(../Images_hp/dh_mainmenu_lc.gif) no-repeat #5b576b;
+}
+
+ul.dh_main_menu li:hover {
+	background: url(../Images_hp/dh_mainmenu_hover_lc.gif) no-repeat #F0f4f4;
+}
+
+ul.dh_main_menu li.dh_li_current {
+	background: url(../Images_hp/dh_mainmenu_white_lc.gif) no-repeat #FFFFFF;
+}
+
+ul.dh_main_menu li a {
+	padding: 0 8px 0 8px;
+	background: url(../Images_hp/dh_mainmenu_rc.gif) no-repeat;
+	background-position: top right;
+	color: #FFFFFF;
+	font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
+	font-style: italic;
+	font-size: 1.8em;
+	text-decoration: none;
+}
+
+ul.dh_main_menu li a:hover {
+	color: #93C6C6;
+	background: url(../Images_hp/dh_mainmenu_hover_rc.gif) no-repeat;
+	background-position: top right;
+}
+
+ul.dh_main_menu li a.dh_a_current {
+	color:#93C6C6;
+	background: url(../Images_hp/dh_mainmenu_white_rc.gif) no-repeat;
+	background-position: top right;
+}
+
+/* Panel styles */
+
+#p_container {
+	float: left;
+	width: 280px;
+	margin-left: 30px;
+	margin-right: 10px;
+	
+}
+
+h2.p_title {
+	display: inline;
+	color: #646d73; /* title text colour */
+	font-size: 2.2em;
+	font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
+	padding: 1px;
+	font-weight: normal;
+}
+
+h2.p_item_title {
+	color: #646d73;
+	font-size: 18px;
+	font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
+	font-weight: normal;
+	margin-left: 6px;
+}
+
+h2.p_item_title a:hover {
+	text-decoration: underline;
+}
+
+h2.p_item_title a {
+	text-decoration: none;
+	color: #646d73; 
+}
+
+#p_info {
+	padding-bottom: 1px;
+	background: url(../Images_hp/p_top.gif) no-repeat #f0f4f4;
+}
+
+#p_text_box_1 {
+	width: 266px;
+	margin: auto;
+	padding-top: 15px;
+	padding-bottom: 5px;
+}
+
+#p_text_box_2 {
+	width: 266px;
+	margin: auto;
+	padding-top: 5px;
+}
+
+#p_text {
+	display: inline;	
+	font-size: 1.4em;
+}
+
+#p_info_bottom {
+	background: url(../Images_hp/p_bottom.gif) no-repeat;
+	background-position: top;
+	height: 8px;
+	font-size: 0.0em;
+	margin-bottom: 10px;
+}
+
+#p_link_line {
+	background: url(../Images_hp/p_link_line.gif) no-repeat;
+	background-position: bottom;
+	height: 20px;
+	font-size: 0.0em;
+}
+
+#p_link {
+	display: inline;
+	float: right;
+	height: 22px;
+	background: url(../Images_hp/p_link_lc.gif) no-repeat #93C6C6;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 1.4em;
+	vertical-align: 0px;
+	line-height: 22px;
+}
+
+#p_link a {
+	text-decoration: none;
+	color: #423f4f;
+	margin-left: 8px;
+	margin-right: 0px;
+}
+
+#p_link a:hover {
+	color: #FFFFFF ;
+}
+
+/* Chapter styles */
+
+#left_column {
+	float: left;
+	width: 180px; /* the background color will be displayed for the length of the content in the column, but no further */
+	text-align: left;
+	padding-bottom: 20px;
+	}
+
+#left_column_centered {
+	float: left;
+	width: 180px; /* the background color will be displayed for the length of the content in the column, but no further */
+	text-align: center;
+	padding-bottom: 20px;
+	}
+
+#left_widget {
+	float: left;
+	background:#F0F4F4;
+	width: 180px; /* the background color will be displayed for the length of the content in the column, but no further */
+	padding-top: 10px;
+	padding-bottom: 20px;
+	text-align: center;
+	}
+
+#main_content {
+	margin-top: 0;
+	margin-bottom: 0;
+	margin-left: 200px;
+	background-color: #FFFFFF;
+	}
+	
+p.small_text {
+	font-size: 12px;
+	font-family: /*Sydney,*/ Verdana, Arial, Helvetica, sans-serif;
+	
+	}
+	
+h2.ch_title {
+	/*font-family: Palatino Linotype, Book Antiqua, Palatino, serif;*/
+	font-family: /*Sydney,*/ Verdana, Arial, Helvetica, sans-serif;
+	font-style: normal;
+	font-size: 2em;
+	font-weight: normal;
+	background-color:#93C6C6;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	}
+
+h2.scn_title	{
+	font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
+	font-style: italic;
+	font-size: 2.2em;
+	font-weight: normal;
+	margin-top: 0px;
+	}
+	
+h3.sub_title  {
+	font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
+	font-style: italic;
+	font-size: 2em;
+	font-weight: normal;
+	background-color:#f0f4f4;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-left: 5px;
+	}
+	
+.keyword	{
+	background-color:#D6E9E9;
+	}
+
+.math	{
+	font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
+	font-style: italic;
+	font-size: large;
+	}
+
+.power	{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	vertical-align: super;
+	font-size: smaller;
+	}
+
+.subscript	{
+	font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
+	font-style: inherit;
+	vertical-align: -0.2em;
+	font-size: medium;
+	}
+
+.RED_text	{
+	color:#FF0000
+	}
+	
+ul.main_content {
+	background-color:#FBE6BD;
+	font-size: 1.6em;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	}
+
+li.main_content	{
+	padding-top: 5px;
+	padding-right: 10px;
+	padding-bottom: 5px;
+	padding-left: 0px;
+	}
+
+ol.main_content	{
+	background-color:#FBE6BD;
+	font-size: 1.6em;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	}
+
+hr	{
+	line-height: 4px;
+	border: 1px 0 0 0;
+	border-color: #000000;
+	background: #FFFFFF;
+}
+	
+/* Miscellaneous classes for reuse */
+
+.fltlft { /* this class can be used to float an element left in your page */
+	float: left;
+	margin-right: 20px;
+	margin-bottom: 15px;
+	}
+
+.fltrt { /* this class can be used to float an element right in your page. The floated element must precede the element it should be next to on the page. */
+	float: right;
+	margin-left: 20px;
+	margin-bottom: 15px;
+	}
+.clearfloat { /* this class should be placed on a div or break element and should be the final element before the close of a container that should fully contain a float */
+	clear:both;
+    height:0;
+    font-size: 0px;
+    line-height: 0px;
+	}

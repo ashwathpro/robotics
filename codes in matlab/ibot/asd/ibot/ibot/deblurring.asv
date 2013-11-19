@@ -1,0 +1,56 @@
+% load image 
+X = double(imread('ibot2.jpg'));
+X = X-mean(X(:));
+[m,n] = size(X);
+
+
+% show image and DFT
+fX = fft2(X);
+figure(1)
+imshow(real(X),[]);
+title('original image')
+% figure(2)
+% imshow(fftshift(log(1+abs(fX))),[])
+% title('log(1+|DFT|)) original image'); 
+
+% model blurring filter
+s = 24; t= 0;
+u = 1; v=0;
+g = [ones(s,1);zeros(m-s-t,1); ones(t,1)];
+% g = [ones(s,1);0.99; zeros(m-s-t-2,1);0.99; ones(t,1)];
+g = g/sum(abs(g));
+h = [ones(u,1); zeros(n-u-v,1); ones(v,1)];
+h = h/sum(abs(h));
+f =g*h';
+ff = fft2(f);
+% figure(3)
+% imshow(fftshift(log(1+abs(ff))),[])
+% title('amplitude: log(1+|OTF|)'); 
+% figure(4)
+% imshow(fftshift(angle(ff)),[])
+% title('phase of OTF'); 
+
+% get pseudo inverse filter
+ff(find(abs(ff)==0))=NaN;
+aff = abs(ff);
+pff = ff./aff;
+apiff = 1./aff;
+ppiff = conj(pff);
+ppiff(find(isnan(ppiff))) = 0;
+cap = 11;
+apiff(find(apiff > cap)) = cap;
+apiff(find(isnan(apiff))) = 0;
+piff = apiff.*ppiff;
+
+
+
+% deblur and show
+frX = piff.*fX;
+% disp(frX);
+rX = real(fft2(frX));
+% figure(5)
+% imshow(fftshift(log(1+abs(frX))),[])
+% title('log(1+|DFT|)) restored image')
+figure(6);
+imshow(rX(:,5:n),[]);
+title('restored image') 

@@ -1,0 +1,45 @@
+% % % % %  Dijkstra algo 
+
+function ret=dijkstra(src,dest,LINK)
+%     init single src....
+    global DIJdist
+    global parent
+    DIJdist=inf*ones(1,size(LINK,1));
+    parent=zeros(1,size(LINK,1));
+    seen=zeros(1,size(LINK,1));
+    DIJdist(src)=0;
+    parent(src)=-1;
+%     algo starting....
+    
+    while(size(DIJdist,1)~=0 && seen(dest)~=1)
+        [u ind]=min(DIJdist);
+        DIJdist(ind)=[];
+        seen(u)=1;
+        
+        verticesV=find(LINK(u,:));
+        
+    end
+    
+    ret=0;
+end
+
+function relax(u,v,w)
+    global DIJdist
+    global parent
+    if(DIJdist(v) > DIJdist(u) + w)
+        DIJdist(v)=DIJdist(u) + w;
+        parent(v)=u;
+    end
+end
+
+
+% 
+% 1 INITIALIZE-SINGLE-SOURCE(G, s)
+% 2 S ? Ø
+% 3 Q ? V[G]
+% 4 while Q ? Ø
+% 5 do u ? EXTRACT-MIN(Q)
+% 6 S ? S {u}
+% 7 for each vertex v  Adj[u]
+% 8 do RELAX(u, v, w)
+% Dijkstra's algorithm relaxes edges as shown in

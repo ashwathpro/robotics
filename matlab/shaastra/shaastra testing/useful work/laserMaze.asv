@@ -1,0 +1,6 @@
+global final
+imshow(final)
+
+% rect = imrect(gca)
+
+imLength  = size() 

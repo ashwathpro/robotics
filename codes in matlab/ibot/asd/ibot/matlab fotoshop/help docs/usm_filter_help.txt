@@ -1,0 +1,6 @@
+USM-Filter:
+      This filter is the inverse of the Gaussian blur filter. It
+      sharpens the gaussian blurred image with the same
+      parameters. It works in the following way: 
+  
+      sharpened_image = 2*original_image-gaussian_blured_image

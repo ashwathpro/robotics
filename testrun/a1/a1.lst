@@ -1,0 +1,633 @@
+   1               		.file	"a1.c"
+   2               		.arch atmega8
+   3               	__SREG__ = 0x3f
+   4               	__SP_H__ = 0x3e
+   5               	__SP_L__ = 0x3d
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   8               		.global __do_copy_data
+   9               		.global __do_clear_bss
+  11               		.text
+  12               	.Ltext0:
+  73               	.global	LAST_INPUT
+  74               	.global	LAST_INPUT
+  75               		.section .bss
+  78               	LAST_INPUT:
+  79 0000 00        		.skip 1,0
+  80               	.global	REVERSE_LEFT_RIGHT_MOTOR
+  81               	.global	REVERSE_LEFT_RIGHT_MOTOR
+  84               	REVERSE_LEFT_RIGHT_MOTOR:
+  85 0001 00        		.skip 1,0
+  86               	.global	PERCENTAGE_PWM_STEP_SIZE
+  87               		.data
+  90               	PERCENTAGE_PWM_STEP_SIZE:
+  91 0000 05        		.byte	5
+  92               		.text
+  94               	.global	__vector_1
+  96               	__vector_1:
+   1:a1.c          **** 	/*
+   2:a1.c          **** 	The foloowing c code is for simple line folllower robot, having three sensors.
+   3:a1.c          **** 	The line is made of black color on white surface.   
+   4:a1.c          **** 		We wrote this c program for one workshop robot to drive in smooth fashion, thus lots of
+   5:a1.c          **** 	variable may vary if you changed the hardware.
+   6:a1.c          **** 		Dont stick on our coding style try experiments with your ideas also.
+   7:a1.c          **** 		GOOD LUCK
+   8:a1.c          **** 		*/
+   9:a1.c          **** 	
+  10:a1.c          **** #include <avr/io.h> //header file to include input output port
+  11:a1.c          **** //#include <avr\iom8.h>
+  12:a1.c          **** #include <avr\interrupt.h>
+  13:a1.c          **** //#include <util/delay.h>
+  14:a1.c          **** 
+  15:a1.c          ****  
+  16:a1.c          **** 
+  17:a1.c          **** 
+  18:a1.c          **** 
+  19:a1.c          **** 
+  20:a1.c          **** 	/*port C as input PORT
+  21:a1.c          **** 			2	  1  	0
+  22:a1.c          **** 	      left        right 
+  23:a1.c          **** 	  for line follower (on line=1,not on line=0;) */
+  24:a1.c          **** 	
+  25:a1.c          **** 	#define  SENSOR_INPUTS (PINC)
+  26:a1.c          **** 	
+  27:a1.c          **** 	
+  28:a1.c          **** 	/* 
+  29:a1.c          **** 	At hardware level ( from comparator output ) we are getting 1 for white surface and 0 for black on
+  30:a1.c          **** 	but we have black line and we also want line be taken as 1 thus we use NOT(~) before inputs.
+  31:a1.c          ****  
+  32:a1.c          **** 	*/
+  33:a1.c          **** 		
+  34:a1.c          **** 	#define  M_OUTPUT PORTB
+  35:a1.c          **** 		
+  36:a1.c          **** 	/*port B as output PORT*/
+  37:a1.c          **** 		
+  38:a1.c          **** 	uint8_t MASTER_PWM;
+  39:a1.c          **** 	/* We set MASTER_PWM inversely proportional to battery voltage,
+  40:a1.c          **** 	its also define the overall speed of line follower robot.
+  41:a1.c          **** 	*/
+  42:a1.c          **** 	uint8_t PERCENTAGE_LEFT_PWM,PERCENTAGE_RIGHT_PWM;
+  43:a1.c          **** 	// shows percentage PWM of left and right motor
+  44:a1.c          **** 
+  45:a1.c          **** 	uint8_t PERCENTAGE_PWM_STEP_SIZE=5;
+  46:a1.c          **** 	/* PERCENTAGE_PWM_STEP_SIZE shows,steps size we are increasing our PWM of each motor*/
+  47:a1.c          ****  
+  48:a1.c          **** 	uint8_t REVERSE_LEFT_RIGHT_MOTOR=0;	
+  49:a1.c          **** 	/*
+  50:a1.c          **** 	REVERSE_LEFT_RIGHT_MOTOR define the direction of each motor ie they r moving forward or reverse ma
+  51:a1.c          **** 	if REVERSE_LEFT_RIGHT_MOTOR=0...both  motor moving forward direction 
+  52:a1.c          **** 	if REVERSE_LEFT_RIGHT_MOTOR=1...Left motor moving forward direction ,Right motor moving reverse di
+  53:a1.c          **** 	and if REVERSE_LEFT_RIGHT_MOTOR=8...Right motor moving forward direction ,Left motor moving revers
+  54:a1.c          **** 	
+  55:a1.c          **** 	*/
+  56:a1.c          **** 	uint8_t Actual_input,LAST_INPUT=0;
+  57:a1.c          **** 
+  58:a1.c          **** /* INT0 Interrupt Service Routine (ISR) */
+  59:a1.c          **** ISR(INT0_vect)
+  60:a1.c          **** {
+  98               	.LM1:
+  99               	/* prologue: frame size=0 */
+ 100 0000 1F92      		push __zero_reg__
+ 101 0002 0F92      		push __tmp_reg__
+ 102 0004 0FB6      		in __tmp_reg__,__SREG__
+ 103 0006 0F92      		push __tmp_reg__
+ 104 0008 1124      		clr __zero_reg__
+ 105               	/* prologue end (size=5) */
+  61:a1.c          ****     /* check post sensor 1 */
+  62:a1.c          **** 		
+  63:a1.c          **** 		PORTB=0;
+ 107               	.LM2:
+ 108 000a 18BA      		out 56-0x20,__zero_reg__
+  64:a1.c          **** 	OCR1A=0;OCR1B=0;
+ 110               	.LM3:
+ 111 000c 1BBC      		out (74)+1-0x20,__zero_reg__
+ 112 000e 1ABC      		out 74-0x20,__zero_reg__
+ 113 0010 19BC      		out (72)+1-0x20,__zero_reg__
+ 114 0012 18BC      		out 72-0x20,__zero_reg__
+ 115               	/* epilogue: frame size=0 */
+ 116 0014 0F90      		pop __tmp_reg__
+ 117 0016 0FBE      		out __SREG__,__tmp_reg__
+ 118 0018 0F90      		pop __tmp_reg__
+ 119 001a 1F90      		pop __zero_reg__
+ 120 001c 1895      		reti
+ 121               	/* epilogue end (size=5) */
+ 122               	/* function __vector_1 size 15 (5) */
+ 124               	.Lscope0:
+ 126               	.global	__vector_2
+ 128               	__vector_2:
+  65:a1.c          **** 	
+  66:a1.c          **** 		//_delay_ms(1000);
+  67:a1.c          **** 		
+  68:a1.c          **** }
+  69:a1.c          **** 
+  70:a1.c          **** ISR(INT1_vect)
+  71:a1.c          **** {
+ 130               	.LM4:
+ 131               	/* prologue: frame size=0 */
+ 132 001e 1F92      		push __zero_reg__
+ 133 0020 0F92      		push __tmp_reg__
+ 134 0022 0FB6      		in __tmp_reg__,__SREG__
+ 135 0024 0F92      		push __tmp_reg__
+ 136 0026 1124      		clr __zero_reg__
+ 137               	/* prologue end (size=5) */
+  72:a1.c          ****      /* check post sensor 2 */
+  73:a1.c          **** 		
+  74:a1.c          **** 		PORTB=0;
+ 139               	.LM5:
+ 140 0028 18BA      		out 56-0x20,__zero_reg__
+  75:a1.c          **** 	OCR1A=0;OCR1B=0;
+ 142               	.LM6:
+ 143 002a 1BBC      		out (74)+1-0x20,__zero_reg__
+ 144 002c 1ABC      		out 74-0x20,__zero_reg__
+ 145 002e 19BC      		out (72)+1-0x20,__zero_reg__
+ 146 0030 18BC      		out 72-0x20,__zero_reg__
+ 147               	/* epilogue: frame size=0 */
+ 148 0032 0F90      		pop __tmp_reg__
+ 149 0034 0FBE      		out __SREG__,__tmp_reg__
+ 150 0036 0F90      		pop __tmp_reg__
+ 151 0038 1F90      		pop __zero_reg__
+ 152 003a 1895      		reti
+ 153               	/* epilogue end (size=5) */
+ 154               	/* function __vector_2 size 15 (5) */
+ 156               	.Lscope1:
+ 158               	.global	main
+ 160               	main:
+  76:a1.c          **** 	
+  77:a1.c          **** 		//_delay_ms(1000);
+  78:a1.c          **** 		
+  79:a1.c          **** 		
+  80:a1.c          **** }
+  81:a1.c          **** 
+  82:a1.c          **** int main()
+  83:a1.c          **** {
+ 162               	.LM7:
+ 163               	/* prologue: frame size=0 */
+ 164 003c C0E0      		ldi r28,lo8(__stack - 0)
+ 165 003e D0E0      		ldi r29,hi8(__stack - 0)
+ 166 0040 DEBF      		out __SP_H__,r29
+ 167 0042 CDBF      		out __SP_L__,r28
+ 168               	/* prologue end (size=4) */
+  84:a1.c          **** 		//uint8_t Actual_input,Check_input,LAST_INPUT=0;	
+  85:a1.c          **** 			DDRC=0b11100000; 
+ 170               	.LM8:
+ 171 0044 80EE      		ldi r24,lo8(-32)
+ 172 0046 84BB      		out 52-0x20,r24
+  86:a1.c          **** 			/* DDR=Data Direction register... its to define PD0(pin2),PD1(pin3),PD2(pin4) as input pin
+  87:a1.c          **** 			rest bits of DDRD can be 0 or 1 does not make any significance */
+  88:a1.c          **** 			DDRB=0b00001111;  
+ 174               	.LM9:
+ 175 0048 8FE0      		ldi r24,lo8(15)
+ 176 004a 87BB      		out 55-0x20,r24
+  89:a1.c          **** 		  /* DDR=Data Direction register... its to define PB0(pin14),PB1(pin15),PB2(pin16),PB3(pin17) as 
+  90:a1.c          **** 			rest bits of DDRD can be 0 or 1 does not make any significance */
+  91:a1.c          **** 			
+  92:a1.c          **** 		/*  PB1(OC1A) o/p for right motor   (connected to positive pin of right motor)
+  93:a1.c          **** 			PB2(OC1B) o/p for left motor	(connected to positive pin of left motor)
+  94:a1.c          **** 			PB0  o/p for right motor Ground (its change in program )	(connected to negative pin of right mot
+  95:a1.c          **** 			PB3  o/p for left motor Ground (its change in program )	(connected to negative pin of leftt moto
+  96:a1.c          **** 			*/
+  97:a1.c          **** 		OCR1A=0x00ff;   // output compare register  for right motor  
+ 178               	.LM10:
+ 179 004c 8FEF      		ldi r24,lo8(255)
+ 180 004e 90E0      		ldi r25,hi8(255)
+ 181 0050 9BBD      		out (74)+1-0x20,r25
+ 182 0052 8ABD      		out 74-0x20,r24
+  98:a1.c          **** 		OCR1B=0x00ff;	// output compare register  for left motor
+ 184               	.LM11:
+ 185 0054 99BD      		out (72)+1-0x20,r25
+ 186 0056 88BD      		out 72-0x20,r24
+  99:a1.c          **** 		
+ 100:a1.c          **** 		/* TOP value is 00FFh for both OC1A and OC1B*/
+ 101:a1.c          **** 		TCCR1A=0xA1;	// define type of PWM	
+ 188               	.LM12:
+ 189 0058 81EA      		ldi r24,lo8(-95)
+ 190 005a 8FBD      		out 79-0x20,r24
+ 102:a1.c          **** 		/*Timer/Counter 1 Control  and pwm at pin OC1A(PB1) */
+ 103:a1.c          **** 		TCCR1B=0x01; //for start pwm
+ 192               	.LM13:
+ 193 005c 81E0      		ldi r24,lo8(1)
+ 194 005e 8EBD      		out 78-0x20,r24
+ 104:a1.c          **** 		
+ 105:a1.c          **** 		/* pwm at pin OC1B(PB2) and clock freq. of timer(3 LSB 000 sys. clock) */ 
+ 106:a1.c          **** 			/*maximum MASTER_PWM value can be 00FFh */
+ 107:a1.c          **** 		MASTER_PWM=230;
+ 196               	.LM14:
+ 197 0060 86EE      		ldi r24,lo8(-26)
+ 198 0062 8093 0000 		sts MASTER_PWM,r24
+ 108:a1.c          **** 		PERCENTAGE_LEFT_PWM=100;
+ 200               	.LM15:
+ 201 0066 84E6      		ldi r24,lo8(100)
+ 202 0068 8093 0000 		sts PERCENTAGE_LEFT_PWM,r24
+ 109:a1.c          **** 		PERCENTAGE_RIGHT_PWM=100;
+ 204               	.LM16:
+ 205 006c 8093 0000 		sts PERCENTAGE_RIGHT_PWM,r24
+ 110:a1.c          **** 				
+ 111:a1.c          **** 			
+ 112:a1.c          **** 		// Global Enable INT0,INT1 interrupt
+ 113:a1.c          **** 		GICR |= ( 1 << 1);
+ 207               	.LM17:
+ 208 0070 8BB7      		in r24,91-0x20
+ 209 0072 8260      		ori r24,lo8(2)
+ 210 0074 8BBF      		out 91-0x20,r24
+ 114:a1.c          **** 		GICR |= ( 1 << INT1);
+ 212               	.LM18:
+ 213 0076 8BB7      		in r24,91-0x20
+ 214 0078 8068      		ori r24,lo8(-128)
+ 215 007a 8BBF      		out 91-0x20,r24
+ 115:a1.c          ****   		// Low Level triggers interrupt
+ 116:a1.c          ****   		MCUCR |= ( 0 << ISC00);
+ 217               	.LM19:
+ 218 007c 85B7      		in r24,85-0x20
+ 219 007e 85BF      		out 85-0x20,r24
+ 117:a1.c          ****   		MCUCR |= ( 0 << ISC01);
+ 221               	.LM20:
+ 222 0080 85B7      		in r24,85-0x20
+ 223 0082 85BF      		out 85-0x20,r24
+ 118:a1.c          **** 		MCUCR |= ( 0 << ISC10);
+ 225               	.LM21:
+ 226 0084 85B7      		in r24,85-0x20
+ 227 0086 85BF      		out 85-0x20,r24
+ 119:a1.c          ****   		MCUCR |= ( 0 << ISC11);
+ 229               	.LM22:
+ 230 0088 85B7      		in r24,85-0x20
+ 231 008a 85BF      		out 85-0x20,r24
+ 120:a1.c          **** 
+ 121:a1.c          ****         sei();       /* enable interrupts */
+ 233               	.LM23:
+ 234               	/* #APP */
+ 235 008c 7894      		sei
+ 236               	.L4:
+ 237               	/* #NOAPP */
+ 238               	.L35:
+ 122:a1.c          **** 			
+ 123:a1.c          **** 
+ 124:a1.c          **** line_following:
+ 125:a1.c          **** 		
+ 126:a1.c          **** 		Actual_input=(0b11111)&SENSOR_INPUTS;	
+ 240               	.LM24:
+ 241 008e 23B3      		in r18,51-0x20
+ 242 0090 2F71      		andi r18,lo8(31)
+ 243 0092 2093 0000 		sts Actual_input,r18
+ 127:a1.c          **** 	
+ 128:a1.c          **** 		
+ 129:a1.c          **** 		
+ 130:a1.c          **** 		/*
+ 131:a1.c          **** 		Because other bit may be high due to noise. Thus the actual input may differ from we get from har
+ 132:a1.c          **** 		Therefore, above statement is very important.Here we are using only last three bits of SENSOR_INP
+ 133:a1.c          **** 		we make other bits to zero.		
+ 134:a1.c          **** 		*/
+ 135:a1.c          **** 		if(OCR1A==0)
+ 245               	.LM25:
+ 246 0096 8AB5      		in r24,74-0x20
+ 247 0098 9BB5      		in r25,(74)+1-0x20
+ 248 009a 892B      		or r24,r25
+ 249 009c 21F0      		breq .L6
+ 136:a1.c          **** 		{
+ 137:a1.c          **** 			goto l;
+ 138:a1.c          **** 		}
+ 139:a1.c          **** 		//if same input from sensor then no need to calculate PWM just follow as last
+ 140:a1.c          **** 		if(LAST_INPUT==Actual_input)goto line_following;
+ 251               	.LM26:
+ 252 009e 8091 0000 		lds r24,LAST_INPUT
+ 253 00a2 8217      		cp r24,r18
+ 254 00a4 A1F3      		breq .L35
+ 255               	.L6:
+ 141:a1.c          **** 		
+ 142:a1.c          **** 		
+ 143:a1.c          **** 	l:
+ 144:a1.c          **** 
+ 145:a1.c          **** 	switch(Actual_input)
+ 257               	.LM27:
+ 258 00a6 822F      		mov r24,r18
+ 259 00a8 9927      		clr r25
+ 260 00aa AA27      		clr r26
+ 261 00ac BB27      		clr r27
+ 262 00ae FC01      		movw r30,r24
+ 263 00b0 3197      		sbiw r30,1
+ 264 00b2 EC31      		cpi r30,28
+ 265 00b4 F105      		cpc r31,__zero_reg__
+ 266 00b6 08F0      		brlo .+2
+ 267 00b8 58C0      		rjmp .L8
+ 268 00ba E050      		subi r30,lo8(-(pm(.L22)))
+ 269 00bc F040      		sbci r31,hi8(-(pm(.L22)))
+ 270 00be 0994      		ijmp
+ 271               		.data
+ 272               		.section .progmem.gcc_sw_table, "ax", @progbits
+ 273               		.p2align 1
+ 274               	.L22:
+ 275 0000 00C0      		rjmp .L13
+ 276 0002 00C0      		rjmp .L18
+ 277 0004 00C0      		rjmp .L13
+ 278 0006 00C0      		rjmp .L10
+ 279 0008 00C0      		rjmp .L8
+ 280 000a 00C0      		rjmp .L18
+ 281 000c 00C0      		rjmp .L13
+ 282 000e 00C0      		rjmp .L20
+ 283 0010 00C0      		rjmp .L8
+ 284 0012 00C0      		rjmp .L8
+ 285 0014 00C0      		rjmp .L8
+ 286 0016 00C0      		rjmp .L20
+ 287 0018 00C0      		rjmp .L8
+ 288 001a 00C0      		rjmp .L10
+ 289 001c 00C0      		rjmp .L8
+ 290 001e 00C0      		rjmp .L16
+ 291 0020 00C0      		rjmp .L8
+ 292 0022 00C0      		rjmp .L8
+ 293 0024 00C0      		rjmp .L8
+ 294 0026 00C0      		rjmp .L8
+ 295 0028 00C0      		rjmp .L8
+ 296 002a 00C0      		rjmp .L8
+ 297 002c 00C0      		rjmp .L8
+ 298 002e 00C0      		rjmp .L16
+ 299 0030 00C0      		rjmp .L8
+ 300 0032 00C0      		rjmp .L8
+ 301 0034 00C0      		rjmp .L8
+ 302 0036 00C0      		rjmp .L16
+ 303               		.text
+ 304               	.L10:
+ 146:a1.c          **** 	{
+ 147:a1.c          **** 		// all the variables values we given here,depends on robot behavior on different conditions 
+ 148:a1.c          **** 		// these values will differ robot to robot 
+ 149:a1.c          **** 		//case 0b00000:
+ 150:a1.c          **** 		case 0b01110:  
+ 151:a1.c          **** 		case 0b00100: // forward
+ 152:a1.c          ****             REVERSE_LEFT_RIGHT_MOTOR=0;
+ 306               	.LM28:
+ 307 00c0 1092 0000 		sts REVERSE_LEFT_RIGHT_MOTOR,__zero_reg__
+ 153:a1.c          **** 			PERCENTAGE_LEFT_PWM=PERCENTAGE_PWM_STEP_SIZE*8;
+ 309               	.LM29:
+ 310 00c4 8091 0000 		lds r24,PERCENTAGE_PWM_STEP_SIZE
+ 311 00c8 9927      		clr r25
+ 312 00ca 63E0      		ldi r22,3
+ 313 00cc 880F      	1:	lsl r24
+ 314 00ce 991F      		rol r25
+ 315 00d0 6A95      		dec r22
+ 316 00d2 E1F7      		brne 1b
+ 317 00d4 8093 0000 		sts PERCENTAGE_LEFT_PWM,r24
+ 318 00d8 46C0      		rjmp .L32
+ 319               	.L13:
+ 154:a1.c          **** 			PERCENTAGE_RIGHT_PWM=PERCENTAGE_PWM_STEP_SIZE*8;
+ 155:a1.c          **** 			break; 
+ 156:a1.c          **** 		case 0b00001: // sharp right
+ 157:a1.c          **** 		case 0b00011:
+ 158:a1.c          **** 		case 0b00111:
+ 159:a1.c          **** 			REVERSE_LEFT_RIGHT_MOTOR=1;
+ 321               	.LM30:
+ 322 00da 81E0      		ldi r24,lo8(1)
+ 323 00dc 8093 0000 		sts REVERSE_LEFT_RIGHT_MOTOR,r24
+ 160:a1.c          **** 			PERCENTAGE_LEFT_PWM=PERCENTAGE_PWM_STEP_SIZE*7;
+ 325               	.LM31:
+ 326 00e0 2091 0000 		lds r18,PERCENTAGE_PWM_STEP_SIZE
+ 327 00e4 87E0      		ldi r24,lo8(7)
+ 328 00e6 289F      		mul r18,r24
+ 329 00e8 C001      		movw r24,r0
+ 330 00ea 1124      		clr r1
+ 331 00ec 8093 0000 		sts PERCENTAGE_LEFT_PWM,r24
+ 161:a1.c          **** 			PERCENTAGE_RIGHT_PWM=PERCENTAGE_PWM_STEP_SIZE*4;
+ 333               	.LM32:
+ 334 00f0 822F      		mov r24,r18
+ 335 00f2 9927      		clr r25
+ 336 00f4 880F      		lsl r24
+ 337 00f6 991F      		rol r25
+ 338 00f8 880F      		lsl r24
+ 339 00fa 991F      		rol r25
+ 340 00fc 34C0      		rjmp .L32
+ 341               	.L16:
+ 162:a1.c          **** 			break;
+ 163:a1.c          **** 		case 0b10000:// sharp left
+ 164:a1.c          **** 		case 0b11000:
+ 165:a1.c          **** 		case 0b11100:
+ 166:a1.c          **** 			REVERSE_LEFT_RIGHT_MOTOR=8;
+ 343               	.LM33:
+ 344 00fe 88E0      		ldi r24,lo8(8)
+ 345 0100 8093 0000 		sts REVERSE_LEFT_RIGHT_MOTOR,r24
+ 167:a1.c          **** 			PERCENTAGE_LEFT_PWM=PERCENTAGE_PWM_STEP_SIZE*4;
+ 347               	.LM34:
+ 348 0104 2091 0000 		lds r18,PERCENTAGE_PWM_STEP_SIZE
+ 349 0108 822F      		mov r24,r18
+ 350 010a 9927      		clr r25
+ 351 010c 880F      		lsl r24
+ 352 010e 991F      		rol r25
+ 353 0110 880F      		lsl r24
+ 354 0112 991F      		rol r25
+ 355 0114 8093 0000 		sts PERCENTAGE_LEFT_PWM,r24
+ 168:a1.c          **** 			PERCENTAGE_RIGHT_PWM=PERCENTAGE_PWM_STEP_SIZE*7;			
+ 357               	.LM35:
+ 358 0118 87E0      		ldi r24,lo8(7)
+ 359 011a 0FC0      		rjmp .L34
+ 360               	.L18:
+ 169:a1.c          **** 			break;				
+ 170:a1.c          **** 		case 0b00010:// sharp right with at slower speed     
+ 171:a1.c          **** 		case 0b00110:
+ 172:a1.c          **** 			REVERSE_LEFT_RIGHT_MOTOR=1;
+ 362               	.LM36:
+ 363 011c 81E0      		ldi r24,lo8(1)
+ 364 011e 8093 0000 		sts REVERSE_LEFT_RIGHT_MOTOR,r24
+ 173:a1.c          **** 			PERCENTAGE_LEFT_PWM=PERCENTAGE_PWM_STEP_SIZE*8;
+ 366               	.LM37:
+ 367 0122 2091 0000 		lds r18,PERCENTAGE_PWM_STEP_SIZE
+ 368 0126 822F      		mov r24,r18
+ 369 0128 9927      		clr r25
+ 370 012a 33E0      		ldi r19,3
+ 371 012c 880F      	1:	lsl r24
+ 372 012e 991F      		rol r25
+ 373 0130 3A95      		dec r19
+ 374 0132 E1F7      		brne 1b
+ 375 0134 8093 0000 		sts PERCENTAGE_LEFT_PWM,r24
+ 174:a1.c          **** 			PERCENTAGE_RIGHT_PWM=PERCENTAGE_PWM_STEP_SIZE*3;
+ 377               	.LM38:
+ 378 0138 83E0      		ldi r24,lo8(3)
+ 379               	.L34:
+ 380 013a 289F      		mul r18,r24
+ 381 013c C001      		movw r24,r0
+ 382 013e 1124      		clr r1
+ 383 0140 12C0      		rjmp .L32
+ 384               	.L20:
+ 175:a1.c          **** 			break;
+ 176:a1.c          **** 		case 0b01000: // sharp left with at slower speed                                  
+ 177:a1.c          **** 		case 0b01100:
+ 178:a1.c          **** 			REVERSE_LEFT_RIGHT_MOTOR=8;
+ 386               	.LM39:
+ 387 0142 88E0      		ldi r24,lo8(8)
+ 388 0144 8093 0000 		sts REVERSE_LEFT_RIGHT_MOTOR,r24
+ 179:a1.c          **** 			PERCENTAGE_LEFT_PWM=PERCENTAGE_PWM_STEP_SIZE*3;
+ 390               	.LM40:
+ 391 0148 2091 0000 		lds r18,PERCENTAGE_PWM_STEP_SIZE
+ 392 014c 83E0      		ldi r24,lo8(3)
+ 393 014e 289F      		mul r18,r24
+ 394 0150 C001      		movw r24,r0
+ 395 0152 1124      		clr r1
+ 396 0154 8093 0000 		sts PERCENTAGE_LEFT_PWM,r24
+ 180:a1.c          **** 			PERCENTAGE_RIGHT_PWM=PERCENTAGE_PWM_STEP_SIZE*8;
+ 398               	.LM41:
+ 399 0158 822F      		mov r24,r18
+ 400 015a 9927      		clr r25
+ 401 015c 23E0      		ldi r18,3
+ 402 015e 880F      	1:	lsl r24
+ 403 0160 991F      		rol r25
+ 404 0162 2A95      		dec r18
+ 405 0164 E1F7      		brne 1b
+ 406               	.L32:
+ 407 0166 8093 0000 		sts PERCENTAGE_RIGHT_PWM,r24
+ 408               	.L8:
+ 181:a1.c          **** 			break;
+ 182:a1.c          **** 			
+ 183:a1.c          **** 		
+ 184:a1.c          **** 		case 0b10001:// this may occur during larger turns( >135 degrees) or it may be noise therefor we 
+ 185:a1.c          **** 					// output as same as previous condition.
+ 186:a1.c          **** 		
+ 187:a1.c          **** 			break;		
+ 188:a1.c          **** 	}
+ 189:a1.c          **** 		
+ 190:a1.c          **** 				
+ 191:a1.c          **** 		LAST_INPUT=Actual_input; //store last Actual_input
+ 410               	.LM42:
+ 411 016a 8091 0000 		lds r24,Actual_input
+ 412 016e 8093 0000 		sts LAST_INPUT,r24
+ 192:a1.c          **** 		
+ 193:a1.c          **** 		M_OUTPUT=REVERSE_LEFT_RIGHT_MOTOR; //set the direction of motors
+ 414               	.LM43:
+ 415 0172 8091 0000 		lds r24,REVERSE_LEFT_RIGHT_MOTOR
+ 416 0176 88BB      		out 56-0x20,r24
+ 194:a1.c          **** 		
+ 195:a1.c          **** 		// Setting OCR values of both motors
+ 196:a1.c          **** 		if(REVERSE_LEFT_RIGHT_MOTOR==0)
+ 418               	.LM44:
+ 419 0178 8823      		tst r24
+ 420 017a 91F4      		brne .L23
+ 197:a1.c          **** 			{
+ 198:a1.c          **** 				OCR1A=(MASTER_PWM*PERCENTAGE_RIGHT_PWM/100);   // output compare flag for OC1A   for right moto
+ 422               	.LM45:
+ 423 017c 2091 0000 		lds r18,MASTER_PWM
+ 424 0180 8091 0000 		lds r24,PERCENTAGE_RIGHT_PWM
+ 425 0184 289F      		mul r18,r24
+ 426 0186 C001      		movw r24,r0
+ 427 0188 1124      		clr r1
+ 428 018a 64E6      		ldi r22,lo8(100)
+ 429 018c 70E0      		ldi r23,hi8(100)
+ 430 018e 00D0      		rcall __divmodhi4
+ 431 0190 7BBD      		out (74)+1-0x20,r23
+ 432 0192 6ABD      		out 74-0x20,r22
+ 199:a1.c          **** 				OCR1B=(MASTER_PWM*PERCENTAGE_LEFT_PWM/100);	// output compare flag for OC1B   for left motor
+ 434               	.LM46:
+ 435 0194 8091 0000 		lds r24,PERCENTAGE_LEFT_PWM
+ 436 0198 289F      		mul r18,r24
+ 437 019a C001      		movw r24,r0
+ 438 019c 1124      		clr r1
+ 439 019e 18C0      		rjmp .L33
+ 440               	.L23:
+ 200:a1.c          **** 			}
+ 201:a1.c          **** 		else if(REVERSE_LEFT_RIGHT_MOTOR==1)
+ 442               	.LM47:
+ 443 01a0 8130      		cpi r24,lo8(1)
+ 444 01a2 D9F4      		brne .L25
+ 202:a1.c          **** 			{
+ 203:a1.c          **** 				
+ 204:a1.c          **** 				OCR1A=255-255*PERCENTAGE_RIGHT_PWM/100;   // output compare flag for OC1A   for right motor
+ 446               	.LM48:
+ 447 01a4 9091 0000 		lds r25,PERCENTAGE_RIGHT_PWM
+ 448 01a8 8FEF      		ldi r24,lo8(-1)
+ 449 01aa 989F      		mul r25,r24
+ 450 01ac C001      		movw r24,r0
+ 451 01ae 1124      		clr r1
+ 452 01b0 64E6      		ldi r22,lo8(100)
+ 453 01b2 70E0      		ldi r23,hi8(100)
+ 454 01b4 00D0      		rcall __divmodhi4
+ 455 01b6 8FEF      		ldi r24,lo8(255)
+ 456 01b8 90E0      		ldi r25,hi8(255)
+ 457 01ba 861B      		sub r24,r22
+ 458 01bc 970B      		sbc r25,r23
+ 459 01be 9BBD      		out (74)+1-0x20,r25
+ 460 01c0 8ABD      		out 74-0x20,r24
+ 205:a1.c          **** 				OCR1B=(MASTER_PWM*PERCENTAGE_LEFT_PWM/100);	// output compare flag for OC1B   for left motor
+ 462               	.LM49:
+ 463 01c2 9091 0000 		lds r25,MASTER_PWM
+ 464 01c6 8091 0000 		lds r24,PERCENTAGE_LEFT_PWM
+ 465 01ca 989F      		mul r25,r24
+ 466 01cc C001      		movw r24,r0
+ 467 01ce 1124      		clr r1
+ 468               	.L33:
+ 469 01d0 64E6      		ldi r22,lo8(100)
+ 470 01d2 70E0      		ldi r23,hi8(100)
+ 471 01d4 00D0      		rcall __divmodhi4
+ 472 01d6 CB01      		movw r24,r22
+ 473 01d8 1CC0      		rjmp .L31
+ 474               	.L25:
+ 206:a1.c          **** 			}
+ 207:a1.c          **** 		else if(REVERSE_LEFT_RIGHT_MOTOR==8)
+ 476               	.LM50:
+ 477 01da 8830      		cpi r24,lo8(8)
+ 478 01dc 09F0      		breq .+2
+ 479 01de 57CF      		rjmp .L35
+ 208:a1.c          **** 			{
+ 209:a1.c          **** 				
+ 210:a1.c          **** 				OCR1A=(MASTER_PWM*PERCENTAGE_RIGHT_PWM/100);   // output compare flag for OC1A   for right moto
+ 481               	.LM51:
+ 482 01e0 9091 0000 		lds r25,MASTER_PWM
+ 483 01e4 8091 0000 		lds r24,PERCENTAGE_RIGHT_PWM
+ 484 01e8 989F      		mul r25,r24
+ 485 01ea C001      		movw r24,r0
+ 486 01ec 1124      		clr r1
+ 487 01ee 64E6      		ldi r22,lo8(100)
+ 488 01f0 70E0      		ldi r23,hi8(100)
+ 489 01f2 00D0      		rcall __divmodhi4
+ 490 01f4 7BBD      		out (74)+1-0x20,r23
+ 491 01f6 6ABD      		out 74-0x20,r22
+ 211:a1.c          **** 				OCR1B=255-255*PERCENTAGE_LEFT_PWM/100;	// output compare flag for OC1B   for left motor
+ 493               	.LM52:
+ 494 01f8 9091 0000 		lds r25,PERCENTAGE_LEFT_PWM
+ 495 01fc 8FEF      		ldi r24,lo8(-1)
+ 496 01fe 989F      		mul r25,r24
+ 497 0200 C001      		movw r24,r0
+ 498 0202 1124      		clr r1
+ 499 0204 64E6      		ldi r22,lo8(100)
+ 500 0206 70E0      		ldi r23,hi8(100)
+ 501 0208 00D0      		rcall __divmodhi4
+ 502 020a 8FEF      		ldi r24,lo8(255)
+ 503 020c 90E0      		ldi r25,hi8(255)
+ 504 020e 861B      		sub r24,r22
+ 505 0210 970B      		sbc r25,r23
+ 506               	.L31:
+ 507 0212 99BD      		out (72)+1-0x20,r25
+ 508 0214 88BD      		out 72-0x20,r24
+ 212:a1.c          **** 			}
+ 213:a1.c          **** 
+ 214:a1.c          **** 			goto line_following;//infinite loop
+ 510               	.LM53:
+ 511 0216 3BCF      		rjmp .L35
+ 512               	/* epilogue: frame size=0 */
+ 513               	/* epilogue: noreturn */
+ 514               	/* epilogue end (size=0) */
+ 515               	/* function main size 267 (263) */
+ 517               	.Lscope2:
+ 518               		.comm MASTER_PWM,1,1
+ 519               		.comm PERCENTAGE_LEFT_PWM,1,1
+ 520               		.comm PERCENTAGE_RIGHT_PWM,1,1
+ 521               		.comm Actual_input,1,1
+ 529               		.text
+ 531               	Letext:
+ 532               	/* File "a1.c": code  297 = 0x0129 ( 273), prologues  14, epilogues  10 */
+DEFINED SYMBOLS
+                            *ABS*:00000000 a1.c
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:3      *ABS*:0000003f __SREG__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:4      *ABS*:0000003e __SP_H__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:5      *ABS*:0000003d __SP_L__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:6      *ABS*:00000000 __tmp_reg__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:7      *ABS*:00000001 __zero_reg__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:78     .bss:00000000 LAST_INPUT
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:84     .bss:00000001 REVERSE_LEFT_RIGHT_MOTOR
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:90     .data:00000000 PERCENTAGE_PWM_STEP_SIZE
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:96     .text:00000000 __vector_1
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:128    .text:0000001e __vector_2
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:160    .text:0000003c main
+                            *COM*:00000001 MASTER_PWM
+                            *COM*:00000001 PERCENTAGE_LEFT_PWM
+                            *COM*:00000001 PERCENTAGE_RIGHT_PWM
+                            *COM*:00000001 Actual_input
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:531    .text:00000218 Letext
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+__stack
+__divmodhi4

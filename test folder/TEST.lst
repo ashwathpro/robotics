@@ -1,0 +1,56 @@
+   1               		.file	"TEST.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.global __do_copy_data
+   8               		.global __do_clear_bss
+  10               		.text
+  11               	.Ltext0:
+  67               	.global	main
+  69               	main:
+   1:TEST.c        **** #include <avr/io.h> 	//header file to include input output port
+   2:TEST.c        **** 
+   3:TEST.c        **** #include <util/delay.h>
+   4:TEST.c        **** int main()
+   5:TEST.c        **** {
+  71               	.LM0:
+  72               	.LFBB1:
+  73               	/* prologue: frame size=0 */
+  74 0000 C0E0      		ldi r28,lo8(__stack - 0)
+  75 0002 D0E0      		ldi r29,hi8(__stack - 0)
+  76 0004 DEBF      		out __SP_H__,r29
+  77 0006 CDBF      		out __SP_L__,r28
+  78               	/* prologue end (size=4) */
+   6:TEST.c        **** 		DDRD=0b00001111; 
+  80               	.LM1:
+  81 0008 8FE0      		ldi r24,lo8(15)
+  82 000a 81BB      		out 49-0x20,r24
+  83               	.L2:
+   7:TEST.c        **** 		while(1)
+   8:TEST.c        **** 			PORTD=0b11111111;
+  85               	.LM2:
+  86 000c 8FEF      		ldi r24,lo8(-1)
+  87 000e 82BB      		out 50-0x20,r24
+  88 0010 00C0      		rjmp .L2
+  89               	/* epilogue: frame size=0 */
+  90               	/* epilogue: noreturn */
+  91               	/* epilogue end (size=0) */
+  92               	/* function main size 9 (5) */
+  94               	.Lscope1:
+  96               	.Letext0:
+  97               	/* File "TEST.c": code    9 = 0x0009 (   5), prologues   4, epilogues   0 */
+DEFINED SYMBOLS
+                            *ABS*:00000000 TEST.c
+     /tmp/ccmbuqpP.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccmbuqpP.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccmbuqpP.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccmbuqpP.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccmbuqpP.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccmbuqpP.s:69     .text:00000000 main
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+__stack

@@ -1,0 +1,18 @@
+Gaussian Blur:
+      This method uses the Gaussian function to calculate the
+      mask. The standard deviation (sigma) and the size of the mask
+      are parameters to be changed by user. With small sigma and
+      mask size, this filter tends to blur the image slightly. To
+      blur the image heavily, a larger sigma and mask size should be
+      applied. The following gaussian function is used to calculate
+      mask: 
+               G = exp(-a^2/(2*sigma^2)) / (sigma*sqrt(2*pi))
+  
+      then, the mask M of size nxn is given as:
+  
+          M(x,y) = G(x-(n+1)/2,sigma)*G(y-(n+1)/2,sigma)
+  
+      where:  1<=x<=n and 1<=y<=n. 
+  
+      Finally the original image matrix is convolved with this mask,
+      to get the filtered image.

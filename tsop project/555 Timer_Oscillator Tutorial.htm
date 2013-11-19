@@ -1,0 +1,328 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+
+    <title>555 Timer/Oscillator Tutorial</title>
+    <script type="text/javascript" src="555%20Timer_Oscillator%20Tutorial_files/all.js"></script>
+    <script type="text/javascript" src="555%20Timer_Oscillator%20Tutorial_files/follow.js"></script>
+    <style type="text/css">
+		html,body {
+			margin: 0;
+			height: 100%;
+			overflow: hidden;
+			position: relative;
+		}
+		
+		#framed {
+			position: relative;
+			width: 100%;
+			border: 0;
+		}
+		
+		#followbar {
+			width: 100%;
+			height: 97px;
+			background: #fff;
+			z-index: 10;
+			border-top: 4px solid #8bc300;
+		}
+		
+		#logo {
+			float: left;
+			background: url('/images/frame/followbar.png') top left;
+			width: 97px;
+			height: 34px;
+		}
+	
+		#commentBox {
+			float: left;
+			margin: 0 0 0 10px;
+			text-align: right;
+		}
+		
+		#comment {
+			position: relative;
+			top: 2px;
+			padding: 5px;
+			width: 200px;
+			height: 18px;
+			border: 1px solid #ddd;
+			background: url('/images/frame/followbar.png') 0 -154px repeat-x;
+			font: 13px Arial;
+			overflow: auto;
+			margin: 0;
+			color: #ccc;
+			resize: none;
+		}
+		
+		#comment.active {
+			color: #444;	
+		}
+		
+		#commentError {
+			margin: 43px 0 0 0;
+			font: 12px Arial;
+			color: #B33E3E;
+		}
+		
+		#commentErrorIcon {
+			float: left;
+			width: 16px;
+			height: 16px;
+			background: url('/images/frame/followbar.png') -119px -77px;
+			margin-right: 5px;
+			margin-left: 6px;
+		}
+		
+		#characterCounter {
+			font: 14px Georgia;
+			color: #3e78b3;
+		}
+		
+		#characterCount {
+			color: #b33e3e;	
+		}
+		
+		#characterCount.good {
+			color: #65b33e;	
+		}
+		
+    #settingsIcon {
+      position: relative; 
+      float: left;
+      width: 12px;
+      height: 34px;
+      background: url('/images/frame/followbar.png') -61px -60px;
+      margin: 0 5px 0 3px;
+      cursor: pointer;
+    }
+
+    #settingsIcon:hover {
+      background-position: -73px -60px;	
+    }
+		
+		#settingsBox {
+			position: absolute;
+			height: 29px;
+			right: 30px;
+			top: 0px;
+			padding-top: 5px;
+			width: 290px;
+			background: #fff;
+			font: 12px Arial;
+      background-color: #EFFAFF;
+		}
+		
+		#settingsBox input {
+			position: relative;
+			top: 2px;
+			margin-right: 15px;
+		}
+		
+		#voteButtons {
+			float: left;
+			margin: 2px 0 0 5px;
+		}
+		
+		#voteButtonsUp,
+		#voteButtonsDown,
+		#contractBar {
+			float: left;
+			width: 30px;
+			height: 30px;
+			background: url('/images/frame/followbar.png') 0 -34px;
+			margin-right: 2px;
+		}
+		
+		#voteButtonsDown {
+			background-position: -30px -34px;	
+		}
+		
+		#contractBar {
+			background-position: -136px -34px;	
+		}
+		
+		#voteButtonsUp:hover {
+			background-position: 0 -64px;	
+		}
+		
+		#voteButtonsDown:hover {
+			background-position: -30px -64px;	
+		}
+		
+		#contractBar:hover {
+			background-position: -136px -64px;	
+		}
+		
+		#voteButtonsUp.disable {
+			background-position: -132px -94px !important;
+			cursor: default;
+		}
+		
+		#voteButtonsDown.disable {
+			background-position: -132px -124px !important;
+			cursor: default;
+		}
+		
+		#voteButtonsDown.loading,
+		#voteButtonsUp.loading {
+			background: url('/images/frame/followLoading.gif') center no-repeat !important;	
+		}
+		
+		#relevancyVote {
+			float: right;
+			background: #effaff;
+			border-left: 2px solid #BFDCEA;
+			border-bottom: 2px solid #BFDCEA;
+		}
+				
+		#relevancyVoteText {
+			float: left;
+			font: 11px Arial;
+			color: #595959;
+			width: 130px;
+			text-align: center;
+			margin: 3px 0 0 0;
+		}
+		
+		#relevancyVoteUp,
+		#relevancyVoteDown {
+			float: left;
+			width: 51px;
+			height: 30px;
+			background: url('/images/frame/followbar.png') 0 -94px;
+			margin: 2px 2px 0 2px;
+		}
+		
+		#relevancyVoteUp:hover {
+			background-position: 0 -124px;
+		}
+		
+		#relevancyVoteDown {
+			background-position: -51px -94px;
+		}
+		
+		#relevancyVoteDown:hover {
+			background-position: -51px -124px;
+		}
+		
+		#closeScourFrame {
+			float: left;
+			width: 12px;
+			height: 34px;
+			background: url('/images/frame/followbar.png') -105px 0;
+			margin: 0 5px 0 3px;
+		}
+		
+		#closeScourFrame:hover {
+			background-position: -117px 0;	
+		}
+		
+		#followBarHelp {
+			float: left;
+			position: relative;
+			width: 12px;
+			height: 34px;
+			background: url('/images/frame/followbar.png') -130px 0px;
+			margin: 0 5px 0 0;
+			cursor: default;
+			z-index: 10;
+		}
+		
+		#followBarHelp:hover {
+			background-position: -142px 0px;	
+		}
+		
+		#followBarInfo {
+			position: absolute;
+			bottom: 45px;
+			right: 0px;
+			width: 200px;
+			height: 103px;
+			padding: 7px;
+			background:	#effaff;
+			border: 1px solid #97bce2;
+			display: none;
+			z-index: 50;
+			font: 12px Arial;
+			color: #1c5a91;
+		}
+		
+		#followBarHelp:hover #followBarInfo {
+			display: block;
+		}
+		
+		#followBarInfo a {
+			color: #23368F;
+		}
+    </style>
+    <script type="text/javascript">
+      var param_link = 'http://www.uoguelph.ca/~antoon/gadgets/555/555.html';
+      var param_query = '555 timer circuit diagram';
+    </script>
+</head><body>
+	<!--[if gt IE 6]><!-->
+	<iframe style="height: 726px;" id="framed" src="555%20Timer_Oscillator%20Tutorial_files/555.htm" border="0" scrolling="auto" frameborder="0"></iframe>
+	<!--<![endif]-->
+	
+	<!--[if lte IE 6]>
+	<iframe id="framed" frameborder="0" src="http://www.uoguelph.ca/~antoon/gadgets/555/555.html" border="0" scrolling="yes"></iframe>
+	<![endif]-->
+
+	<div id="followbar">
+		<div id="relevancyVote">
+			<div id="relevancyVoteText">Was this result a good match for your query?</div>
+			<a href="#" id="relevancyVoteUp" title="This page was relevant to my query"></a>
+			<a href="#" id="relevancyVoteDown" title="This page was not relevant to my query"></a>
+			<!--[if gt IE 6]><!-->
+			<div id="followBarHelp">
+				<span id="followBarInfo">Howdy!
+I am your Scour follow-bar. I'll follow you anywhere from Scour search
+results allowing you to vote and leave comments about the page you're
+on. And if you're signed in, I'll also make sure you get your Scour
+Points!</span>
+			</div>
+			<!--<![endif]-->
+
+      <div id="settingsIcon">
+        <div id="settingsBox" style="display: none;">
+          <strong>Show the follow bar:</strong>  
+          <label for="fbOn">Always</label>
+          <input id="fbOn" name="fb" type="radio">
+          <label for="fbOff">Never</label>
+          <input id="fbOff" name="fb" type="radio">
+
+        </div>
+      </div>
+			<a href="#" id="closeScourFrame" title="Close the Scour follow bar"></a>
+		</div>
+
+    <div id="copyUrlBtn" style="margin: 2px 12px 0pt 0pt; float: right;">
+      <div style="overflow: visible; padding-left: 130px; display: block; position: relative; width: 0px; height: 0px; left: 0px; top: 0px; z-index: 65535; opacity: 0.5;"></div><object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" id="copyurl" width="130" align="middle" height="30">
+        <param name="allowScriptAccess" value="sameDomain">
+        <param name="allowFullScreen" value="false">
+        <param name="movie" value="/images/frame/copy10.swf">
+        <param name="quality" value="best">
+        <param name="wmode" value="transparent">
+        <param name="flashvars" value="copyUrl=http://www.uoguelph.ca/~antoon/gadgets/555/555.html">
+        <embed src="555%20Timer_Oscillator%20Tutorial_files/copy10.swf" flashvars="copyUrl=http://www.uoguelph.ca/~antoon/gadgets/555/555.html" quality="best" wmode="transparent" name="http://testbench.servra.com/copyurl" allowscriptaccess="sameDomain" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" width="130" align="middle" height="30">
+      </object>
+    </div>	
+
+		<a style="width: 97px; display: block;" id="logo" title="Search again"></a>
+		<div style="width: 220px;" id="commentBox">
+			<textarea style="height: 18px; width: 200px;" id="comment" rows="3" cols="3">Enter your comment...</textarea>
+			<span style="display: none;" id="characterCounter" title="Between 30 and 500 characters"><span id="characterCount">0</span>/500</span>
+		</div>
+		<div id="voteButtons">
+			<a href="#" id="voteButtonsUp" class="disable" title="Post a positive comment"></a>
+			<a href="#" id="voteButtonsDown" class="disable" title="Post a negative comment"></a>
+			<a style="display: none;" href="#" id="contractBar" title="Close the comment area"></a>
+		</div>
+		<div style="display: none;" id="commentError">
+			<div id="commentErrorIcon"></div>
+			<div id="commentErrorText"></div>
+		</div>
+	</div>
+</body></html>

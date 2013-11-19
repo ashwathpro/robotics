@@ -1,0 +1,139 @@
+%% trace path for blue
+bluePath=zeros(24,32);
+bluePathIndexed=zeros(24,32);
+blue_index=7;
+mag_index=4;
+number=1;
+weightBlue=0;
+currentNode=startNode;
+
+
+iota=sqrt(-1);
+direction=iota;
+
+	h=currentNode(1);
+	k=currentNode(2);
+    
+    bluePath(h,k)=255;
+    bluePathIndexed(h,k)=number;
+        number=number+1;
+
+while(currentNode(1)~=endNode(1) || currentNode(2)~=endNode(2))
+
+    flag=0;
+	h=currentNode(1);
+	k=currentNode(2);
+    
+
+%     disp('direction');
+%     disp(direction);
+% 	disp('h,k');
+%     disp([h k]);
+
+	switch(direction)
+		case iota
+			k=k+2;
+            if(k>=32)
+                direction=direction*iota;
+                continue
+            end
+		case -1
+			h=h+2;
+            if(h>=24)
+                direction=direction*iota;
+                continue
+            end
+		case -iota
+			k=k-2;
+            if(k<=1)
+                direction=direction*iota;
+                continue
+            end
+		case 1
+			h=h-2;
+            if(h<=1)
+                direction=direction*iota;
+                continue
+            end
+    end
+	
+%     disp('h,k after switch1');
+%     disp([h k]);
+    
+	if((miniArena(h,k)==blue_index || miniArena(h,k)==mag_index) && (bluePath(h,k)~=255))
+		bluePath(h,k)=255;
+        bluePathIndexed(h,k)=number;
+        number=number+1;
+		flag=1;
+        currentNode=[h k];
+        if(miniArena(h,k)==mag_index)
+            weightBlue=weightBlue+1;
+        end
+    end
+ 	
+%     disp('flag');
+%     disp(flag);
+    
+    if(flag~=1)
+        switch(direction)
+		case iota
+			k=k+1;
+            if(k>=33)
+                direction=direction*iota;
+                continue
+            end
+		case -1
+			h=h+1;
+            if(h>=25)
+                direction=direction*iota;
+                continue
+            end
+		case -iota
+			k=k-1;
+            if(k<=0)
+                direction=direction*iota;
+                continue
+            end
+		case 1
+			h=h-1;
+            if(h<=0)
+                direction=direction*iota;
+                continue
+            end
+    end
+	
+%         disp('h,k after switch2');
+%         disp([h k]);
+    
+        
+		if(miniArena(h,k)==20)
+			bluePath(h,k)=255;
+            bluePathIndexed(h,k)=number;
+            number=number+1;
+		
+			currentNode=[h k];
+            disp([h k]);
+        end    
+        if(currentNode==startNode)
+            if(miniArena(h,k)==blue_index)
+                    bluePath(h,k)=255;
+                    bluePathIndexed(h,k)=number;
+                    number=number+1;
+		
+                    currentNode=[h k];
+                    disp('found first blue');
+                    disp([h k]);
+                    flag=1;
+            end
+        end
+        
+    end
+
+
+    if(flag==1)
+        continue
+	end
+		direction=direction*iota;
+end
+figure, imshow(bluePath);
+disp(weightBlue);

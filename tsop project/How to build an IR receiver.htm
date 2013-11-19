@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+
+  
+    <title>How to build an IR receiver</title>
+    <link rel="stylesheet" href="How%20to%20build%20an%20IR%20receiver_files/template.css" type="text/css">
+    <link rel="first" title="Introduction" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=introduction">
+    <link rel="last" title="Related links" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=links">
+    <link rel="section" title="Introduction" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=introduction">
+    <link rel="next" title="Tools" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=tools">
+    <link rel="section" title="Tools" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=tools">
+    <link rel="section" title="Part list" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=parts">
+    <link rel="section" title="The circuit explained" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=circuit">
+    <link rel="section" title="IR-receiver and voltage regulator" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=receiverRegulator">
+    <link rel="section" title="Diode and resistor" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=diodeResistor">
+    <link rel="section" title="The wire and the capacitor" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=wireCapacitor">
+    <link rel="section" title="Mounting it inside the box" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=insideBox">
+    <link rel="section" title="Placing the IR receiver" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=placing">
+    <link rel="section" title="The software for Linux: Lirc" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=lirc">
+    <link rel="section" title="WinLirc" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=winlirc">
+    <link rel="section" title="Old site" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=old-site">
+    <link rel="section" title="Related links" href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=links">
+  </head><body>
+    <div id="content">
+      <div id="main-title">
+        <h1>How to build a simple but cool IR (Infra Red) receiver.</h1>
+      </div>
+      <div class="title">
+        <h2>Introduction</h2>
+This circuitry allows you to control your computer with a simple
+remote, like the one you already use for your TV-set. It's very useful
+when you want to control a DVD or an mp3 player without having to stay
+at the keyboard. Please note that this circuit is NOT IrDA compatible
+and it won't help you to connect to your mobile phone or whatever IrDA
+device; it's only good to control your pc with a standard remote
+control.
+I use it for VDR and now my pc is a full featured set top box connected
+to the television, capable to digitally record and replay satellite
+television, DVDs and every kind of digital content (mp3, divx).
+There are many softwares you can install to control this ciruit; for
+Linux you can use Lirc and for Windows you can use either Winlirc,
+Girder, IR Assistant or uIRC. </div>
+      <div class="nav"> - <a href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=tools">Next: Tools</a>
+      </div>
+      <div class="step">
+        <div class="date">2007-09-14</div>
+        <a href="http://lnx.manoweb.com/lirc/?partType=step&amp;partName=introduction:1">[-]</a>
+In the past few months I had a lot of troubles for personal matters.
+Unfortunately I missed A LOT of emails and, again for personal reasons,
+I won't be able to ship many more receivers until I recover a more
+stable situation. Everybody who has paid but did not receive the device
+will be completely refoundeed. Again, sorry. </div>
+      <div class="step">
+        <div class="date">2005-06-28</div>
+        <a href="http://lnx.manoweb.com/lirc/?partType=step&amp;partName=introduction:2">[-]</a>
+This is the third version of this website. Much time has passed since
+the first version, and I hope you will like the new "skin" of the
+website. The original reason I wrote this guide was to document and
+keep track of a cool way to build this circuit directly inside a serial
+connector. <br>
+        <br>
+        <a href="http://lnx.manoweb.com/lirc/mids/img_3013.jpg">
+          <img src="How%20to%20build%20an%20IR%20receiver_files/img_3013.jpg" alt="The process of building some IR receivers">
+        </a>
+        <br>
+        <br>
+			</div>
+      <div class="step">
+        <div class="date"></div>
+        <a href="http://lnx.manoweb.com/lirc/?partType=step&amp;partName=introduction:3">[-]</a>
+These are the "ingredients" needed to build the receiver. We will now
+analyze them in detail, both the instruments and the components.
+<br>
+        <br>
+        <a href="http://lnx.manoweb.com/lirc/mids/img_3012.jpg">
+          <img src="How%20to%20build%20an%20IR%20receiver_files/img_3012.jpg" alt="A general view of the instruments and components needed to build the receivers">
+        </a>
+        <br>
+        <br>
+			</div>
+      <div class="nav"> - <a href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=tools">Next: Tools</a>
+      </div>
+      <div id="menu">
+        <ul>
+          <li>
+            <b>Introduction</b>
+          </li>
+          <li>
+            <a href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=tools">Tools</a>
+          </li>
+          <li>
+            <a href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=parts">Part list</a>
+          </li>
+          <li>
+            <a href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=circuit">The circuit explained</a>
+          </li>
+          <li>
+            <a href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=receiverRegulator">IR-receiver and voltage regulator</a>
+          </li>
+          <li>
+            <a href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=diodeResistor">Diode and resistor</a>
+          </li>
+          <li>
+            <a href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=wireCapacitor">The wire and the capacitor</a>
+          </li>
+          <li>
+            <a href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=insideBox">Mounting it inside the box</a>
+          </li>
+          <li>
+            <a href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=placing">Placing the IR receiver</a>
+          </li>
+          <li>
+            <a href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=lirc">The software for Linux: Lirc</a>
+          </li>
+          <li>
+            <a href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=winlirc">WinLirc</a>
+          </li>
+          <li>
+            <a href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=old-site">Old site</a>
+          </li>
+          <li>
+            <a href="http://lnx.manoweb.com/lirc/?partType=section&amp;partName=links">Related links</a>
+          </li>
+        </ul>
+      </div>
+      <div id="footer">
+        <div class="google-search">
+          <form method="get" action="http://www.google.com/custom" target="_top">
+            <table bgcolor="#ffffff">
+              <tbody><tr>
+                <td valign="top" align="left" height="32" nowrap="nowrap">
+                  <a href="http://www.google.com/">
+                    <img src="How%20to%20build%20an%20IR%20receiver_files/Logo_25wht.gif" alt="Google" align="middle" border="0">
+                  </a>
+                  <input name="q" size="31" maxlength="255" value="" type="text">
+                  <input name="sa" value="Search" type="submit">
+                  <input name="client" value="pub-4593167998560695" type="hidden">
+                  <input name="forid" value="1" type="hidden">
+                  <input name="ie" value="ISO-8859-1" type="hidden">
+                  <input name="oe" value="ISO-8859-1" type="hidden">
+                  <input name="cof" value="GALT:#008000;GL:1;DIV:#336699;VLC:663399;AH:center;BGC:FFFFFF;LBGC:336699;ALC:0000FF;LC:0000FF;T:000000;GFNT:0000FF;GIMP:0000FF;FORID:1;" type="hidden">
+                  <input name="hl" value="en" type="hidden">
+                </td>
+              </tr>
+            </tbody></table>
+          </form>
+        </div>
+	Copyright (C) 2003 Alessio Sangalli, <a href="mailto:alesan@manoweb.com?subject=IR%20receiver">alesan@manoweb.com</a>
+        <br>
+        <br>
+        <a href="http://validator.w3.org/check/referer">
+          <img src="How%20to%20build%20an%20IR%20receiver_files/valid-xhtml11.png" style="border: 0pt none ; width: 88px; height: 31px;" alt="Valid XHTML 1.1!">
+        </a>
+        <a href="http://jigsaw.w3.org/css-validator/">
+          <img src="How%20to%20build%20an%20IR%20receiver_files/vcss.png" style="border: 0pt none ; width: 88px; height: 31px;" alt="Valid CSS!">
+        </a>
+      </div>
+    </div>
+  </body></html>

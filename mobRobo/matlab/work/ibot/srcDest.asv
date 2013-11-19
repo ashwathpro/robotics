@@ -1,0 +1,217 @@
+
+ for k=1:1200
+            for l=1:1600
+                
+                if(arenaIndexed(k,l)==1)
+                    bw1(k,l)=255;
+                else
+                    bw1(k,l)=0;
+                end
+                if(arenaIndexed(k,l)==7)
+                    bw2(k,l)=255;
+                else
+                    bw2(k,l)=0;
+                end
+            end
+ end
+ 
+% figure;
+% Using morphology functions, remove pixels which do not belong to the
+% objects of interest.
+
+% remove all object containing fewer than 30 pixels
+bw1 = bwareaopen(bw1,30);
+
+% fill a gap in the pen's cap
+se = strel('disk',25);
+bw1 = imclose(bw1,se);
+
+% fill any holes, so that regionprops can be used to estimate
+% the area enclosed by each of the boundaries
+bw1 = imfill(bw1,'holes');
+ 
+% remove all object containing fewer than 30 pixels
+bw2 = bwareaopen(bw2,30);
+
+% fill a gap in the pen's cap
+se = strel('disk',25);
+bw2 = imclose(bw2,se);
+
+% fill any holes, so that regionprops can be used to estimate
+% the area enclosed by each of the boundaries
+bw2 = imfill(bw2,'holes');
+
+figure, imshow(bw1);
+figure, imshow(bw2);
+
+[bw1,num1]=bwlabel(bw1);
+[bw2,num2]=bwlabel(bw2);
+
+srcDest=regionprops(bw1,'basic');
+src=regionprops(bw2,'basic');
+
+
+
+%% white
+startNode=0;
+endNode=0;
+if(num1==2)
+    cent= src(1).Centroid;
+    x=round(cent(1));
+    y=round(cent(2));
+if(bw1(x,y)==1)
+    cent= srcDest(1).Centroid;
+    x1=round(cent(1));
+    y1=round(cent(2));
+    x2=ceil(x1/50);
+    y2= ceil(y1/50);
+    startNode=[y2 x2];
+    miniArena(y2,x2)=10;
+    
+    cent= srcDest(2).Centroid;
+    x1=round(cent(1));
+    y1=round(cent(2));
+    x2=ceil(x1/50);
+    y2= ceil(y1/50);
+    endNode=[y2 x2];
+    miniArena(y2,x2)=20;
+else
+    cent= srcDest(2).Centroid;
+    x1=round(cent(1));
+    y1=round(cent(2));
+    x2=ceil(x1/50);
+    y2= ceil(y1/50);
+    startNode=[y2 x2];
+    miniArena(y2,x2)=10;
+    cent= srcDest(1).Centroid;
+    x1=round(cent(1));
+    y1=round(cent(2));
+    x2=ceil(x1/50);
+    y2= ceil(y1/50);
+    endNode=[y2 x2];
+    miniArena(y2,x2)=20;
+end
+
+else
+    disp('more than two source and destination');
+end
+
+%% trace path for blue
+bluePath=zeros(24,32);
+blue_index=3;
+mag_index=4;
+weightBlue=0;
+currentNode=startNode;
+%  for k=1:24
+%      for l=1:32
+%                 
+%                 if(miniArena(k,l)==3 || miniArena(k,l)==10 || miniArena(k,l)==20 || miniArena(k,l)==4)
+%                     bluePath(k,l)=255;
+%                     if(miniArena(k,l)==4)
+%                         weightBlue=weightBlue+1;
+%                     end
+%                 else
+%                     bluePath(k,l)=0;
+%                  
+%                 end
+%      end
+%  end
+
+% while(currentNode~=endNode)
+%     i=currentNode(1);
+%     j=currentNode(2);
+%     
+%     
+%     while((miniArena(i,j+2)==blue_index||miniArena(i,j+2)==mag_index)&&bluePath~=255)        
+%             bluePath=255;
+%             j=j+2;
+%     end
+%     
+%     while((miniArena(i,j+2)==blue_index||miniArena(i,j+2)==mag_index)&&bluePath~=255)        
+%             bluePath=255;
+%             
+%             
+%             i=i+2;
+%     end
+% 
+%     while((miniArena(i,j+2)==blue_index||miniArena(i,j+2)==mag_index)&&bluePath~=255)
+%             bluePath=255;
+%             
+%             
+%             j=j-2;
+%     end
+% 
+%     while((miniArena(i,j+2)==blue_index||miniArena(i,j+2)==mag_index)&&bluePath~=255)        
+%             bluePath=255;
+%             
+%             i=i-2;
+%     end
+%     
+%     if(miniArena(i,j+3)==20||miniArena(i+3,j)==20||miniArena(i,j-3)==20||miniArena(i-3,j)==20)
+%                 currentNode=endNode;
+%                 break;
+%     end
+%     currentNode=[i j];
+% end
+%             
+% figure,imshow(bluePath);
+
+iota=sqrt(-1);
+direction=iota;
+disp('direction');
+disp(direction);
+
+
+disp('currentNode');
+disp(currentNode);
+
+while(currentNode~=endNode)
+	flag=0;
+	h=currentNode(1);
+	k=currentNode(2);
+	
+	switch(direction)
+		case iota
+			k=k+2;
+		case -1
+			h=h+2;
+		case -iota
+			k=k-2;
+		case 1
+			h=h-2;
+	end
+	
+	if((miniArena(h,k)==blue_index || miniArena(h,k)==mag_index) && (bluePath(h,k)~=255))
+		bluePath(h,k)=255;
+		flag=1;
+        currentNode=[h k];
+        if(miniArena(h,k)==mag_index)
+            weightBlue=weightBlue+1;
+        end
+    end
+	
+    if(flag~=1)
+        switch(direction)
+        	case iota
+            	k=k+1;
+        	case -1
+        		h=h+1;
+            case -iota
+                k=k-1;
+            case 1
+            	h=h-1;
+		end
+	
+		if(miniArena(h,k)==20)
+			bluePath(h,k)=255;
+			currentNode=[h k];
+            disp([h k]);
+        end
+    end
+    
+    if(flag==1)
+        continue
+	end
+		direction=direction*iota;
+end
+disp(weightBlue);

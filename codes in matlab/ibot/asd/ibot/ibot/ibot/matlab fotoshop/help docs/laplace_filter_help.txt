@@ -1,0 +1,12 @@
+Laplace-Filter:
+      This filter is to sharpen or blur the image. The algorithm is
+      based on the mechanism of diffusion in fluids. Each color
+      value of a pixel is interpreted as a concentration of
+      material. The partial differential equation describing the
+      diffusion process is given by 
+  
+                       du/dt = D * (laplace u)
+  
+      The value of D is responsible for either blurring or
+      sharpening the image. For positive values it sharpens and for
+      negative it blurs the image. 

@@ -1,0 +1,290 @@
+function timeOutFlag = getOurRoboCordi(full_image)
+
+%% global variables
+global vid
+global input_colored_image;
+global size_input_colored_image;
+global g_ourRobotColorIndex   % red is 1...blue is 2
+global g_BW_RedGoalPost_Inv
+global g_BW_BlueGoalPost_Inv
+%% Robot Morphology
+global g_robotBoxDimentions
+global g_robotLargerBoxDimentions
+% *****global g_maxDistBetweenCircles
+% *****global g_RobotBlackCircleMinArea
+% *****global g_RobotWhiteCircleMinArea
+
+% ??? [pras] i guess the follwoing variables are not require
+
+global g_ourBlackIsFront
+global g_OurRobotBlackCordi;
+global g_OurRobotWhiteCordi;
+
+
+global g_ourRobotFrontCordi
+global g_ourRobotBackCordi
+
+
+%% robot colors
+global g_minWhiteColorRobot
+global g_maxBlackColorRobot
+
+global g_OurRobotBlackCircleDiaMin
+global g_OurRobotBlackCircleDiaMax
+global g_OurRobotBlackCircleTol
+
+global g_OurRobotWhiteCircleDiaMin
+global g_OurRobotWhiteCircleDiaMax
+global g_OurRobotWhiteCircleTol
+
+global g_color_min_red_Robot
+global g_color_max_red_Robot
+global g_red_over_green_Robot_red
+global g_red_over_blue_Robot_red
+
+global g_color_min_blue_Robot
+global g_color_max_blue_Robot
+global g_blue_over_green_Robot_blue
+global g_blue_over_red_Robot_blue
+
+global Max_dist_btw_circles
+
+global ourRoboTimeoutSec
+%starting time for providing time out
+initTime = clock;
+timeOutFlag = 0;
+
+%%
+while(1)
+   %check time at each pass
+   if(etime(clock,initTime)>=ourRoboTimeoutSec)
+       initTime = clock;
+       timeOutFlag = 1;
+       fprintf('\n****** ERROR : Tme out happen as robot cordi not detected****\n')
+       return
+   
+   end
+
+%    input_colored_image = getsnapshot(vid);
+   input_colored_image=imread('10.jpg');
+   
+    if(full_image==0)% if search in small bax
+        upper_box_point = max(min(g_OurRobotBlackCordi,g_OurRobotWhiteCordi)- g_robotBoxDimentions ,[1 ,1]);
+        lower_box_point = min(max(g_OurRobotBlackCordi,g_OurRobotWhiteCordi)+ g_robotBoxDimentions,...
+            [size_input_colored_image(2),size_input_colored_image(1)]);
+    elseif(full_image==2)% if search in bigger bax
+        upper_box_point = max(min(g_OurRobotBlackCordi,g_OurRobotWhiteCordi)- g_robotLargerBoxDimentions,[1 ,1]);
+        lower_box_point = min(max(g_OurRobotBlackCordi,g_OurRobotWhiteCordi)+ g_robotLargerBoxDimentions,...
+            [size_input_colored_image(2),size_input_colored_image(1)]);
+
+    else % for full image
+        if(g_ourRobotColorIndex==1)% our robot color is red
+            BW_OurRobot=((input_colored_image(:,:,1)>=input_colored_image(:,:,2)+g_red_over_green_Robot_red) ...
+                &((input_colored_image(:,:,1)>=input_colored_image(:,:,3)+g_red_over_blue_Robot_red)) ...
+                &((input_colored_image(:,:,1)>=g_color_min_red_Robot(1))) ...
+                &((input_colored_image(:,:,2)<=g_color_max_red_Robot(2))) ...
+                &((input_colored_image(:,:,3)<=g_color_max_red_Robot(3))));
+
+            BW_OurRobot = BW_OurRobot & g_BW_RedGoalPost_Inv;
+
+        elseif(g_ourRobotColorIndex==2)% our robot color is blue
+            BW_OurRobot=((input_colored_image(:,:,3)>=input_colored_image(:,:,2)+g_blue_over_green_Robot_blue) ...
+                &((input_colored_image(:,:,3)>=input_colored_image(:,:,1)+g_blue_over_red_Robot_blue)) ...
+                &((input_colored_image(:,:,1)<=g_color_max_blue_Robot(1))) ...
+                &((input_colored_image(:,:,2)<=g_color_max_blue_Robot(2))) ...
+                &((input_colored_image(:,:,3)>=g_color_min_blue_Robot(3))));
+
+            BW_OurRobot = (BW_OurRobot & g_BW_BlueGoalPost_Inv);
+        else
+            error('\n******* ERROR: Select Our color *******\n')
+
+        end%end of if(g_ourRobotColorIndex==1)
+
+
+        BW_OurRobot=imclose(BW_OurRobot, strel('square',5));
+
+        %figure,imshow(BW_OurRobot);
+        [LabledImageOurRobot,NOurRobot] = bwlabel(BW_OurRobot,8);
+        if(NOurRobot==0)
+            fprintf('\n***** ERROR: Our robot color not detected *****\n')
+            continue
+        end
+        regionPropertiesOurRobot = regionprops(LabledImageOurRobot,'Area','BoundingBox');
+        if(NOurRobot~=1)
+            areaArrayOurRobot = zeros(1,NOurRobot);
+            for count=1:NOurRobot
+                areaArrayOurRobot(count) = regionPropertiesOurRobot(count).Area;
+            end
+            [maxAreaOurRobot indexOurRobot] = max(areaArrayOurRobot);
+            bbOurRobot =  floor(regionPropertiesOurRobot(indexOurRobot).BoundingBox);
+
+        else
+            bbOurRobot =  floor(regionPropertiesOurRobot.BoundingBox);
+        end%end of (NOurRobot~=1)
+         upper_box_point = max(bbOurRobot(1:2),[1,1]);
+        lower_box_point = min(bbOurRobot(1:2) +bbOurRobot (3:4),[size_input_colored_image(2),size_input_colored_image(1)]);
+    end%end of full image
+    upper_box_point = round(upper_box_point);
+    lower_box_point = round(lower_box_point);
+
+
+    BWOurRobotWhite =(((input_colored_image(upper_box_point(2):lower_box_point(2),upper_box_point(1):lower_box_point(1),1)>=g_minWhiteColorRobot(1))) ...
+        &((input_colored_image(upper_box_point(2):lower_box_point(2),upper_box_point(1):lower_box_point(1),2)>=g_minWhiteColorRobot(2))) ...
+        &((input_colored_image(upper_box_point(2):lower_box_point(2),upper_box_point(1):lower_box_point(1),3)>=g_minWhiteColorRobot(3))));
+    BWOurRobotWhite = imclose(BWOurRobotWhite,strel('square',5));
+    %figure,imshow(BWOurRobotWhite)
+    [ WhiteCount_circles, WhiteCenters,WhiteDiameters] = findcircles(BWOurRobotWhite,g_OurRobotWhiteCircleTol);
+    foundWhiteCircleFlag = 0;
+
+    if(WhiteCount_circles == 0)
+        fprintf('\n ****** Error :No White circle found\n ')
+        if(full_image==0)full_image = 2;
+        elseif(full_image==2)full_image = 1;
+        end
+        continue
+    end
+    numOfOurRoboWhiteCircle = 0;
+    ourRoboCircleCordi = [];
+    for count = 1: WhiteCount_circles
+        if((WhiteDiameters(count) >=g_OurRobotWhiteCircleDiaMin )& (WhiteDiameters(count) <=g_OurRobotWhiteCircleDiaMax ) )
+            numOfOurRoboWhiteCircle = numOfOurRoboWhiteCircle + 1;
+            ourRoboCircleCordi(numOfOurRoboWhiteCircle,:)= [WhiteCenters(count,2),WhiteCenters(count,1)]+ upper_box_point-[1 1];
+%             foundWhiteCircleFlag =1 ;
+%             g_OurRobotWhiteCordi = [WhiteCenters(count,2),WhiteCenters(count,1)]+ upper_box_point-[1 1];
+        end
+    end
+    if(numOfOurRoboWhiteCircle == 0)
+        fprintf('\n ****** Error :White Color Circle is not in range given\n ')
+        if(full_image==0)full_image = 2;
+        elseif(full_image==2)full_image = 1;
+        end
+        continue
+    
+    %if only one circle
+    elseif(numOfOurRoboWhiteCircle==1)
+        g_OurRobotWhiteCordi = ourRoboCircleCordi;
+    else % more thatn one white circle
+        full_image = 1;
+        continue        
+    end
+            
+    
+    
+    
+%     [LabledImageOurRobotW,NOurRobotW] = bwlabel(BWOurRobotWhite,8);
+%     if(NOurRobotW==0)
+%         if(full_image==0)full_image = 2;
+%         elseif(full_image==2)full_image = 1;
+%         end
+%         fprintf('\n***** ERROR: White Color of Our robot  color not detected *****\n')
+%         continue
+%     end
+%     regionPropertiesOurRobotW = regionprops(LabledImageOurRobotW,'Centroid','Area');
+%     if(NOurRobotW~=1)
+%         areaArrayOurRobotW=zeros(NOurRobotW,1);
+%         for count=1:NOurRobotW
+%             areaArrayOurRobotW(count) = regionPropertiesOurRobotW(count).Area;
+%         end
+%         [maxAreaOurRobotW indexOurRobotW] = max(areaArrayOurRobotW);
+%         g_OurRobotWhiteCordi =  regionPropertiesOurRobotW(indexOurRobotW).Centroid + upper_box_point-[1 1];
+%     else
+%         g_OurRobotWhiteCordi =  regionPropertiesOurRobotW.Centroid + upper_box_point-[1 1];
+%     end
+
+    BWOurRobotBlack =(((input_colored_image(upper_box_point(2):lower_box_point(2),upper_box_point(1):lower_box_point(1),1)<=g_maxBlackColorRobot(1))) ...
+        &((input_colored_image(upper_box_point(2):lower_box_point(2),upper_box_point(1):lower_box_point(1),2)<=g_maxBlackColorRobot(2))) ...
+        &((input_colored_image(upper_box_point(2):lower_box_point(2),upper_box_point(1):lower_box_point(1),3)<=g_maxBlackColorRobot(3))));
+    BWOurRobotBlack = imclose(BWOurRobotBlack,strel('square',5));
+
+    %figure,imshow(BWOurRobotBlack)
+    [ count_circles, centers,diameters] = findcircles(BWOurRobotBlack,g_OurRobotBlackCircleTol);
+    foundBlackCircleFlag = 0;
+
+    if(count_circles == 0)
+        fprintf('\n ****** Error :No black circle found\n ')
+        if(full_image==0)full_image = 2;
+        elseif(full_image==2)full_image = 1;
+        end
+        continue
+    end
+
+    numOfOurRoboBlackCircle = 0;
+    ourRoboBlackCircleCordi = [];
+    for count = 1: count_circles
+        if((diameters(count) >=g_OurRobotBlackCircleDiaMin )& (diameters(count) <=g_OurRobotBlackCircleDiaMax ) )
+%            foundBlackCircleFlag =1 ;
+            numOfOurRoboBlackCircle = numOfOurRoboBlackCircle + 1;
+            ourRoboBlackCircleCordi(numOfOurRoboBlackCircle,:)= [centers(count,2),centers(count,1)]+ upper_box_point-[1 1];
+%             foundWhiteCircleFlag =1 ;
+%             g_OurRobotWhiteCordi = [WhiteCenters(count,2),WhiteCenters(count,1)]+ upper_box_point-[1 1];
+        end
+    end
+    if(numOfOurRoboBlackCircle == 0)
+        fprintf('\n ****** Error :Black Color Circle is not in range given\n ')
+        if(full_image==0)full_image = 2;
+        elseif(full_image==2)full_image = 1;
+        end
+        continue
+    
+    %if only one circle
+    elseif(numOfOurRoboBlackCircle==1)
+        g_OurRobotBlackCordi = ourRoboBlackCircleCordi;
+    else % more thatn one white circle
+        full_image = 1;
+        continue        
+    end
+        
+%     
+%     
+%     
+%     for count = 1: count_circles
+%         if((diameters(count) >=g_OurRobotBlackCircleDiaMin )& (diameters(count) <=g_OurRobotBlackCircleDiaMax ) )
+%             foundBlackCircleFlag =1 ;
+%             g_OurRobotBlackCordi = [centers(count,2),centers(count,1)]+ upper_box_point-[1 1];
+%         end
+%     end
+%     if(foundBlackCircleFlag == 0)
+%         fprintf('\n ****** Error :Black Color Circle is not in range given\n ')
+%         if(full_image==0)full_image = 2;
+%         elseif(full_image==2)full_image = 1;
+%         end
+%         continue
+%     end
+
+    %     [LabledImageOurRobotB,NOurRobotB] = bwlabel(BWOurRobotBlack,8);
+    %     if(NOurRobotB==0)
+    %         fprintf('\n ****** Error :Black Color of Our robot  color not detected\n ')
+    %         if(full_image==0)full_image = 2;
+    %         elseif(full_image==2)full_image = 1;
+    %         end
+    %        continue
+    %     end
+    %
+    %     regionPropertiesOurRobotB = regionprops(LabledImageOurRobotB,'Centroid','Area');
+    %     if(NOurRobotB~=1)
+    %         areaArrayOurRobotB(NOurRobotB)=0;
+    %         for count=1:NOurRobotB
+    %             areaArrayOurRobotB(count) = regionPropertiesOurRobotB(count).Area;
+    %         end
+    %
+    %         [maxAreaOurRobotB indexOurRobotB] = max(areaArrayOurRobotB);
+    %         g_OurRobotBlackCordi =  regionPropertiesOurRobotB(indexOurRobotB).Centroid + upper_box_point-[1 1];
+    %     else
+    %         g_OurRobotBlackCordi =  regionPropertiesOurRobotB.Centroid + upper_box_point-[1 1];
+    %     end
+    %     %if both detected properly , return from the code.
+
+    % **** for the time being i am taking black circle as front cordi
+    if(g_ourBlackIsFront==1)
+        g_ourRobotFrontCordi = g_OurRobotBlackCordi;
+        g_ourRobotBackCordi  = g_OurRobotWhiteCordi;
+
+    else
+        g_ourRobotFrontCordi = g_OurRobotWhiteCordi;
+        g_ourRobotBackCordi  = g_OurRobotBlackCordi;
+
+    end
+
+
+    return
+end

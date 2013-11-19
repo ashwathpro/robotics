@@ -1,0 +1,22 @@
+global serialPortObj
+global serialSignatureByte
+global serialDelayCount
+
+serialSignatureByte =  44  % 0101110
+serialDelayCount    = 300
+comPort = 'COM1'
+
+serialPortObj = serial(comPort,'BaudRate',1200,'Parity','none','StopBits',1,'DataBits',8)
+fopen(serialPortObj)
+
+fwrite(serialPortObj,serialSignatureByte,'int8');
+
+for i=1:serialDelayCount 
+  temp = i;
+ end
+
+fwrite(serialPortObj,8,'int8');
+
+for i=1:serialDelayCount 
+  temp = i;
+ end

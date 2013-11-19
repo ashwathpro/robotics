@@ -1,0 +1,1081 @@
+   1               		.file	"sqrt.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.global __do_copy_data
+   8               		.global __do_clear_bss
+  10               		.text
+  11               	.Ltext0:
+  68               	.global	calc
+  70               	calc:
+   1:sqrt.c        **** /*
+   2:sqrt.c        **** 
+   3:sqrt.c        **** 	OCR1B	ENABLE FOR RIGHT
+   4:sqrt.c        **** 	OCR1A	ENABLE FOR LEFT
+   5:sqrt.c        **** */
+   6:sqrt.c        **** 
+   7:sqrt.c        **** #include <avr/io.h> 	//header file to include input output port
+   8:sqrt.c        **** #include <util/delay.h>
+   9:sqrt.c        **** #include <assert.h>
+  10:sqrt.c        **** 
+  11:sqrt.c        **** //#define LED_ON PORTD|=0x80;
+  12:sqrt.c        **** //#define LED_OFF PORTD&=0xBE;
+  13:sqrt.c        **** //#define SWITCH_PRESSED !(PINB & 0x20)	
+  14:sqrt.c        **** 
+  15:sqrt.c        **** #define M_OUTPUT PORTD
+  16:sqrt.c        **** #define RIGHT_MOTOR OCR1A
+  17:sqrt.c        **** #define LEFT_MOTOR OCR1B
+  18:sqrt.c        **** 
+  19:sqrt.c        **** uint8_t calc(uint8_t w)
+  20:sqrt.c        **** 	{
+  72               	.LM0:
+  73               	.LFBB1:
+  74               	/* prologue: frame size=0 */
+  75               	/* prologue end (size=0) */
+  21:sqrt.c        **** 	ADMUX&=0xF0;
+  77               	.LM1:
+  78 0000 97B1      		in r25,39-0x20
+  79 0002 907F      		andi r25,lo8(-16)
+  80 0004 97B9      		out 39-0x20,r25
+  22:sqrt.c        **** 	ADMUX|=w;
+  82               	.LM2:
+  83 0006 97B1      		in r25,39-0x20
+  84 0008 982B      		or r25,r24
+  85 000a 97B9      		out 39-0x20,r25
+  23:sqrt.c        **** 	ADCSRA|=_BV(ADEN);
+  87               	.LM3:
+  88 000c 379A      		sbi 38-0x20,7
+  24:sqrt.c        **** 	ADCSRA|= (1<<ADSC);
+  90               	.LM4:
+  91 000e 369A      		sbi 38-0x20,6
+  92               	.L2:
+  25:sqrt.c        **** 	while(!(ADCSRA & 0x10));//ADIF is set.will come out of loop 
+  94               	.LM5:
+  95 0010 349B      		sbis 38-0x20,4
+  96 0012 00C0      		rjmp .L2
+  26:sqrt.c        **** 	ADCSRA=(0<<ADEN);// added by me to switc off the adc , so as it doesnt consume power
+  98               	.LM6:
+  99 0014 16B8      		out 38-0x20,__zero_reg__
+  27:sqrt.c        **** 	return ADCH;
+ 101               	.LM7:
+ 102 0016 85B1      		in r24,37-0x20
+  28:sqrt.c        **** 	}
+ 104               	.LM8:
+ 105 0018 9927      		clr r25
+ 106               	/* epilogue: frame size=0 */
+ 107 001a 0895      		ret
+ 108               	/* epilogue end (size=1) */
+ 109               	/* function calc size 14 (13) */
+ 111               	.Lscope1:
+ 113               	.global	main_initialize
+ 115               	main_initialize:
+  29:sqrt.c        **** 
+  30:sqrt.c        **** 
+  31:sqrt.c        **** 	
+  32:sqrt.c        **** uint8_t MASTER_PWM,lineSensors;
+  33:sqrt.c        **** 
+  34:sqrt.c        **** void main_initialize()
+  35:sqrt.c        **** {
+ 117               	.LM9:
+ 118               	.LFBB2:
+ 119               	/* prologue: frame size=0 */
+ 120               	/* prologue end (size=0) */
+  36:sqrt.c        **** 		
+  37:sqrt.c        **** 		ADCSRA&=~(1<<ADIF);  		// to disable the adc interrupt flag....
+ 122               	.LM10:
+ 123 001c 3498      		cbi 38-0x20,4
+  38:sqrt.c        **** 		ADMUX |= (1 << REFS0); 		// set the voltage reference as AVcc 
+ 125               	.LM11:
+ 126 001e 3E9A      		sbi 39-0x20,6
+  39:sqrt.c        **** 		ADMUX|=_BV(ADLAR);			// left adjusted Result
+ 128               	.LM12:
+ 129 0020 3D9A      		sbi 39-0x20,5
+  40:sqrt.c        **** 		
+  41:sqrt.c        **** 		ADCSRA|=(_BV(ADPS0) | _BV(ADPS1) );  // set the ADC input frequency at 125 Khz(Prescaling of 8)
+ 131               	.LM13:
+ 132 0022 86B1      		in r24,38-0x20
+ 133 0024 8360      		ori r24,lo8(3)
+ 134 0026 86B9      		out 38-0x20,r24
+  42:sqrt.c        **** 	
+  43:sqrt.c        **** 		OCR1B=0xff;   	// output compare register  for right motor  
+ 136               	.LM14:
+ 137 0028 8FEF      		ldi r24,lo8(255)
+ 138 002a 90E0      		ldi r25,hi8(255)
+ 139 002c 99BD      		out (72)+1-0x20,r25
+ 140 002e 88BD      		out 72-0x20,r24
+  44:sqrt.c        **** 		OCR1A=0xff;		// output compare register  for left motor
+ 142               	.LM15:
+ 143 0030 9BBD      		out (74)+1-0x20,r25
+ 144 0032 8ABD      		out 74-0x20,r24
+  45:sqrt.c        **** 		
+  46:sqrt.c        **** 
+  47:sqrt.c        **** 
+  48:sqrt.c        **** 		/* TOP value is 00FFh for both OCR1A and OCR1B*/
+  49:sqrt.c        **** 
+  50:sqrt.c        **** 		TCCR1A=0xA1;	// define type of PWM	
+ 146               	.LM16:
+ 147 0034 81EA      		ldi r24,lo8(-95)
+ 148 0036 8FBD      		out 79-0x20,r24
+  51:sqrt.c        **** 
+  52:sqrt.c        **** 		/*Timer/Counter 1 Control  and pwm at pin OCR1A(PB1) */
+  53:sqrt.c        **** 
+  54:sqrt.c        **** 		TCCR1B=0x04; //for start pwm
+ 150               	.LM17:
+ 151 0038 84E0      		ldi r24,lo8(4)
+ 152 003a 8EBD      		out 78-0x20,r24
+ 153               	/* epilogue: frame size=0 */
+ 154 003c 0895      		ret
+ 155               	/* epilogue end (size=1) */
+ 156               	/* function main_initialize size 17 (16) */
+ 158               	.Lscope2:
+ 160               	.global	main
+ 162               	main:
+  55:sqrt.c        **** }
+  56:sqrt.c        **** 
+  57:sqrt.c        **** int main()
+  58:sqrt.c        **** {
+ 164               	.LM18:
+ 165               	.LFBB3:
+ 166               	/* prologue: frame size=0 */
+ 167 003e C0E0      		ldi r28,lo8(__stack - 0)
+ 168 0040 D0E0      		ldi r29,hi8(__stack - 0)
+ 169 0042 DEBF      		out __SP_H__,r29
+ 170 0044 CDBF      		out __SP_L__,r28
+ 171               	/* prologue end (size=4) */
+  59:sqrt.c        **** 		uint8_t sensorReference0,sensorReference1,sensorReference2,sensorReference3,sensorReference4,Actu
+  60:sqrt.c        **** 		uint16_t count=0x0,cnt1=0,cnt2=0;
+  61:sqrt.c        **** 		uint8_t forValue=25,binOp=0,prevCnt=0,maxCnt=0,square=0,lastDir=0,loopInOutFlag=0,maxsquare=0;
+  62:sqrt.c        **** 		
+  63:sqrt.c        **** 		DDRD=0b11101111; 
+ 173               	.LM19:
+ 174 0046 8FEE      		ldi r24,lo8(-17)
+ 175 0048 81BB      		out 49-0x20,r24
+  64:sqrt.c        **** 		DDRB=0x06;
+ 177               	.LM20:
+ 178 004a 86E0      		ldi r24,lo8(6)
+ 179 004c 87BB      		out 55-0x20,r24
+  65:sqrt.c        **** 		PORTB=0xf0;
+ 181               	.LM21:
+ 182 004e 80EF      		ldi r24,lo8(-16)
+ 183 0050 88BB      		out 56-0x20,r24
+  66:sqrt.c        **** 		DDRC=0x00;  
+ 185               	.LM22:
+ 186 0052 14BA      		out 52-0x20,__zero_reg__
+  67:sqrt.c        **** 
+  68:sqrt.c        **** 		main_initialize();
+ 188               	.LM23:
+ 189 0054 00D0      		rcall main_initialize
+  69:sqrt.c        **** 			
+  70:sqrt.c        **** 		PORTB=0x00;
+ 191               	.LM24:
+ 192 0056 18BA      		out 56-0x20,__zero_reg__
+  71:sqrt.c        **** 		//PORTD=0x1010;			
+  72:sqrt.c        **** 
+  73:sqrt.c        **** 		/* pwm at pin OCR1B(PB2) and clock freq. of timer(3 LSB 000 sys. clock) */ 
+  74:sqrt.c        **** 		/* maximum MASTER_PWM value can be 00FFh */
+  75:sqrt.c        **** 		
+  76:sqrt.c        **** 		MASTER_PWM=230;
+ 194               	.LM25:
+ 195 0058 86EE      		ldi r24,lo8(-26)
+ 196 005a 8093 0000 		sts MASTER_PWM,r24
+ 197 005e FF24      		clr r15
+ 198 0060 CC24      		clr r12
+ 199 0062 DD24      		clr r13
+ 200 0064 C0E0      		ldi r28,lo8(0)
+ 201 0066 D0E0      		ldi r29,hi8(0)
+ 202 0068 AA24      		clr r10
+ 203 006a BB24      		clr r11
+ 204 006c EE24      		clr r14
+ 205 006e 6624      		clr r6
+ 206 0070 7724      		clr r7
+ 207 0072 00E0      		ldi r16,lo8(0)
+ 208 0074 9924      		clr r9
+ 209 0076 8824      		clr r8
+ 210               	.L67:
+  77:sqrt.c        **** 		sensorReference0=128;
+  78:sqrt.c        **** 		sensorReference1=180;
+  79:sqrt.c        **** 		sensorReference2=76;
+  80:sqrt.c        **** 		sensorReference3=76;
+  81:sqrt.c        **** 		sensorReference4=180;
+  82:sqrt.c        **** 		/*=0
+  83:sqrt.c        **** 		LED_ON;
+  84:sqrt.c        **** 		while(SWITCH_PRESSED)
+  85:sqrt.c        **** 		{
+  86:sqrt.c        **** 			LED_ON;
+  87:sqrt.c        **** 		        _delay_ms(20);
+  88:sqrt.c        **** 		        LED_OFF;
+  89:sqrt.c        **** 		        _delay_ms(20);
+  90:sqrt.c        **** 		}
+  91:sqrt.c        **** 		//*/
+  92:sqrt.c        **** 		//LED_OFF;
+  93:sqrt.c        **** 		while(1)
+  94:sqrt.c        **** 		{	
+  95:sqrt.c        **** 			test:
+  96:sqrt.c        **** 			
+  97:sqrt.c        **** 			Actual_input=0x0;
+  98:sqrt.c        **** 			if(calc(0)>sensorReference0)		//check
+ 212               	.LM26:
+ 213 0078 80E0      		ldi r24,lo8(0)
+ 214 007a 00D0      		rcall calc
+ 215 007c 10E0      		ldi r17,lo8(0)
+ 216 007e 8138      		cpi r24,lo8(-127)
+ 217 0080 00F0      		brlo .L11
+ 218 0082 11E0      		ldi r17,lo8(1)
+ 219               	.L11:
+  99:sqrt.c        **** 				Actual_input|=(1<<PC0);
+ 100:sqrt.c        **** 			if(calc(1)>sensorReference1)
+ 221               	.LM27:
+ 222 0084 81E0      		ldi r24,lo8(1)
+ 223 0086 00D0      		rcall calc
+ 224 0088 853B      		cpi r24,lo8(-75)
+ 225 008a 00F0      		brlo .L12
+ 101:sqrt.c        **** 				Actual_input|=(1<<PC1);
+ 227               	.LM28:
+ 228 008c 1260      		ori r17,lo8(2)
+ 229               	.L12:
+ 102:sqrt.c        **** 			if(calc(2)>sensorReference2)
+ 231               	.LM29:
+ 232 008e 82E0      		ldi r24,lo8(2)
+ 233 0090 00D0      		rcall calc
+ 234 0092 8D34      		cpi r24,lo8(77)
+ 235 0094 00F0      		brlo .L14
+ 103:sqrt.c        **** 				Actual_input|=(1<<PC2);
+ 237               	.LM30:
+ 238 0096 1460      		ori r17,lo8(4)
+ 239               	.L14:
+ 104:sqrt.c        **** 			if(calc(3)>sensorReference3)
+ 241               	.LM31:
+ 242 0098 83E0      		ldi r24,lo8(3)
+ 243 009a 00D0      		rcall calc
+ 244 009c 8D34      		cpi r24,lo8(77)
+ 245 009e 00F0      		brlo .L16
+ 105:sqrt.c        **** 				Actual_input|=(1<<PC3);
+ 247               	.LM32:
+ 248 00a0 1860      		ori r17,lo8(8)
+ 249               	.L16:
+ 106:sqrt.c        **** 			if(calc(4)>sensorReference4)
+ 251               	.LM33:
+ 252 00a2 84E0      		ldi r24,lo8(4)
+ 253 00a4 00D0      		rcall calc
+ 254 00a6 853B      		cpi r24,lo8(-75)
+ 255 00a8 00F0      		brlo .L18
+ 107:sqrt.c        **** 				Actual_input|=(1<<PC4);
+ 257               	.LM34:
+ 258 00aa 1061      		ori r17,lo8(16)
+ 259               	.L18:
+ 108:sqrt.c        **** 			
+ 109:sqrt.c        **** 			//Actual_input&=0b11111;  
+ 110:sqrt.c        **** 			// make bits zero other than 4 LSB bits
+ 111:sqrt.c        **** 			//PORTD=Actual_input;
+ 112:sqrt.c        **** 			
+ 113:sqrt.c        **** 			//goto test;
+ 114:sqrt.c        **** 			
+ 115:sqrt.c        **** 			lineSensors=(Actual_input)&0b11111;
+ 261               	.LM35:
+ 262 00ac 412F      		mov r20,r17
+ 263 00ae 4F71      		andi r20,lo8(31)
+ 264 00b0 4093 0000 		sts lineSensors,r20
+ 116:sqrt.c        **** 			
+ 117:sqrt.c        **** 				if(loopInOutFlag==0b10)
+ 266               	.LM36:
+ 267 00b4 62E0      		ldi r22,lo8(2)
+ 268 00b6 9616      		cp r9,r22
+ 269 00b8 01F4      		brne .L20
+ 118:sqrt.c        **** 				{	
+ 119:sqrt.c        **** 					for (uint8_t i = 0;i <255;i += 1);
+ 120:sqrt.c        **** 					for (uint8_t i = 0;i <255;i += 1);
+ 121:sqrt.c        **** 						//check if entered in loop or not
+ 122:sqrt.c        **** 				 	cnt1 += 1;
+ 271               	.LM37:
+ 272 00ba 2196      		adiw r28,1
+ 273               	.L20:
+ 123:sqrt.c        **** 				 	
+ 124:sqrt.c        **** 				}
+ 125:sqrt.c        **** 				
+ 126:sqrt.c        **** 				if(cnt1 >= 0xFFFE)
+ 275               	.LM38:
+ 276 00bc 7FEF      		ldi r23,hi8(-2)
+ 277 00be CE3F      		cpi r28,lo8(-2)
+ 278 00c0 D707      		cpc r29,r23
+ 279 00c2 00F0      		brlo .L22
+ 127:sqrt.c        **** 					{
+ 128:sqrt.c        **** 					cnt2=cnt2+1;
+ 281               	.LM39:
+ 282 00c4 0894      		sec
+ 283 00c6 A11C      		adc r10,__zero_reg__
+ 284 00c8 B11C      		adc r11,__zero_reg__
+ 285 00ca C0E0      		ldi r28,lo8(0)
+ 286 00cc D0E0      		ldi r29,hi8(0)
+ 287               	.L22:
+ 129:sqrt.c        **** 					cnt1=0;
+ 130:sqrt.c        **** 					
+ 131:sqrt.c        **** 					}
+ 132:sqrt.c        **** 				if(cnt2 >= 0xFFFE)
+ 289               	.LM40:
+ 290 00ce 8EEF      		ldi r24,lo8(-2)
+ 291 00d0 A816      		cp r10,r24
+ 292 00d2 8FEF      		ldi r24,hi8(-2)
+ 293 00d4 B806      		cpc r11,r24
+ 294 00d6 00F0      		brlo .L24
+ 133:sqrt.c        **** 					{
+ 134:sqrt.c        **** 					count=count+1;
+ 296               	.LM41:
+ 297 00d8 0894      		sec
+ 298 00da C11C      		adc r12,__zero_reg__
+ 299 00dc D11C      		adc r13,__zero_reg__
+ 300 00de C0E0      		ldi r28,lo8(0)
+ 301 00e0 D0E0      		ldi r29,hi8(0)
+ 302 00e2 AA24      		clr r10
+ 303 00e4 BB24      		clr r11
+ 304               	.L24:
+ 135:sqrt.c        **** 					cnt2=0;
+ 136:sqrt.c        **** 					cnt1=0;
+ 137:sqrt.c        **** 					
+ 138:sqrt.c        **** 					}
+ 139:sqrt.c        **** 					
+ 140:sqrt.c        **** 					
+ 141:sqrt.c        **** 				/*
+ 142:sqrt.c        **** 				PORTD|=0b111<<5;
+ 143:sqrt.c        **** 				_delay_ms(10);
+ 144:sqrt.c        **** 				PORTD|=0b0<<5;
+ 145:sqrt.c        **** 				_delay_ms(10);
+ 146:sqrt.c        **** 				*/
+ 147:sqrt.c        **** 				
+ 148:sqrt.c        **** 					
+ 149:sqrt.c        ****            		if(loopInOutFlag==0b11)
+ 306               	.LM42:
+ 307 00e6 63E0      		ldi r22,lo8(3)
+ 308 00e8 9616      		cp r9,r22
+ 309 00ea 01F4      		brne .L26
+ 150:sqrt.c        ****            		{		//check if exited in loop or not
+ 151:sqrt.c        **** 					loopInOutFlag=0;
+ 152:sqrt.c        **** 					PORTD|=binOp<<5;
+ 311               	.LM43:
+ 312 00ec 82B3      		in r24,50-0x20
+ 313 00ee EE0C      		lsl r14
+ 314 00f0 EE0C      		lsl r14
+ 315 00f2 EE0C      		lsl r14
+ 316 00f4 EE0C      		lsl r14
+ 317 00f6 EE0C      		lsl r14
+ 318 00f8 E82A      		or r14,r24
+ 319 00fa E2BA      		out 50-0x20,r14
+ 320 00fc 00C0      		rjmp .L28
+ 321               	.L26:
+ 153:sqrt.c        **** 			}
+ 154:sqrt.c        **** 			if(loopInOutFlag==0b0)
+ 323               	.LM44:
+ 324 00fe 9920      		tst r9
+ 325 0100 01F4      		brne .L29
+ 326               	.L28:
+ 155:sqrt.c        **** 			{
+ 156:sqrt.c        **** 				binOp=square;
+ 157:sqrt.c        **** 				PORTD|=binOp<<5;
+ 328               	.LM45:
+ 329 0102 92B3      		in r25,50-0x20
+ 330 0104 872D      		mov r24,r7
+ 331 0106 8295      		swap r24
+ 332 0108 880F      		lsl r24
+ 333 010a 807E      		andi r24,0xe0
+ 334 010c 892B      		or r24,r25
+ 335 010e 82BB      		out 50-0x20,r24
+ 336 0110 E72C      		mov r14,r7
+ 337 0112 9924      		clr r9
+ 338               	.L29:
+ 158:sqrt.c        **** 			}
+ 159:sqrt.c        **** 			if(lastInput==0b11111 && lineSensors==0b11111)
+ 340               	.LM46:
+ 341 0114 7FE1      		ldi r23,lo8(31)
+ 342 0116 F716      		cp r15,r23
+ 343 0118 01F4      		brne .L30
+ 344 011a 4F31      		cpi r20,lo8(31)
+ 345 011c 01F4      		brne .L32
+ 160:sqrt.c        **** 			{
+ 161:sqrt.c        **** 				M_OUTPUT=0b0;
+ 347               	.LM47:
+ 348 011e 12BA      		out 50-0x20,__zero_reg__
+ 162:sqrt.c        **** 				//binOp=random(0b111);
+ 163:sqrt.c        **** 				binOp=maxsquare;
+ 164:sqrt.c        **** 					PORTD|=binOp<<5;
+ 350               	.LM48:
+ 351 0120 82B3      		in r24,50-0x20
+ 352 0122 880C      		lsl r8
+ 353 0124 880C      		lsl r8
+ 354 0126 880C      		lsl r8
+ 355 0128 880C      		lsl r8
+ 356 012a 880C      		lsl r8
+ 357 012c 882A      		or r8,r24
+ 358 012e 82BA      		out 50-0x20,r8
+ 359               	.L34:
+ 360 0130 00C0      		rjmp .L34
+ 361               	.L30:
+ 165:sqrt.c        **** 					while(1)
+ 166:sqrt.c        **** 					{
+ 167:sqrt.c        **** 					;
+ 168:sqrt.c        **** 					}
+ 169:sqrt.c        **** 			}
+ 170:sqrt.c        **** 			if(lastInput==lineSensors)
+ 363               	.LM49:
+ 364 0132 F416      		cp r15,r20
+ 365 0134 01F4      		brne .+2
+ 366 0136 00C0      		rjmp .L67
+ 367               	.L32:
+ 171:sqrt.c        **** 				continue;
+ 172:sqrt.c        **** 				
+ 173:sqrt.c        **** 			
+ 174:sqrt.c        **** 			
+ 175:sqrt.c        **** 			switch(lineSensors)
+ 369               	.LM50:
+ 370 0138 842F      		mov r24,r20
+ 371 013a 9927      		clr r25
+ 372 013c AA27      		clr r26
+ 373 013e BB27      		clr r27
+ 374 0140 FC01      		movw r30,r24
+ 375 0142 3197      		sbiw r30,1
+ 376 0144 EF31      		cpi r30,31
+ 377 0146 F105      		cpc r31,__zero_reg__
+ 378 0148 00F0      		brlo .+2
+ 379 014a 00C0      		rjmp .L35
+ 380 014c E050      		subi r30,lo8(-(pm(.L45)))
+ 381 014e F040      		sbci r31,hi8(-(pm(.L45)))
+ 382 0150 0994      		ijmp
+ 383               		.data
+ 384               		.section .progmem.gcc_sw_table, "ax", @progbits
+ 385               		.p2align 1
+ 386               	.L45:
+ 387               		.data
+ 388               		.section .progmem.gcc_sw_table, "ax", @progbits
+ 389               		.p2align 1
+ 390 0000 00C0      		rjmp .L36
+ 391 0002 00C0      		rjmp .L37
+ 392 0004 00C0      		rjmp .L36
+ 393 0006 00C0      		rjmp .L37
+ 394 0008 00C0      		rjmp .L35
+ 395 000a 00C0      		rjmp .L38
+ 396 000c 00C0      		rjmp .L39
+ 397 000e 00C0      		rjmp .L37
+ 398 0010 00C0      		rjmp .L35
+ 399 0012 00C0      		rjmp .L35
+ 400 0014 00C0      		rjmp .L35
+ 401 0016 00C0      		rjmp .L40
+ 402 0018 00C0      		rjmp .L35
+ 403 001a 00C0      		rjmp .L41
+ 404 001c 00C0      		rjmp .L39
+ 405 001e 00C0      		rjmp .L42
+ 406 0020 00C0      		rjmp .L35
+ 407 0022 00C0      		rjmp .L35
+ 408 0024 00C0      		rjmp .L35
+ 409 0026 00C0      		rjmp .L35
+ 410 0028 00C0      		rjmp .L35
+ 411 002a 00C0      		rjmp .L35
+ 412 002c 00C0      		rjmp .L35
+ 413 002e 00C0      		rjmp .L42
+ 414 0030 00C0      		rjmp .L35
+ 415 0032 00C0      		rjmp .L35
+ 416 0034 00C0      		rjmp .L35
+ 417 0036 00C0      		rjmp .L43
+ 418 0038 00C0      		rjmp .L35
+ 419 003a 00C0      		rjmp .L43
+ 420 003c 00C0      		rjmp .L44
+ 421               		.text
+ 422               	.L37:
+ 176:sqrt.c        **** 			{
+ 177:sqrt.c        **** 			
+ 178:sqrt.c        **** 				case 0b00000100: // forward
+ 179:sqrt.c        **** 				case 0b00001000:  
+ 180:sqrt.c        **** 				case 0b00000010:  
+ 181:sqrt.c        **** 				
+ 182:sqrt.c        **** 				//case 0b00001110:  
+ 183:sqrt.c        **** 				
+ 184:sqrt.c        **** 				//case 0b00000110:  
+ 185:sqrt.c        **** 				//case 0b00001100:  
+ 186:sqrt.c        **** 				
+ 187:sqrt.c        **** 				
+ 188:sqrt.c        **** 		           	M_OUTPUT=0b00001010;			 //	output for motors
+ 424               	.LM51:
+ 425 0152 8AE0      		ldi r24,lo8(10)
+ 426 0154 82BB      		out 50-0x20,r24
+ 189:sqrt.c        **** 					RIGHT_MOTOR=(MASTER_PWM*80/100);   // enable for right
+ 428               	.LM52:
+ 429 0156 9091 0000 		lds r25,MASTER_PWM
+ 430 015a 80E5      		ldi r24,lo8(80)
+ 431 015c 989F      		mul r25,r24
+ 432 015e C001      		movw r24,r0
+ 433 0160 1124      		clr r1
+ 434 0162 64E6      		ldi r22,lo8(100)
+ 435 0164 70E0      		ldi r23,hi8(100)
+ 436 0166 00D0      		rcall __divmodhi4
+ 437 0168 7BBD      		out (74)+1-0x20,r23
+ 438 016a 6ABD      		out 74-0x20,r22
+ 439 016c 00C0      		rjmp .L61
+ 440               	.L38:
+ 190:sqrt.c        **** 					LEFT_MOTOR=(MASTER_PWM*80/100);	 // enable for left
+ 191:sqrt.c        **** 					lastDir==12;
+ 192:sqrt.c        **** 					break; 
+ 193:sqrt.c        **** 				//*
+ 194:sqrt.c        **** 				case 0b00000110:  
+ 195:sqrt.c        **** 					M_OUTPUT=0b1010;			 //	output for motors
+ 442               	.LM53:
+ 443 016e 8AE0      		ldi r24,lo8(10)
+ 444 0170 82BB      		out 50-0x20,r24
+ 196:sqrt.c        **** 					RIGHT_MOTOR=(MASTER_PWM*75/100);   // enable for right
+ 446               	.LM54:
+ 447 0172 2091 0000 		lds r18,MASTER_PWM
+ 448 0176 3327      		clr r19
+ 449 0178 8BE4      		ldi r24,lo8(75)
+ 450 017a 90E0      		ldi r25,hi8(75)
+ 451 017c BC01      		movw r22,r24
+ 452 017e 269F      		mul r18,r22
+ 453 0180 C001      		movw r24,r0
+ 454 0182 279F      		mul r18,r23
+ 455 0184 900D      		add r25,r0
+ 456 0186 369F      		mul r19,r22
+ 457 0188 900D      		add r25,r0
+ 458 018a 1124      		clr r1
+ 459 018c 00C0      		rjmp .L62
+ 460               	.L40:
+ 197:sqrt.c        **** 					LEFT_MOTOR=(MASTER_PWM*80/100);	 // enable for left
+ 198:sqrt.c        **** 					lastDir=3;
+ 199:sqrt.c        **** 					break;
+ 200:sqrt.c        **** 				
+ 201:sqrt.c        **** 				case 0b00001100:  
+ 202:sqrt.c        **** 					M_OUTPUT=0b1010;			 //	output for motors
+ 462               	.LM55:
+ 463 018e 8AE0      		ldi r24,lo8(10)
+ 464 0190 82BB      		out 50-0x20,r24
+ 203:sqrt.c        **** 					RIGHT_MOTOR=(MASTER_PWM*80/100);   // enable for right
+ 466               	.LM56:
+ 467 0192 2091 0000 		lds r18,MASTER_PWM
+ 468 0196 3327      		clr r19
+ 469 0198 80E5      		ldi r24,lo8(80)
+ 470 019a 90E0      		ldi r25,hi8(80)
+ 471 019c BC01      		movw r22,r24
+ 472 019e 269F      		mul r18,r22
+ 473 01a0 C001      		movw r24,r0
+ 474 01a2 279F      		mul r18,r23
+ 475 01a4 900D      		add r25,r0
+ 476 01a6 369F      		mul r19,r22
+ 477 01a8 900D      		add r25,r0
+ 478 01aa 1124      		clr r1
+ 479 01ac 64E6      		ldi r22,lo8(100)
+ 480 01ae 70E0      		ldi r23,hi8(100)
+ 481 01b0 00D0      		rcall __divmodhi4
+ 482 01b2 7BBD      		out (74)+1-0x20,r23
+ 483 01b4 6ABD      		out 74-0x20,r22
+ 204:sqrt.c        **** 					LEFT_MOTOR=(MASTER_PWM*75/100);	 // enable for left
+ 485               	.LM57:
+ 486 01b6 8BE4      		ldi r24,lo8(75)
+ 487 01b8 90E0      		ldi r25,hi8(75)
+ 488 01ba 00C0      		rjmp .L65
+ 489               	.L44:
+ 205:sqrt.c        **** 					lastDir=9;
+ 206:sqrt.c        **** 					break; 
+ 207:sqrt.c        **** 				//*/
+ 208:sqrt.c        **** 				case 0b00011111:
+ 209:sqrt.c        **** 					if(loopInOutFlag==0)
+ 491               	.LM58:
+ 492 01bc 9920      		tst r9
+ 493 01be 01F4      		brne .L46
+ 494 01c0 F2E0      		ldi r31,lo8(2)
+ 495 01c2 9F2E      		mov r9,r31
+ 496 01c4 00C0      		rjmp .L48
+ 497               	.L46:
+ 210:sqrt.c        **** 						loopInOutFlag=0b10;
+ 211:sqrt.c        **** 					else if(loopInOutFlag==0b10)
+ 499               	.LM59:
+ 500 01c6 72E0      		ldi r23,lo8(2)
+ 501 01c8 9716      		cp r9,r23
+ 502 01ca 01F4      		brne .L48
+ 212:sqrt.c        **** 					{
+ 213:sqrt.c        **** 						loopInOutFlag=0b11;
+ 214:sqrt.c        **** 						if(maxCnt <= count)//(count==0) ? cnt1:count) 
+ 504               	.LM60:
+ 505 01cc 862D      		mov r24,r6
+ 506 01ce 9927      		clr r25
+ 507 01d0 C816      		cp r12,r24
+ 508 01d2 D906      		cpc r13,r25
+ 509 01d4 00F0      		brlo .L50
+ 215:sqrt.c        **** 						{
+ 216:sqrt.c        **** 							maxsquare=square+2;
+ 511               	.LM61:
+ 512 01d6 E2E0      		ldi r30,lo8(2)
+ 513 01d8 8E2E      		mov r8,r30
+ 514 01da 870C      		add r8,r7
+ 217:sqrt.c        **** 							maxCnt = count;//(count==0) ? cnt1:count;
+ 516               	.LM62:
+ 517 01dc 6C2C      		mov r6,r12
+ 518               	.L50:
+ 218:sqrt.c        **** 						}
+ 219:sqrt.c        **** 						binOp=square+1;
+ 520               	.LM63:
+ 521 01de E72C      		mov r14,r7
+ 522 01e0 E394      		inc r14
+ 523 01e2 7E2C      		mov r7,r14
+ 524 01e4 CC24      		clr r12
+ 525 01e6 DD24      		clr r13
+ 526 01e8 C0E0      		ldi r28,lo8(0)
+ 527 01ea D0E0      		ldi r29,hi8(0)
+ 528 01ec 73E0      		ldi r23,lo8(3)
+ 529 01ee 972E      		mov r9,r23
+ 530               	.L48:
+ 220:sqrt.c        **** 						square+=1;
+ 221:sqrt.c        **** 						prevCnt=(count==0)?cnt1:count;
+ 222:sqrt.c        **** 						count=0;
+ 223:sqrt.c        **** 						cnt1=0;
+ 224:sqrt.c        **** 					}
+ 225:sqrt.c        **** 									//LED_ON;
+ 226:sqrt.c        **** 		           	for (uint8_t i = 0; i < forValue; i += 1);
+ 227:sqrt.c        **** 									//LED_OFF;
+ 228:sqrt.c        **** 					M_OUTPUT=0b00001010;			 //	output for motors
+ 532               	.LM64:
+ 533 01f0 8AE0      		ldi r24,lo8(10)
+ 534 01f2 82BB      		out 50-0x20,r24
+ 229:sqrt.c        **** 					RIGHT_MOTOR=(MASTER_PWM*80/100);   // enable for right
+ 536               	.LM65:
+ 537 01f4 9091 0000 		lds r25,MASTER_PWM
+ 538 01f8 80E5      		ldi r24,lo8(80)
+ 539 01fa 989F      		mul r25,r24
+ 540 01fc C001      		movw r24,r0
+ 541 01fe 1124      		clr r1
+ 542 0200 64E6      		ldi r22,lo8(100)
+ 543 0202 70E0      		ldi r23,hi8(100)
+ 544 0204 00D0      		rcall __divmodhi4
+ 545 0206 7BBD      		out (74)+1-0x20,r23
+ 546 0208 6ABD      		out 74-0x20,r22
+ 230:sqrt.c        **** 					LEFT_MOTOR=(MASTER_PWM*80/100);	 // enable for left
+ 548               	.LM66:
+ 549 020a 79BD      		out (72)+1-0x20,r23
+ 550 020c 68BD      		out 72-0x20,r22
+ 231:sqrt.c        **** 					PORTD|=0b11100000;// 3 LEDs glow when reaches NOde
+ 552               	.LM67:
+ 553 020e 82B3      		in r24,50-0x20
+ 554 0210 806E      		ori r24,lo8(-32)
+ 555 0212 82BB      		out 50-0x20,r24
+ 556 0214 20E0      		ldi r18,lo8(0)
+ 557               	.L52:
+ 558               	.LBB16:
+ 559               	.LBB17:
+ 560               	.LBB18:
+ 561               	.LBB19:
+ 562               	.LBB20:
+ 564               	.Ltext1:
+   1:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    Copyright (c) 2007 Joerg Wunsch
+   3:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    All rights reserved.
+   4:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+   5:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    Redistribution and use in source and binary forms, with or without
+   6:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    modification, are permitted provided that the following conditions are met:
+   7:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+   8:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    * Redistributions of source code must retain the above copyright
+   9:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      notice, this list of conditions and the following disclaimer.
+  10:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  11:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    * Redistributions in binary form must reproduce the above copyright
+  12:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      notice, this list of conditions and the following disclaimer in
+  13:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      the documentation and/or other materials provided with the
+  14:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      distribution.
+  15:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  16:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    * Neither the name of the copyright holders nor the names of
+  17:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      contributors may be used to endorse or promote products derived
+  18:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      from this software without specific prior written permission.
+  19:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  20:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  21:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  22:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  23:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  24:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  25:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  26:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  27:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  28:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  29:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  30:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  31:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  32:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /* $Id: delay_basic.h,v 1.1.2.2 2007/05/13 21:26:06 joerg_wunsch Exp $ */
+  33:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  34:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #ifndef _UTIL_DELAY_BASIC_H_
+  35:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #define _UTIL_DELAY_BASIC_H_ 1
+  36:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  37:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #include <inttypes.h>
+  38:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  39:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /** \file */
+  40:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /** \defgroup util_delay_basic <util/delay_basic.h>: Basic busy-wait delay loops
+  41:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     \code
+  42:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     #include <util/delay_basic.h>
+  43:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     \endcode
+  44:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  45:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     The functions in this header file implement simple delay loops
+  46:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     that perform a busy-waiting.  They are typically used to
+  47:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     facilitate short delays in the program execution.  They are
+  48:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     implemented as count-down loops with a well-known CPU cycle
+  49:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     count per loop iteration.  As such, no other processing can
+  50:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     occur simultaneously.  It should be kept in mind that the
+  51:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     functions described here do not disable interrupts.
+  52:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  53:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     In general, for long delays, the use of hardware timers is
+  54:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     much preferrable, as they free the CPU, and allow for
+  55:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     concurrent processing of other events while the timer is
+  56:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     running.  However, in particular for very short delays, the
+  57:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     overhead of setting up a hardware timer is too much compared
+  58:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     to the overall delay time.
+  59:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  60:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Two inline functions are provided for the actual delay algorithms.
+  61:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  62:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** */
+  63:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  64:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #if !defined(__DOXYGEN__)
+  65:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** static inline void _delay_loop_1(uint8_t __count) __attribute__((always_inline));
+  66:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** static inline void _delay_loop_2(uint16_t __count) __attribute__((always_inline));
+  67:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #endif
+  68:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  69:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /** \ingroup util_delay_basic
+  70:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  71:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Delay loop using an 8-bit counter \c __count, so up to 256
+  72:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     iterations are possible.  (The value 256 would have to be passed
+  73:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     as 0.)  The loop executes three CPU cycles per iteration, not
+  74:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     including the overhead the compiler needs to setup the counter
+  75:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     register.
+  76:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  77:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Thus, at a CPU speed of 1 MHz, delays of up to 768 microseconds
+  78:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     can be achieved.
+  79:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** */
+  80:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** void
+  81:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** _delay_loop_1(uint8_t __count)
+  82:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** {
+  83:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 	__asm__ volatile (
+  84:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 		"1: dec %0" "\n\t"
+  85:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 		"brne 1b"
+  86:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 		: "=r" (__count)
+  87:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 		: "0" (__count)
+  88:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 	);
+  89:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** }
+  90:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  91:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /** \ingroup util_delay_basic
+  92:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  93:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Delay loop using a 16-bit counter \c __count, so up to 65536
+  94:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     iterations are possible.  (The value 65536 would have to be
+  95:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     passed as 0.)  The loop executes four CPU cycles per iteration,
+  96:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     not including the overhead the compiler requires to setup the
+  97:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     counter register pair.
+  98:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  99:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Thus, at a CPU speed of 1 MHz, delays of up to about 262.1
+ 100:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     milliseconds can be achieved.
+ 101:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****  */
+ 102:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** void
+ 103:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** _delay_loop_2(uint16_t __count)
+ 104:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** {
+ 105:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 	__asm__ volatile (
+ 566               	.LM68:
+ 567 0216 80ED      		ldi r24,lo8(2000)
+ 568 0218 97E0      		ldi r25,hi8(2000)
+ 569               	/* #APP */
+ 570 021a 0197      		1: sbiw r24,1
+ 571 021c 01F4      		brne 1b
+ 572               	/* #NOAPP */
+ 573               	.LBE20:
+ 574               	.LBE19:
+ 575               	.LBE18:
+ 576               	.LBE17:
+ 578               	.Ltext2:
+ 232:sqrt.c        **** 					for (uint8_t i1 = 0;i1 < 50;i1 += 1)
+ 580               	.LM69:
+ 581 021e 2F5F      		subi r18,lo8(-(1))
+ 582 0220 2233      		cpi r18,lo8(50)
+ 583 0222 01F4      		brne .+2
+ 584 0224 00C0      		rjmp .L35
+ 585 0226 00C0      		rjmp .L52
+ 586               	.L43:
+ 587               	.LBE16:
+ 233:sqrt.c        **** 						_delay_ms(1);    // delay at node points...
+ 234:sqrt.c        **** 					
+ 235:sqrt.c        **** 									
+ 236:sqrt.c        **** 					break;
+ 237:sqrt.c        **** 				
+ 238:sqrt.c        **** 				case 0b00011100:  	//slow left
+ 239:sqrt.c        **** 				case 0b00011110:
+ 240:sqrt.c        **** 					M_OUTPUT=0b0110;			 	//	output for motors
+ 589               	.LM70:
+ 590 0228 86E0      		ldi r24,lo8(6)
+ 591 022a 82BB      		out 50-0x20,r24
+ 241:sqrt.c        **** 					RIGHT_MOTOR=(MASTER_PWM*80/100);   // enable for right
+ 593               	.LM71:
+ 594 022c 2091 0000 		lds r18,MASTER_PWM
+ 595 0230 3327      		clr r19
+ 596 0232 80E5      		ldi r24,lo8(80)
+ 597 0234 90E0      		ldi r25,hi8(80)
+ 598 0236 BC01      		movw r22,r24
+ 599 0238 269F      		mul r18,r22
+ 600 023a C001      		movw r24,r0
+ 601 023c 279F      		mul r18,r23
+ 602 023e 900D      		add r25,r0
+ 603 0240 369F      		mul r19,r22
+ 604 0242 900D      		add r25,r0
+ 605 0244 1124      		clr r1
+ 606 0246 64E6      		ldi r22,lo8(100)
+ 607 0248 70E0      		ldi r23,hi8(100)
+ 608 024a 00D0      		rcall __divmodhi4
+ 609 024c 7BBD      		out (74)+1-0x20,r23
+ 610 024e 6ABD      		out 74-0x20,r22
+ 242:sqrt.c        **** 					LEFT_MOTOR=(MASTER_PWM*65/100);	 // enable for left
+ 612               	.LM72:
+ 613 0250 C901      		movw r24,r18
+ 614 0252 66E0      		ldi r22,6
+ 615 0254 880F      	1:	lsl r24
+ 616 0256 991F      		rol r25
+ 617 0258 6A95      		dec r22
+ 618 025a 01F4      		brne 1b
+ 619 025c 820F      		add r24,r18
+ 620 025e 931F      		adc r25,r19
+ 621               	.L63:
+ 622 0260 64E6      		ldi r22,lo8(100)
+ 623 0262 70E0      		ldi r23,hi8(100)
+ 624 0264 00D0      		rcall __divmodhi4
+ 625 0266 79BD      		out (72)+1-0x20,r23
+ 626 0268 68BD      		out 72-0x20,r22
+ 627 026a 09E0      		ldi r16,lo8(9)
+ 628 026c 00C0      		rjmp .L35
+ 629               	.L42:
+ 243:sqrt.c        **** 					lastDir=9;
+ 244:sqrt.c        **** 					break;
+ 245:sqrt.c        **** 				
+ 246:sqrt.c        **** 				case 0b00011000:  	//sharp left
+ 247:sqrt.c        **** 				case 0b00010000: 
+ 248:sqrt.c        **** 					
+ 249:sqrt.c        **** 					M_OUTPUT=0b0110;			 	//	output for motors
+ 631               	.LM73:
+ 632 026e 86E0      		ldi r24,lo8(6)
+ 633 0270 82BB      		out 50-0x20,r24
+ 250:sqrt.c        **** 					RIGHT_MOTOR=(MASTER_PWM*70/100);   // enable for right
+ 635               	.LM74:
+ 636 0272 2091 0000 		lds r18,MASTER_PWM
+ 637 0276 3327      		clr r19
+ 638 0278 86E4      		ldi r24,lo8(70)
+ 639 027a 90E0      		ldi r25,hi8(70)
+ 640 027c BC01      		movw r22,r24
+ 641 027e 269F      		mul r18,r22
+ 642 0280 C001      		movw r24,r0
+ 643 0282 279F      		mul r18,r23
+ 644 0284 900D      		add r25,r0
+ 645 0286 369F      		mul r19,r22
+ 646 0288 900D      		add r25,r0
+ 647 028a 1124      		clr r1
+ 648 028c 64E6      		ldi r22,lo8(100)
+ 649 028e 70E0      		ldi r23,hi8(100)
+ 650 0290 00D0      		rcall __divmodhi4
+ 651 0292 7BBD      		out (74)+1-0x20,r23
+ 652 0294 6ABD      		out 74-0x20,r22
+ 251:sqrt.c        **** 					LEFT_MOTOR=(MASTER_PWM*80/100);	 // enable for left
+ 654               	.LM75:
+ 655 0296 80E5      		ldi r24,lo8(80)
+ 656 0298 90E0      		ldi r25,hi8(80)
+ 657               	.L65:
+ 658 029a BC01      		movw r22,r24
+ 659 029c 269F      		mul r18,r22
+ 660 029e C001      		movw r24,r0
+ 661 02a0 279F      		mul r18,r23
+ 662 02a2 900D      		add r25,r0
+ 663 02a4 369F      		mul r19,r22
+ 664 02a6 900D      		add r25,r0
+ 665 02a8 1124      		clr r1
+ 666 02aa 00C0      		rjmp .L63
+ 667               	.L39:
+ 252:sqrt.c        **** 					lastDir=9;
+ 253:sqrt.c        **** 					break;
+ 254:sqrt.c        **** 
+ 255:sqrt.c        **** 				case 0b00000111:	//slow right
+ 256:sqrt.c        **** 				case 0b00001111:
+ 257:sqrt.c        **** 					M_OUTPUT=0b1001;			 	//	output for motors
+ 669               	.LM76:
+ 670 02ac 89E0      		ldi r24,lo8(9)
+ 671 02ae 82BB      		out 50-0x20,r24
+ 258:sqrt.c        **** 					RIGHT_MOTOR=(MASTER_PWM*65/100);   // enable for right
+ 673               	.LM77:
+ 674 02b0 2091 0000 		lds r18,MASTER_PWM
+ 675 02b4 3327      		clr r19
+ 676 02b6 C901      		movw r24,r18
+ 677 02b8 56E0      		ldi r21,6
+ 678 02ba 880F      	1:	lsl r24
+ 679 02bc 991F      		rol r25
+ 680 02be 5A95      		dec r21
+ 681 02c0 01F4      		brne 1b
+ 682 02c2 820F      		add r24,r18
+ 683 02c4 931F      		adc r25,r19
+ 684               	.L62:
+ 685 02c6 64E6      		ldi r22,lo8(100)
+ 686 02c8 70E0      		ldi r23,hi8(100)
+ 687 02ca 00D0      		rcall __divmodhi4
+ 688 02cc 7BBD      		out (74)+1-0x20,r23
+ 689 02ce 6ABD      		out 74-0x20,r22
+ 259:sqrt.c        **** 					LEFT_MOTOR=(MASTER_PWM*80/100);	 // enable for left
+ 691               	.LM78:
+ 692 02d0 80E5      		ldi r24,lo8(80)
+ 693 02d2 90E0      		ldi r25,hi8(80)
+ 694               	.L64:
+ 695 02d4 BC01      		movw r22,r24
+ 696 02d6 269F      		mul r18,r22
+ 697 02d8 C001      		movw r24,r0
+ 698 02da 279F      		mul r18,r23
+ 699 02dc 900D      		add r25,r0
+ 700 02de 369F      		mul r19,r22
+ 701 02e0 900D      		add r25,r0
+ 702 02e2 1124      		clr r1
+ 703 02e4 64E6      		ldi r22,lo8(100)
+ 704 02e6 70E0      		ldi r23,hi8(100)
+ 705 02e8 00D0      		rcall __divmodhi4
+ 706 02ea 79BD      		out (72)+1-0x20,r23
+ 707 02ec 68BD      		out 72-0x20,r22
+ 708 02ee 03E0      		ldi r16,lo8(3)
+ 709 02f0 00C0      		rjmp .L35
+ 710               	.L36:
+ 260:sqrt.c        **** 					lastDir=3;
+ 261:sqrt.c        **** 					break;
+ 262:sqrt.c        **** 		           		
+ 263:sqrt.c        **** 				case 0b00000011:	//sharp right
+ 264:sqrt.c        **** 				case 0b00000001: 
+ 265:sqrt.c        **** 					
+ 266:sqrt.c        **** 					M_OUTPUT=0b1001;			 	//	output for motors
+ 712               	.LM79:
+ 713 02f2 89E0      		ldi r24,lo8(9)
+ 714 02f4 82BB      		out 50-0x20,r24
+ 267:sqrt.c        **** 					RIGHT_MOTOR=(MASTER_PWM*80/100);   // enable for right
+ 716               	.LM80:
+ 717 02f6 2091 0000 		lds r18,MASTER_PWM
+ 718 02fa 3327      		clr r19
+ 719 02fc 80E5      		ldi r24,lo8(80)
+ 720 02fe 90E0      		ldi r25,hi8(80)
+ 721 0300 BC01      		movw r22,r24
+ 722 0302 269F      		mul r18,r22
+ 723 0304 C001      		movw r24,r0
+ 724 0306 279F      		mul r18,r23
+ 725 0308 900D      		add r25,r0
+ 726 030a 369F      		mul r19,r22
+ 727 030c 900D      		add r25,r0
+ 728 030e 1124      		clr r1
+ 729 0310 64E6      		ldi r22,lo8(100)
+ 730 0312 70E0      		ldi r23,hi8(100)
+ 731 0314 00D0      		rcall __divmodhi4
+ 732 0316 7BBD      		out (74)+1-0x20,r23
+ 733 0318 6ABD      		out 74-0x20,r22
+ 268:sqrt.c        **** 					LEFT_MOTOR=(MASTER_PWM*70/100);	 // enable for left
+ 735               	.LM81:
+ 736 031a 86E4      		ldi r24,lo8(70)
+ 737 031c 90E0      		ldi r25,hi8(70)
+ 738 031e 00C0      		rjmp .L64
+ 739               	.L41:
+ 269:sqrt.c        **** 					lastDir=3;
+ 270:sqrt.c        **** 					break;
+ 271:sqrt.c        **** 				case 0b00001110:
+ 272:sqrt.c        **** 					if(lastDir==3)
+ 741               	.LM82:
+ 742 0320 0330      		cpi r16,lo8(3)
+ 743 0322 01F4      		brne .L53
+ 273:sqrt.c        **** 					{
+ 274:sqrt.c        **** 						M_OUTPUT=0b1001;			 	//	output for motors
+ 745               	.LM83:
+ 746 0324 89E0      		ldi r24,lo8(9)
+ 747 0326 82BB      		out 50-0x20,r24
+ 275:sqrt.c        **** 						RIGHT_MOTOR=(MASTER_PWM*80/100);   // enable for right
+ 749               	.LM84:
+ 750 0328 2091 0000 		lds r18,MASTER_PWM
+ 751 032c 3327      		clr r19
+ 752 032e 80E5      		ldi r24,lo8(80)
+ 753 0330 90E0      		ldi r25,hi8(80)
+ 754 0332 BC01      		movw r22,r24
+ 755 0334 269F      		mul r18,r22
+ 756 0336 C001      		movw r24,r0
+ 757 0338 279F      		mul r18,r23
+ 758 033a 900D      		add r25,r0
+ 759 033c 369F      		mul r19,r22
+ 760 033e 900D      		add r25,r0
+ 761 0340 1124      		clr r1
+ 762 0342 64E6      		ldi r22,lo8(100)
+ 763 0344 70E0      		ldi r23,hi8(100)
+ 764 0346 00D0      		rcall __divmodhi4
+ 765 0348 7BBD      		out (74)+1-0x20,r23
+ 766 034a 6ABD      		out 74-0x20,r22
+ 276:sqrt.c        **** 						LEFT_MOTOR=(MASTER_PWM*70/100);	 // enable for left
+ 768               	.LM85:
+ 769 034c 86E4      		ldi r24,lo8(70)
+ 770 034e 90E0      		ldi r25,hi8(70)
+ 771 0350 00C0      		rjmp .L66
+ 772               	.L53:
+ 277:sqrt.c        **** 						lastDir=3;
+ 278:sqrt.c        **** 						break;
+ 279:sqrt.c        **** 					}
+ 280:sqrt.c        **** 					if(lastDir==9)
+ 774               	.LM86:
+ 775 0352 0930      		cpi r16,lo8(9)
+ 776 0354 01F4      		brne .L35
+ 281:sqrt.c        **** 					{
+ 282:sqrt.c        **** 						M_OUTPUT=0b0110;			 	//	output for motors
+ 778               	.LM87:
+ 779 0356 86E0      		ldi r24,lo8(6)
+ 780 0358 82BB      		out 50-0x20,r24
+ 283:sqrt.c        **** 						RIGHT_MOTOR=(MASTER_PWM*70/100);   // enable for right
+ 782               	.LM88:
+ 783 035a 2091 0000 		lds r18,MASTER_PWM
+ 784 035e 3327      		clr r19
+ 785 0360 86E4      		ldi r24,lo8(70)
+ 786 0362 90E0      		ldi r25,hi8(70)
+ 787 0364 BC01      		movw r22,r24
+ 788 0366 269F      		mul r18,r22
+ 789 0368 C001      		movw r24,r0
+ 790 036a 279F      		mul r18,r23
+ 791 036c 900D      		add r25,r0
+ 792 036e 369F      		mul r19,r22
+ 793 0370 900D      		add r25,r0
+ 794 0372 1124      		clr r1
+ 795 0374 64E6      		ldi r22,lo8(100)
+ 796 0376 70E0      		ldi r23,hi8(100)
+ 797 0378 00D0      		rcall __divmodhi4
+ 798 037a 7BBD      		out (74)+1-0x20,r23
+ 799 037c 6ABD      		out 74-0x20,r22
+ 284:sqrt.c        **** 						LEFT_MOTOR=(MASTER_PWM*80/100);	 // enable for left
+ 801               	.LM89:
+ 802 037e 80E5      		ldi r24,lo8(80)
+ 803 0380 90E0      		ldi r25,hi8(80)
+ 804               	.L66:
+ 805 0382 BC01      		movw r22,r24
+ 806 0384 269F      		mul r18,r22
+ 807 0386 C001      		movw r24,r0
+ 808 0388 279F      		mul r18,r23
+ 809 038a 900D      		add r25,r0
+ 810 038c 369F      		mul r19,r22
+ 811 038e 900D      		add r25,r0
+ 812 0390 1124      		clr r1
+ 813 0392 64E6      		ldi r22,lo8(100)
+ 814 0394 70E0      		ldi r23,hi8(100)
+ 815 0396 00D0      		rcall __divmodhi4
+ 816               	.L61:
+ 817 0398 79BD      		out (72)+1-0x20,r23
+ 818 039a 68BD      		out 72-0x20,r22
+ 819               	.L35:
+ 820 039c F42E      		mov r15,r20
+ 821 039e 00C0      		rjmp .L67
+ 822               	/* epilogue: frame size=0 */
+ 823               	/* epilogue: noreturn */
+ 824               	/* epilogue end (size=0) */
+ 825               	/* function main size 466 (462) */
+ 846               	.Lscope3:
+ 847               		.comm MASTER_PWM,1,1
+ 848               		.comm lineSensors,1,1
+ 852               	.Letext0:
+ 853               	/* File "sqrt.c": code  497 = 0x01f1 ( 491), prologues   4, epilogues   2 */
+DEFINED SYMBOLS
+                            *ABS*:00000000 sqrt.c
+     /tmp/ccltca8i.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccltca8i.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccltca8i.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccltca8i.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccltca8i.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccltca8i.s:70     .text:00000000 calc
+     /tmp/ccltca8i.s:115    .text:0000001c main_initialize
+     /tmp/ccltca8i.s:162    .text:0000003e main
+                            *COM*:00000001 MASTER_PWM
+                            *COM*:00000001 lineSensors
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+__stack
+__divmodhi4

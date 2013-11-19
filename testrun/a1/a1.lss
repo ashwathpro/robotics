@@ -1,0 +1,567 @@
+
+a1.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000002fa  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000002  00800060  000002fa  0000038e  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000006  00800062  00800062  00000390  2**0
+                  ALLOC
+  3 .noinit       00000000  00800068  00800068  00000390  2**0
+                  CONTENTS
+  4 .eeprom       00000000  00810000  00810000  00000390  2**0
+                  CONTENTS
+  5 .stab         00000948  00000000  00000000  00000390  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  6 .stabstr      000007d7  00000000  00000000  00000cd8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	2e c0       	rjmp	.+92     	; 0x5e <__init>
+   2:	48 c0       	rjmp	.+144    	; 0x94 <__vector_1>
+   4:	56 c0       	rjmp	.+172    	; 0xb2 <__vector_2>
+   6:	45 c0       	rjmp	.+138    	; 0x92 <__bad_interrupt>
+   8:	44 c0       	rjmp	.+136    	; 0x92 <__bad_interrupt>
+   a:	43 c0       	rjmp	.+134    	; 0x92 <__bad_interrupt>
+   c:	42 c0       	rjmp	.+132    	; 0x92 <__bad_interrupt>
+   e:	41 c0       	rjmp	.+130    	; 0x92 <__bad_interrupt>
+  10:	40 c0       	rjmp	.+128    	; 0x92 <__bad_interrupt>
+  12:	3f c0       	rjmp	.+126    	; 0x92 <__bad_interrupt>
+  14:	3e c0       	rjmp	.+124    	; 0x92 <__bad_interrupt>
+  16:	3d c0       	rjmp	.+122    	; 0x92 <__bad_interrupt>
+  18:	3c c0       	rjmp	.+120    	; 0x92 <__bad_interrupt>
+  1a:	3b c0       	rjmp	.+118    	; 0x92 <__bad_interrupt>
+  1c:	3a c0       	rjmp	.+116    	; 0x92 <__bad_interrupt>
+  1e:	39 c0       	rjmp	.+114    	; 0x92 <__bad_interrupt>
+  20:	38 c0       	rjmp	.+112    	; 0x92 <__bad_interrupt>
+  22:	37 c0       	rjmp	.+110    	; 0x92 <__bad_interrupt>
+  24:	36 c0       	rjmp	.+108    	; 0x92 <__bad_interrupt>
+
+00000026 <__ctors_end>:
+  26:	a3 c0       	rjmp	.+326    	; 0x16e <main+0x9e>
+  28:	c3 c0       	rjmp	.+390    	; 0x1b0 <main+0xe0>
+  2a:	a1 c0       	rjmp	.+322    	; 0x16e <main+0x9e>
+  2c:	93 c0       	rjmp	.+294    	; 0x154 <main+0x84>
+  2e:	e7 c0       	rjmp	.+462    	; 0x1fe <main+0x12e>
+  30:	bf c0       	rjmp	.+382    	; 0x1b0 <main+0xe0>
+  32:	9d c0       	rjmp	.+314    	; 0x16e <main+0x9e>
+  34:	d0 c0       	rjmp	.+416    	; 0x1d6 <main+0x106>
+  36:	e3 c0       	rjmp	.+454    	; 0x1fe <main+0x12e>
+  38:	e2 c0       	rjmp	.+452    	; 0x1fe <main+0x12e>
+  3a:	e1 c0       	rjmp	.+450    	; 0x1fe <main+0x12e>
+  3c:	cc c0       	rjmp	.+408    	; 0x1d6 <main+0x106>
+  3e:	df c0       	rjmp	.+446    	; 0x1fe <main+0x12e>
+  40:	89 c0       	rjmp	.+274    	; 0x154 <main+0x84>
+  42:	dd c0       	rjmp	.+442    	; 0x1fe <main+0x12e>
+  44:	a6 c0       	rjmp	.+332    	; 0x192 <main+0xc2>
+  46:	db c0       	rjmp	.+438    	; 0x1fe <main+0x12e>
+  48:	da c0       	rjmp	.+436    	; 0x1fe <main+0x12e>
+  4a:	d9 c0       	rjmp	.+434    	; 0x1fe <main+0x12e>
+  4c:	d8 c0       	rjmp	.+432    	; 0x1fe <main+0x12e>
+  4e:	d7 c0       	rjmp	.+430    	; 0x1fe <main+0x12e>
+  50:	d6 c0       	rjmp	.+428    	; 0x1fe <main+0x12e>
+  52:	d5 c0       	rjmp	.+426    	; 0x1fe <main+0x12e>
+  54:	9e c0       	rjmp	.+316    	; 0x192 <main+0xc2>
+  56:	d3 c0       	rjmp	.+422    	; 0x1fe <main+0x12e>
+  58:	d2 c0       	rjmp	.+420    	; 0x1fe <main+0x12e>
+  5a:	d1 c0       	rjmp	.+418    	; 0x1fe <main+0x12e>
+  5c:	9a c0       	rjmp	.+308    	; 0x192 <main+0xc2>
+
+0000005e <__init>:
+  5e:	11 24       	eor	r1, r1
+  60:	1f be       	out	0x3f, r1	; 63
+  62:	cf e5       	ldi	r28, 0x5F	; 95
+  64:	d4 e0       	ldi	r29, 0x04	; 4
+  66:	de bf       	out	0x3e, r29	; 62
+  68:	cd bf       	out	0x3d, r28	; 61
+
+0000006a <__do_copy_data>:
+  6a:	10 e0       	ldi	r17, 0x00	; 0
+  6c:	a0 e6       	ldi	r26, 0x60	; 96
+  6e:	b0 e0       	ldi	r27, 0x00	; 0
+  70:	ea ef       	ldi	r30, 0xFA	; 250
+  72:	f2 e0       	ldi	r31, 0x02	; 2
+  74:	02 c0       	rjmp	.+4      	; 0x7a <.do_copy_data_start>
+
+00000076 <.do_copy_data_loop>:
+  76:	05 90       	lpm	r0, Z+
+  78:	0d 92       	st	X+, r0
+
+0000007a <.do_copy_data_start>:
+  7a:	a2 36       	cpi	r26, 0x62	; 98
+  7c:	b1 07       	cpc	r27, r17
+  7e:	d9 f7       	brne	.-10     	; 0x76 <.do_copy_data_loop>
+
+00000080 <__do_clear_bss>:
+  80:	10 e0       	ldi	r17, 0x00	; 0
+  82:	a2 e6       	ldi	r26, 0x62	; 98
+  84:	b0 e0       	ldi	r27, 0x00	; 0
+  86:	01 c0       	rjmp	.+2      	; 0x8a <.do_clear_bss_start>
+
+00000088 <.do_clear_bss_loop>:
+  88:	1d 92       	st	X+, r1
+
+0000008a <.do_clear_bss_start>:
+  8a:	a8 36       	cpi	r26, 0x68	; 104
+  8c:	b1 07       	cpc	r27, r17
+  8e:	e1 f7       	brne	.-8      	; 0x88 <.do_clear_bss_loop>
+  90:	1f c0       	rjmp	.+62     	; 0xd0 <main>
+
+00000092 <__bad_interrupt>:
+  92:	b6 cf       	rjmp	.-148    	; 0x0 <__vectors>
+
+00000094 <__vector_1>:
+	uint8_t Actual_input,LAST_INPUT=0;
+
+/* INT0 Interrupt Service Routine (ISR) */
+ISR(INT0_vect)
+{
+  94:	1f 92       	push	r1
+  96:	0f 92       	push	r0
+  98:	0f b6       	in	r0, 0x3f	; 63
+  9a:	0f 92       	push	r0
+  9c:	11 24       	eor	r1, r1
+        /* check post sensor 1 */
+		
+		PORTB=0;
+  9e:	18 ba       	out	0x18, r1	; 24
+		OCR1A=0;OCR1B=0;
+  a0:	1b bc       	out	0x2b, r1	; 43
+  a2:	1a bc       	out	0x2a, r1	; 42
+  a4:	19 bc       	out	0x29, r1	; 41
+  a6:	18 bc       	out	0x28, r1	; 40
+  a8:	0f 90       	pop	r0
+  aa:	0f be       	out	0x3f, r0	; 63
+  ac:	0f 90       	pop	r0
+  ae:	1f 90       	pop	r1
+  b0:	18 95       	reti
+
+000000b2 <__vector_2>:
+	
+		//_delay_ms(1000);
+		
+}
+
+ISR(INT1_vect)
+{
+  b2:	1f 92       	push	r1
+  b4:	0f 92       	push	r0
+  b6:	0f b6       	in	r0, 0x3f	; 63
+  b8:	0f 92       	push	r0
+  ba:	11 24       	eor	r1, r1
+        /* check post sensor 2 */
+		
+		PORTB=0;
+  bc:	18 ba       	out	0x18, r1	; 24
+		OCR1A=0;OCR1B=0;
+  be:	1b bc       	out	0x2b, r1	; 43
+  c0:	1a bc       	out	0x2a, r1	; 42
+  c2:	19 bc       	out	0x29, r1	; 41
+  c4:	18 bc       	out	0x28, r1	; 40
+  c6:	0f 90       	pop	r0
+  c8:	0f be       	out	0x3f, r0	; 63
+  ca:	0f 90       	pop	r0
+  cc:	1f 90       	pop	r1
+  ce:	18 95       	reti
+
+000000d0 <main>:
+	
+		//_delay_ms(1000);
+		
+		
+}
+
+int main()
+{
+  d0:	cf e5       	ldi	r28, 0x5F	; 95
+  d2:	d4 e0       	ldi	r29, 0x04	; 4
+  d4:	de bf       	out	0x3e, r29	; 62
+  d6:	cd bf       	out	0x3d, r28	; 61
+			//uint8_t Actual_input,Check_input,LAST_INPUT=0;	
+			DDRC=0b11100000; 
+  d8:	80 ee       	ldi	r24, 0xE0	; 224
+  da:	84 bb       	out	0x14, r24	; 20
+			/* DDR=Data Direction register... its to define PD0(pin2),PD1(pin3),PD2(pin4) as input pin
+			rest bits of DDRD can be 0 or 1 does not make any significance */
+			DDRB=0b00001111;  
+  dc:	8f e0       	ldi	r24, 0x0F	; 15
+  de:	87 bb       	out	0x17, r24	; 23
+		  /* DDR=Data Direction register... its to define PB0(pin14),PB1(pin15),PB2(pin16),PB3(pin17) as out put pin
+			rest bits of DDRD can be 0 or 1 does not make any significance */
+			
+		/*  PB1(OC1A) o/p for right motor   (connected to positive pin of right motor)
+			PB2(OC1B) o/p for left motor	(connected to positive pin of left motor)
+			PB0  o/p for right motor Ground (its change in program )	(connected to negative pin of right motor)
+			PB3  o/p for left motor Ground (its change in program )	(connected to negative pin of leftt motor)
+			*/
+		OCR1A=0x00ff;   // output compare register  for right motor  
+  e0:	8f ef       	ldi	r24, 0xFF	; 255
+  e2:	90 e0       	ldi	r25, 0x00	; 0
+  e4:	9b bd       	out	0x2b, r25	; 43
+  e6:	8a bd       	out	0x2a, r24	; 42
+		OCR1B=0x00ff;	// output compare register  for left motor
+  e8:	99 bd       	out	0x29, r25	; 41
+  ea:	88 bd       	out	0x28, r24	; 40
+		
+		/* TOP value is 00FFh for both OC1A and OC1B*/
+		TCCR1A=0xA1;	// define type of PWM	
+  ec:	81 ea       	ldi	r24, 0xA1	; 161
+  ee:	8f bd       	out	0x2f, r24	; 47
+		/*Timer/Counter 1 Control  and pwm at pin OC1A(PB1) */
+		TCCR1B=0x01; //for start pwm
+  f0:	81 e0       	ldi	r24, 0x01	; 1
+  f2:	8e bd       	out	0x2e, r24	; 46
+		
+		/* pwm at pin OC1B(PB2) and clock freq. of timer(3 LSB 000 sys. clock) */ 
+			/*maximum MASTER_PWM value can be 00FFh */
+		MASTER_PWM=230;
+  f4:	86 ee       	ldi	r24, 0xE6	; 230
+  f6:	80 93 64 00 	sts	0x0064, r24
+		PERCENTAGE_LEFT_PWM=100;
+  fa:	84 e6       	ldi	r24, 0x64	; 100
+  fc:	80 93 67 00 	sts	0x0067, r24
+		PERCENTAGE_RIGHT_PWM=100;
+ 100:	80 93 66 00 	sts	0x0066, r24
+				
+			
+		// Global Enable INT0,INT1 interrupt
+		GICR |= ( 1 << 1);
+ 104:	8b b7       	in	r24, 0x3b	; 59
+ 106:	82 60       	ori	r24, 0x02	; 2
+ 108:	8b bf       	out	0x3b, r24	; 59
+		GICR |= ( 1 << INT1);
+ 10a:	8b b7       	in	r24, 0x3b	; 59
+ 10c:	80 68       	ori	r24, 0x80	; 128
+ 10e:	8b bf       	out	0x3b, r24	; 59
+  		// Low Level triggers interrupt
+  		MCUCR |= ( 0 << ISC00);
+ 110:	85 b7       	in	r24, 0x35	; 53
+ 112:	85 bf       	out	0x35, r24	; 53
+  		MCUCR |= ( 0 << ISC01);
+ 114:	85 b7       	in	r24, 0x35	; 53
+ 116:	85 bf       	out	0x35, r24	; 53
+		MCUCR |= ( 0 << ISC10);
+ 118:	85 b7       	in	r24, 0x35	; 53
+ 11a:	85 bf       	out	0x35, r24	; 53
+  		MCUCR |= ( 0 << ISC11);
+ 11c:	85 b7       	in	r24, 0x35	; 53
+ 11e:	85 bf       	out	0x35, r24	; 53
+
+        sei();       /* enable interrupts */
+ 120:	78 94       	sei
+			
+
+line_following:
+		
+		Actual_input=(0b11111)&SENSOR_INPUTS;	
+ 122:	23 b3       	in	r18, 0x13	; 19
+ 124:	2f 71       	andi	r18, 0x1F	; 31
+ 126:	20 93 65 00 	sts	0x0065, r18
+	
+		
+		
+		/*
+		Because other bit may be high due to noise. Thus the actual input may differ from we get from harware.
+		Therefore, above statement is very important.Here we are using only last three bits of SENSOR_INPUTS, thus
+		we make other bits to zero.		
+		*/
+		if(OCR1A==0)
+ 12a:	8a b5       	in	r24, 0x2a	; 42
+ 12c:	9b b5       	in	r25, 0x2b	; 43
+ 12e:	89 2b       	or	r24, r25
+ 130:	21 f0       	breq	.+8      	; 0x13a <main+0x6a>
+		{
+			goto l;
+		}
+		//if same input from sensor then no need to calculate PWM just follow as last
+		if(LAST_INPUT==Actual_input)goto line_following;
+ 132:	80 91 62 00 	lds	r24, 0x0062
+ 136:	82 17       	cp	r24, r18
+ 138:	a1 f3       	breq	.-24     	; 0x122 <main+0x52>
+		
+		
+	l:
+
+	switch(Actual_input)
+ 13a:	82 2f       	mov	r24, r18
+ 13c:	99 27       	eor	r25, r25
+ 13e:	aa 27       	eor	r26, r26
+ 140:	bb 27       	eor	r27, r27
+ 142:	fc 01       	movw	r30, r24
+ 144:	31 97       	sbiw	r30, 0x01	; 1
+ 146:	ec 31       	cpi	r30, 0x1C	; 28
+ 148:	f1 05       	cpc	r31, r1
+ 14a:	08 f0       	brcs	.+2      	; 0x14e <main+0x7e>
+ 14c:	58 c0       	rjmp	.+176    	; 0x1fe <main+0x12e>
+ 14e:	ed 5e       	subi	r30, 0xED	; 237
+ 150:	ff 4f       	sbci	r31, 0xFF	; 255
+ 152:	09 94       	ijmp
+	{
+		// all the variables values we given here,depends on robot behavior on different conditions 
+		// these values will differ robot to robot 
+		//case 0b00000:
+		case 0b01110:  
+		case 0b00100: // forward
+            REVERSE_LEFT_RIGHT_MOTOR=0;
+ 154:	10 92 63 00 	sts	0x0063, r1
+			PERCENTAGE_LEFT_PWM=PERCENTAGE_PWM_STEP_SIZE*8;
+ 158:	80 91 60 00 	lds	r24, 0x0060
+ 15c:	99 27       	eor	r25, r25
+ 15e:	63 e0       	ldi	r22, 0x03	; 3
+ 160:	88 0f       	add	r24, r24
+ 162:	99 1f       	adc	r25, r25
+ 164:	6a 95       	dec	r22
+ 166:	e1 f7       	brne	.-8      	; 0x160 <main+0x90>
+ 168:	80 93 67 00 	sts	0x0067, r24
+ 16c:	46 c0       	rjmp	.+140    	; 0x1fa <main+0x12a>
+			PERCENTAGE_RIGHT_PWM=PERCENTAGE_PWM_STEP_SIZE*8;
+			break; 
+		case 0b00001: // sharp right
+		case 0b00011:
+		case 0b00111:
+			REVERSE_LEFT_RIGHT_MOTOR=1;
+ 16e:	81 e0       	ldi	r24, 0x01	; 1
+ 170:	80 93 63 00 	sts	0x0063, r24
+			PERCENTAGE_LEFT_PWM=PERCENTAGE_PWM_STEP_SIZE*7;
+ 174:	20 91 60 00 	lds	r18, 0x0060
+ 178:	87 e0       	ldi	r24, 0x07	; 7
+ 17a:	28 9f       	mul	r18, r24
+ 17c:	c0 01       	movw	r24, r0
+ 17e:	11 24       	eor	r1, r1
+ 180:	80 93 67 00 	sts	0x0067, r24
+			PERCENTAGE_RIGHT_PWM=PERCENTAGE_PWM_STEP_SIZE*4;
+ 184:	82 2f       	mov	r24, r18
+ 186:	99 27       	eor	r25, r25
+ 188:	88 0f       	add	r24, r24
+ 18a:	99 1f       	adc	r25, r25
+ 18c:	88 0f       	add	r24, r24
+ 18e:	99 1f       	adc	r25, r25
+ 190:	34 c0       	rjmp	.+104    	; 0x1fa <main+0x12a>
+			break;
+		case 0b10000:// sharp left
+		case 0b11000:
+		case 0b11100:
+			REVERSE_LEFT_RIGHT_MOTOR=8;
+ 192:	88 e0       	ldi	r24, 0x08	; 8
+ 194:	80 93 63 00 	sts	0x0063, r24
+			PERCENTAGE_LEFT_PWM=PERCENTAGE_PWM_STEP_SIZE*4;
+ 198:	20 91 60 00 	lds	r18, 0x0060
+ 19c:	82 2f       	mov	r24, r18
+ 19e:	99 27       	eor	r25, r25
+ 1a0:	88 0f       	add	r24, r24
+ 1a2:	99 1f       	adc	r25, r25
+ 1a4:	88 0f       	add	r24, r24
+ 1a6:	99 1f       	adc	r25, r25
+ 1a8:	80 93 67 00 	sts	0x0067, r24
+			PERCENTAGE_RIGHT_PWM=PERCENTAGE_PWM_STEP_SIZE*7;			
+ 1ac:	87 e0       	ldi	r24, 0x07	; 7
+ 1ae:	0f c0       	rjmp	.+30     	; 0x1ce <main+0xfe>
+			break;				
+		case 0b00010:// sharp right with at slower speed     
+		case 0b00110:
+			REVERSE_LEFT_RIGHT_MOTOR=1;
+ 1b0:	81 e0       	ldi	r24, 0x01	; 1
+ 1b2:	80 93 63 00 	sts	0x0063, r24
+			PERCENTAGE_LEFT_PWM=PERCENTAGE_PWM_STEP_SIZE*8;
+ 1b6:	20 91 60 00 	lds	r18, 0x0060
+ 1ba:	82 2f       	mov	r24, r18
+ 1bc:	99 27       	eor	r25, r25
+ 1be:	33 e0       	ldi	r19, 0x03	; 3
+ 1c0:	88 0f       	add	r24, r24
+ 1c2:	99 1f       	adc	r25, r25
+ 1c4:	3a 95       	dec	r19
+ 1c6:	e1 f7       	brne	.-8      	; 0x1c0 <main+0xf0>
+ 1c8:	80 93 67 00 	sts	0x0067, r24
+			PERCENTAGE_RIGHT_PWM=PERCENTAGE_PWM_STEP_SIZE*3;
+ 1cc:	83 e0       	ldi	r24, 0x03	; 3
+ 1ce:	28 9f       	mul	r18, r24
+ 1d0:	c0 01       	movw	r24, r0
+ 1d2:	11 24       	eor	r1, r1
+ 1d4:	12 c0       	rjmp	.+36     	; 0x1fa <main+0x12a>
+			break;
+		case 0b01000: // sharp left with at slower speed                                  
+		case 0b01100:
+			REVERSE_LEFT_RIGHT_MOTOR=8;
+ 1d6:	88 e0       	ldi	r24, 0x08	; 8
+ 1d8:	80 93 63 00 	sts	0x0063, r24
+			PERCENTAGE_LEFT_PWM=PERCENTAGE_PWM_STEP_SIZE*3;
+ 1dc:	20 91 60 00 	lds	r18, 0x0060
+ 1e0:	83 e0       	ldi	r24, 0x03	; 3
+ 1e2:	28 9f       	mul	r18, r24
+ 1e4:	c0 01       	movw	r24, r0
+ 1e6:	11 24       	eor	r1, r1
+ 1e8:	80 93 67 00 	sts	0x0067, r24
+			PERCENTAGE_RIGHT_PWM=PERCENTAGE_PWM_STEP_SIZE*8;
+ 1ec:	82 2f       	mov	r24, r18
+ 1ee:	99 27       	eor	r25, r25
+ 1f0:	23 e0       	ldi	r18, 0x03	; 3
+ 1f2:	88 0f       	add	r24, r24
+ 1f4:	99 1f       	adc	r25, r25
+ 1f6:	2a 95       	dec	r18
+ 1f8:	e1 f7       	brne	.-8      	; 0x1f2 <main+0x122>
+ 1fa:	80 93 66 00 	sts	0x0066, r24
+			break;
+			
+		
+		case 0b10001:// this may occur during larger turns( >135 degrees) or it may be noise therefor we set our
+					// output as same as previous condition.
+		
+			break;		
+	}
+		
+				
+		LAST_INPUT=Actual_input; //store last Actual_input
+ 1fe:	80 91 65 00 	lds	r24, 0x0065
+ 202:	80 93 62 00 	sts	0x0062, r24
+		
+		M_OUTPUT=REVERSE_LEFT_RIGHT_MOTOR; //set the direction of motors
+ 206:	80 91 63 00 	lds	r24, 0x0063
+ 20a:	88 bb       	out	0x18, r24	; 24
+		
+		// Setting OCR values of both motors
+		if(REVERSE_LEFT_RIGHT_MOTOR==0)
+ 20c:	88 23       	and	r24, r24
+ 20e:	91 f4       	brne	.+36     	; 0x234 <main+0x164>
+			{
+				OCR1A=(MASTER_PWM*PERCENTAGE_RIGHT_PWM/100);   // output compare flag for OC1A   for right motor
+ 210:	20 91 64 00 	lds	r18, 0x0064
+ 214:	80 91 66 00 	lds	r24, 0x0066
+ 218:	28 9f       	mul	r18, r24
+ 21a:	c0 01       	movw	r24, r0
+ 21c:	11 24       	eor	r1, r1
+ 21e:	64 e6       	ldi	r22, 0x64	; 100
+ 220:	70 e0       	ldi	r23, 0x00	; 0
+ 222:	44 d0       	rcall	.+136    	; 0x2ac <__divmodhi4>
+ 224:	7b bd       	out	0x2b, r23	; 43
+ 226:	6a bd       	out	0x2a, r22	; 42
+				OCR1B=(MASTER_PWM*PERCENTAGE_LEFT_PWM/100);	// output compare flag for OC1B   for left motor
+ 228:	80 91 67 00 	lds	r24, 0x0067
+ 22c:	28 9f       	mul	r18, r24
+ 22e:	c0 01       	movw	r24, r0
+ 230:	11 24       	eor	r1, r1
+ 232:	18 c0       	rjmp	.+48     	; 0x264 <main+0x194>
+			}
+		else if(REVERSE_LEFT_RIGHT_MOTOR==1)
+ 234:	81 30       	cpi	r24, 0x01	; 1
+ 236:	d9 f4       	brne	.+54     	; 0x26e <main+0x19e>
+			{
+				
+				OCR1A=255-255*PERCENTAGE_RIGHT_PWM/100;   // output compare flag for OC1A   for right motor
+ 238:	90 91 66 00 	lds	r25, 0x0066
+ 23c:	8f ef       	ldi	r24, 0xFF	; 255
+ 23e:	98 9f       	mul	r25, r24
+ 240:	c0 01       	movw	r24, r0
+ 242:	11 24       	eor	r1, r1
+ 244:	64 e6       	ldi	r22, 0x64	; 100
+ 246:	70 e0       	ldi	r23, 0x00	; 0
+ 248:	31 d0       	rcall	.+98     	; 0x2ac <__divmodhi4>
+ 24a:	8f ef       	ldi	r24, 0xFF	; 255
+ 24c:	90 e0       	ldi	r25, 0x00	; 0
+ 24e:	86 1b       	sub	r24, r22
+ 250:	97 0b       	sbc	r25, r23
+ 252:	9b bd       	out	0x2b, r25	; 43
+ 254:	8a bd       	out	0x2a, r24	; 42
+				OCR1B=(MASTER_PWM*PERCENTAGE_LEFT_PWM/100);	// output compare flag for OC1B   for left motor
+ 256:	90 91 64 00 	lds	r25, 0x0064
+ 25a:	80 91 67 00 	lds	r24, 0x0067
+ 25e:	98 9f       	mul	r25, r24
+ 260:	c0 01       	movw	r24, r0
+ 262:	11 24       	eor	r1, r1
+ 264:	64 e6       	ldi	r22, 0x64	; 100
+ 266:	70 e0       	ldi	r23, 0x00	; 0
+ 268:	21 d0       	rcall	.+66     	; 0x2ac <__divmodhi4>
+ 26a:	cb 01       	movw	r24, r22
+ 26c:	1c c0       	rjmp	.+56     	; 0x2a6 <main+0x1d6>
+			}
+		else if(REVERSE_LEFT_RIGHT_MOTOR==8)
+ 26e:	88 30       	cpi	r24, 0x08	; 8
+ 270:	09 f0       	breq	.+2      	; 0x274 <main+0x1a4>
+ 272:	57 cf       	rjmp	.-338    	; 0x122 <main+0x52>
+			{
+				
+				OCR1A=(MASTER_PWM*PERCENTAGE_RIGHT_PWM/100);   // output compare flag for OC1A   for right motor
+ 274:	90 91 64 00 	lds	r25, 0x0064
+ 278:	80 91 66 00 	lds	r24, 0x0066
+ 27c:	98 9f       	mul	r25, r24
+ 27e:	c0 01       	movw	r24, r0
+ 280:	11 24       	eor	r1, r1
+ 282:	64 e6       	ldi	r22, 0x64	; 100
+ 284:	70 e0       	ldi	r23, 0x00	; 0
+ 286:	12 d0       	rcall	.+36     	; 0x2ac <__divmodhi4>
+ 288:	7b bd       	out	0x2b, r23	; 43
+ 28a:	6a bd       	out	0x2a, r22	; 42
+				OCR1B=255-255*PERCENTAGE_LEFT_PWM/100;	// output compare flag for OC1B   for left motor
+ 28c:	90 91 67 00 	lds	r25, 0x0067
+ 290:	8f ef       	ldi	r24, 0xFF	; 255
+ 292:	98 9f       	mul	r25, r24
+ 294:	c0 01       	movw	r24, r0
+ 296:	11 24       	eor	r1, r1
+ 298:	64 e6       	ldi	r22, 0x64	; 100
+ 29a:	70 e0       	ldi	r23, 0x00	; 0
+ 29c:	07 d0       	rcall	.+14     	; 0x2ac <__divmodhi4>
+ 29e:	8f ef       	ldi	r24, 0xFF	; 255
+ 2a0:	90 e0       	ldi	r25, 0x00	; 0
+ 2a2:	86 1b       	sub	r24, r22
+ 2a4:	97 0b       	sbc	r25, r23
+ 2a6:	99 bd       	out	0x29, r25	; 41
+ 2a8:	88 bd       	out	0x28, r24	; 40
+			}
+
+			goto line_following;//infinite loop
+ 2aa:	3b cf       	rjmp	.-394    	; 0x122 <main+0x52>
+
+000002ac <__divmodhi4>:
+ 2ac:	97 fb       	bst	r25, 7
+ 2ae:	09 2e       	mov	r0, r25
+ 2b0:	07 26       	eor	r0, r23
+ 2b2:	0a d0       	rcall	.+20     	; 0x2c8 <__divmodhi4_neg1>
+ 2b4:	77 fd       	sbrc	r23, 7
+ 2b6:	04 d0       	rcall	.+8      	; 0x2c0 <__divmodhi4_neg2>
+ 2b8:	0c d0       	rcall	.+24     	; 0x2d2 <__udivmodhi4>
+ 2ba:	06 d0       	rcall	.+12     	; 0x2c8 <__divmodhi4_neg1>
+ 2bc:	00 20       	and	r0, r0
+ 2be:	1a f4       	brpl	.+6      	; 0x2c6 <__divmodhi4_exit>
+
+000002c0 <__divmodhi4_neg2>:
+ 2c0:	70 95       	com	r23
+ 2c2:	61 95       	neg	r22
+ 2c4:	7f 4f       	sbci	r23, 0xFF	; 255
+
+000002c6 <__divmodhi4_exit>:
+ 2c6:	08 95       	ret
+
+000002c8 <__divmodhi4_neg1>:
+ 2c8:	f6 f7       	brtc	.-4      	; 0x2c6 <__divmodhi4_exit>
+ 2ca:	90 95       	com	r25
+ 2cc:	81 95       	neg	r24
+ 2ce:	9f 4f       	sbci	r25, 0xFF	; 255
+ 2d0:	08 95       	ret
+
+000002d2 <__udivmodhi4>:
+ 2d2:	aa 1b       	sub	r26, r26
+ 2d4:	bb 1b       	sub	r27, r27
+ 2d6:	51 e1       	ldi	r21, 0x11	; 17
+ 2d8:	07 c0       	rjmp	.+14     	; 0x2e8 <__udivmodhi4_ep>
+
+000002da <__udivmodhi4_loop>:
+ 2da:	aa 1f       	adc	r26, r26
+ 2dc:	bb 1f       	adc	r27, r27
+ 2de:	a6 17       	cp	r26, r22
+ 2e0:	b7 07       	cpc	r27, r23
+ 2e2:	10 f0       	brcs	.+4      	; 0x2e8 <__udivmodhi4_ep>
+ 2e4:	a6 1b       	sub	r26, r22
+ 2e6:	b7 0b       	sbc	r27, r23
+
+000002e8 <__udivmodhi4_ep>:
+ 2e8:	88 1f       	adc	r24, r24
+ 2ea:	99 1f       	adc	r25, r25
+ 2ec:	5a 95       	dec	r21
+ 2ee:	a9 f7       	brne	.-22     	; 0x2da <__udivmodhi4_loop>
+ 2f0:	80 95       	com	r24
+ 2f2:	90 95       	com	r25
+ 2f4:	bc 01       	movw	r22, r24
+ 2f6:	cd 01       	movw	r24, r26
+ 2f8:	08 95       	ret

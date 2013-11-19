@@ -1,0 +1,829 @@
+   1               		.file	"sumoTry.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.global __do_copy_data
+   8               		.global __do_clear_bss
+  10               		.text
+  11               	.Ltext0:
+  63               	.global	initVariables
+  65               	initVariables:
+   1:sumoTry.c     **** #include <inttypes.h>
+   2:sumoTry.c     **** #include <avr/io.h>
+   3:sumoTry.c     **** #include <avr/sleep.h>
+   4:sumoTry.c     **** #include <assert.h>	
+   5:sumoTry.c     **** #include<util/delay.h>
+   6:sumoTry.c     **** 
+   7:sumoTry.c     **** // sensor Position
+   8:sumoTry.c     **** #define FRONT_LINE_SENSOR PC0
+   9:sumoTry.c     **** #define BACK_LINE_SENSOR  PC1
+  10:sumoTry.c     **** #define FRONT_OBST_SENSOR PC2
+  11:sumoTry.c     **** #define BACK_OBST_SENSOR  PC3
+  12:sumoTry.c     **** #define FOUR_SENSOR_MASK  0x0F
+  13:sumoTry.c     **** 
+  14:sumoTry.c     **** #define PER_PWM_WINDOW   80
+  15:sumoTry.c     **** 
+  16:sumoTry.c     **** #define RIGHT_MOTOR_PWM   OCR1A
+  17:sumoTry.c     **** #define LEFT_MOTOR_PWM    OCR1B
+  18:sumoTry.c     **** #define MOTOR_OUTPUT      PORTD
+  19:sumoTry.c     **** #define LED_ON PORTB|=0x01
+  20:sumoTry.c     **** #define LED_OFF PORTB&=0xFE
+  21:sumoTry.c     **** 
+  22:sumoTry.c     **** 
+  23:sumoTry.c     **** 
+  24:sumoTry.c     **** 
+  25:sumoTry.c     **** // motor outputs
+  26:sumoTry.c     **** #define MOTOR_OUTPUT_FRONT  0b1010
+  27:sumoTry.c     **** #define MOTOR_OUTPUT_BACK   0b0101
+  28:sumoTry.c     **** #define MOTOR_OUTPUT_CLOCKWISE       0b1001
+  29:sumoTry.c     **** #define MOTOR_OUTPUT_ANTICLOCKWISE   0b0110
+  30:sumoTry.c     ****      
+  31:sumoTry.c     **** 
+  32:sumoTry.c     **** #define LINE_SENSOR_THRESHHOLD_ADC 60
+  33:sumoTry.c     **** #define OBS_SENSOR_THRESHHOLD_ADC  80
+  34:sumoTry.c     **** 
+  35:sumoTry.c     **** #define DELAY_FOR_NINTY_DEGREE    56
+  36:sumoTry.c     **** #define DELAY_PRECISION            2
+  37:sumoTry.c     **** 
+  38:sumoTry.c     **** //######################################################
+  39:sumoTry.c     **** void initVariables( void );
+  40:sumoTry.c     **** uint8_t RandomNumGenerator(uint8_t min , uint8_t max);
+  41:sumoTry.c     **** inline void MakePWMrandom( void );
+  42:sumoTry.c     **** void RotateRobotAtCornor( void );
+  43:sumoTry.c     **** uint8_t getSensorValues( void );
+  44:sumoTry.c     **** inline uint8_t getADCValue(uint8_t selectADC);
+  45:sumoTry.c     **** //#######################################################
+  46:sumoTry.c     **** uint8_t temp1,temp2,makeRandomPWMflag=0,sensorInput ;
+  47:sumoTry.c     **** uint8_t g_TOP_PWM=160;
+  48:sumoTry.c     **** uint8_t temp;
+  49:sumoTry.c     **** 
+  50:sumoTry.c     **** int main()
+  51:sumoTry.c     **** {
+  52:sumoTry.c     **** 	
+  53:sumoTry.c     **** 
+  54:sumoTry.c     **** 	initVariables();	
+  55:sumoTry.c     **** 		
+  56:sumoTry.c     **** 	//if all sensors are not detect any objects then do random movement
+  57:sumoTry.c     **** 	
+  58:sumoTry.c     **** 	
+  59:sumoTry.c     **** while(1)
+  60:sumoTry.c     **** 	{
+  61:sumoTry.c     **** 		//sensorInput = PINC;
+  62:sumoTry.c     **** 	sensorInput=getSensorValues();
+  63:sumoTry.c     **** 	sensorInput=~sensorInput;
+  64:sumoTry.c     **** 		//temp = (( sensorInput ^ 0x0C) & FOUR_SENSOR_MASK );
+  65:sumoTry.c     **** 		temp = ( sensorInput  & FOUR_SENSOR_MASK );
+  66:sumoTry.c     **** 		
+  67:sumoTry.c     **** 	switch(temp)
+  68:sumoTry.c     **** 		{
+  69:sumoTry.c     **** 		 case 1<<FRONT_LINE_SENSOR : // only Front Sensor Detects
+  70:sumoTry.c     **** 		 case (1<<FRONT_LINE_SENSOR | 1<<FRONT_OBST_SENSOR) :
+  71:sumoTry.c     **** 		 case (1<<FRONT_LINE_SENSOR | 1<<FRONT_OBST_SENSOR | 1<<BACK_OBST_SENSOR) :
+  72:sumoTry.c     **** 		 		makeRandomPWMflag = 0;
+  73:sumoTry.c     **** 				MOTOR_OUTPUT  = MOTOR_OUTPUT_BACK;//move back of with random PWMs
+  74:sumoTry.c     **** 				break;
+  75:sumoTry.c     **** 
+  76:sumoTry.c     **** 		 case 1<<BACK_LINE_SENSOR  : // only Back Sensor Detects
+  77:sumoTry.c     **** 		 case (1<<BACK_LINE_SENSOR | 1<<BACK_OBST_SENSOR) :
+  78:sumoTry.c     **** 	     case (1<<BACK_LINE_SENSOR | 1<<FRONT_OBST_SENSOR | 1<<BACK_OBST_SENSOR) :
+  79:sumoTry.c     **** 				makeRandomPWMflag = 0;
+  80:sumoTry.c     **** 		 		MOTOR_OUTPUT  = MOTOR_OUTPUT_FRONT;//move forward with random PWMs
+  81:sumoTry.c     **** 				break;
+  82:sumoTry.c     **** 
+  83:sumoTry.c     **** 		 case 1<<FRONT_OBST_SENSOR  ://only front obstracle sensor detect
+  84:sumoTry.c     **** 		 		makeRandomPWMflag=0;
+  85:sumoTry.c     **** 		 		MOTOR_OUTPUT  = MOTOR_OUTPUT_FRONT;//move front with full PWM
+  86:sumoTry.c     **** 				break;
+  87:sumoTry.c     **** 
+  88:sumoTry.c     **** 		 case 1<<BACK_OBST_SENSOR :
+  89:sumoTry.c     **** 		 		makeRandomPWMflag=0;//move back with full PWM
+  90:sumoTry.c     **** 				MOTOR_OUTPUT  = MOTOR_OUTPUT_BACK;
+  91:sumoTry.c     **** 				break;
+  92:sumoTry.c     **** 
+  93:sumoTry.c     **** 		 case (1<<BACK_OBST_SENSOR) | (1<<FRONT_LINE_SENSOR ) :
+  94:sumoTry.c     **** 		 		RotateRobotAtCornor();//rotate robot at corners
+  95:sumoTry.c     **** 				MOTOR_OUTPUT  = MOTOR_OUTPUT_FRONT;
+  96:sumoTry.c     **** 				makeRandomPWMflag = 0;
+  97:sumoTry.c     **** 				break;
+  98:sumoTry.c     **** 		 case (1<<FRONT_OBST_SENSOR) | (1<<BACK_LINE_SENSOR ) :
+  99:sumoTry.c     **** 		 		RotateRobotAtCornor();//rotate robot at corners
+ 100:sumoTry.c     **** 				MOTOR_OUTPUT  = MOTOR_OUTPUT_BACK;
+ 101:sumoTry.c     **** 				makeRandomPWMflag = 0;
+ 102:sumoTry.c     **** 				break;
+ 103:sumoTry.c     **** 
+ 104:sumoTry.c     **** 		 default ://random move
+ 105:sumoTry.c     **** 		 	if(!makeRandomPWMflag) 
+ 106:sumoTry.c     **** 			{
+ 107:sumoTry.c     **** 				LED_ON;
+ 108:sumoTry.c     **** 				MakePWMrandom();
+ 109:sumoTry.c     **** 				
+ 110:sumoTry.c     **** 			}
+ 111:sumoTry.c     **** 			makeRandomPWMflag = 1;
+ 112:sumoTry.c     **** 		}//end of switch
+ 113:sumoTry.c     **** 	
+ 114:sumoTry.c     **** 		if(!makeRandomPWMflag)
+ 115:sumoTry.c     **** 			{
+ 116:sumoTry.c     **** 				LED_OFF;
+ 117:sumoTry.c     **** 				// give maximum PWM to motors	
+ 118:sumoTry.c     **** 				RIGHT_MOTOR_PWM = g_TOP_PWM;
+ 119:sumoTry.c     **** 				LEFT_MOTOR_PWM	= g_TOP_PWM;
+ 120:sumoTry.c     **** 			}		
+ 121:sumoTry.c     **** 		
+ 122:sumoTry.c     **** 	}//end of while	return 0;
+ 123:sumoTry.c     **** }// end of main()
+ 124:sumoTry.c     **** 
+ 125:sumoTry.c     **** void initVariables()
+ 126:sumoTry.c     **** {
+  67               	.LM0:
+  68               	.LFBB1:
+  69               	/* prologue: frame size=0 */
+  70               	/* prologue end (size=0) */
+ 127:sumoTry.c     **** 
+ 128:sumoTry.c     **** 	//check for sensors
+ 129:sumoTry.c     **** 	DDRC = ~(FOUR_SENSOR_MASK);
+  72               	.LM1:
+  73 0000 80EF      		ldi r24,lo8(-16)
+  74 0002 84BB      		out 52-0x20,r24
+ 130:sumoTry.c     **** 	DDRD=0xFF;
+  76               	.LM2:
+  77 0004 8FEF      		ldi r24,lo8(-1)
+  78 0006 81BB      		out 49-0x20,r24
+ 131:sumoTry.c     **** 	DDRB=0x07;
+  80               	.LM3:
+  81 0008 87E0      		ldi r24,lo8(7)
+  82 000a 87BB      		out 55-0x20,r24
+ 132:sumoTry.c     **** 
+ 133:sumoTry.c     **** 
+ 134:sumoTry.c     **** 	//setting robot direction in forward direction
+ 135:sumoTry.c     **** 	MOTOR_OUTPUT   = MOTOR_OUTPUT_FRONT;
+  84               	.LM4:
+  85 000c 8AE0      		ldi r24,lo8(10)
+  86 000e 82BB      		out 50-0x20,r24
+ 136:sumoTry.c     **** 	// PWM starting
+ 137:sumoTry.c     **** 	TCCR0=0x04;
+  88               	.LM5:
+  89 0010 94E0      		ldi r25,lo8(4)
+  90 0012 93BF      		out 83-0x20,r25
+ 138:sumoTry.c     **** 	/* TOP value is 00FFh for both OC1A and OC1B*/
+ 139:sumoTry.c     **** 	TCCR1A=0xA1;
+  92               	.LM6:
+  93 0014 81EA      		ldi r24,lo8(-95)
+  94 0016 8FBD      		out 79-0x20,r24
+ 140:sumoTry.c     **** 		/*Timer/Counter 1 Control  and pwm at pin OC1A(PB1) */
+ 141:sumoTry.c     **** 	TCCR1B=0x04;
+  96               	.LM7:
+  97 0018 9EBD      		out 78-0x20,r25
+ 142:sumoTry.c     **** 		/* pwm at pin OC1B(PB2) and clock freq. of timer(3 LSB 000 sys. clock) */
+ 143:sumoTry.c     **** 
+ 144:sumoTry.c     **** 	
+ 145:sumoTry.c     **** 		
+ 146:sumoTry.c     **** 		   ADCSRA |= (0 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Set ADC prescalar to 8 -     125KHz s
+  99               	.LM8:
+ 100 001a 86B1      		in r24,38-0x20
+ 101 001c 8360      		ori r24,lo8(3)
+ 102 001e 86B9      		out 38-0x20,r24
+ 147:sumoTry.c     **** 			ADMUX |= (1 << REFS0);   // Set ADC reference to AVCC 
+ 104               	.LM9:
+ 105 0020 3E9A      		sbi 39-0x20,6
+ 148:sumoTry.c     **** 			ADMUX |= (1 << ADLAR); // Left adjust ADC result to allow easy 8 bit reading 
+ 107               	.LM10:
+ 108 0022 3D9A      		sbi 39-0x20,5
+ 149:sumoTry.c     **** 		
+ 150:sumoTry.c     **** 		/* setting of Top PWM */
+ 151:sumoTry.c     **** 		
+ 152:sumoTry.c     **** 		ADCSRA|= (1<<ADEN); //enable adc
+ 110               	.LM11:
+ 111 0024 379A      		sbi 38-0x20,7
+ 153:sumoTry.c     **** 		//g_TOP_PWM = getADCValue(5);
+ 154:sumoTry.c     **** 		ADCSRA=(0<<ADEN);// added by me to switc off the adc , so as it doesnt consume power
+ 113               	.LM12:
+ 114 0026 16B8      		out 38-0x20,__zero_reg__
+ 115               	/* epilogue: frame size=0 */
+ 116 0028 0895      		ret
+ 117               	/* epilogue end (size=1) */
+ 118               	/* function initVariables size 21 (20) */
+ 120               	.Lscope1:
+ 124               	.global	RandomNumGenerator
+ 126               	RandomNumGenerator:
+ 155:sumoTry.c     **** 
+ 156:sumoTry.c     **** }
+ 157:sumoTry.c     **** 
+ 158:sumoTry.c     **** uint8_t RandomNumGenerator(uint8_t min , uint8_t max)
+ 159:sumoTry.c     **** {
+ 128               	.LM13:
+ 129               	.LFBB2:
+ 130               	/* prologue: frame size=0 */
+ 131               	/* prologue end (size=0) */
+ 132 002a 482F      		mov r20,r24
+ 160:sumoTry.c     **** 	uint8_t randumNum , clockNum = (TCNT0 & 0xFF) ;
+ 134               	.LM14:
+ 135 002c 82B7      		in r24,82-0x20
+ 161:sumoTry.c     **** 	
+ 162:sumoTry.c     **** 	randumNum = ((clockNum - min)%(max-min+1)) + min;
+ 137               	.LM15:
+ 138 002e 242F      		mov r18,r20
+ 139 0030 3327      		clr r19
+ 140 0032 9927      		clr r25
+ 141 0034 7727      		clr r23
+ 142 0036 621B      		sub r22,r18
+ 143 0038 730B      		sbc r23,r19
+ 144 003a 6F5F      		subi r22,lo8(-(1))
+ 145 003c 7F4F      		sbci r23,hi8(-(1))
+ 146 003e 821B      		sub r24,r18
+ 147 0040 930B      		sbc r25,r19
+ 148 0042 00D0      		rcall __divmodhi4
+ 149 0044 480F      		add r20,r24
+ 163:sumoTry.c     **** 	
+ 164:sumoTry.c     **** 	return randumNum;
+ 165:sumoTry.c     **** 
+ 166:sumoTry.c     **** }
+ 151               	.LM16:
+ 152 0046 842F      		mov r24,r20
+ 153 0048 9927      		clr r25
+ 154               	/* epilogue: frame size=0 */
+ 155 004a 0895      		ret
+ 156               	/* epilogue end (size=1) */
+ 157               	/* function RandomNumGenerator size 17 (16) */
+ 162               	.Lscope2:
+ 164               	.global	MakePWMrandom
+ 166               	MakePWMrandom:
+ 167:sumoTry.c     **** 
+ 168:sumoTry.c     **** inline void MakePWMrandom()
+ 169:sumoTry.c     **** {
+ 168               	.LM17:
+ 169               	.LFBB3:
+ 170               	/* prologue: frame size=0 */
+ 171               	/* prologue end (size=0) */
+ 170:sumoTry.c     **** 	//get a  randomNum
+ 171:sumoTry.c     **** 	uint8_t	randumNum = RandomNumGenerator( 1 , 2 * PER_PWM_WINDOW);
+ 173               	.LM18:
+ 174 004c 60EA      		ldi r22,lo8(-96)
+ 175 004e 81E0      		ldi r24,lo8(1)
+ 176 0050 00D0      		rcall RandomNumGenerator
+ 177 0052 2091 0000 		lds r18,g_TOP_PWM
+ 178 0056 482F      		mov r20,r24
+ 179 0058 5527      		clr r21
+ 172:sumoTry.c     **** 	if(randumNum <= PER_PWM_WINDOW)
+ 181               	.LM19:
+ 182 005a 8135      		cpi r24,lo8(81)
+ 183 005c 00F4      		brsh .L6
+ 173:sumoTry.c     **** 		{
+ 174:sumoTry.c     **** 			LEFT_MOTOR_PWM  =  g_TOP_PWM;
+ 185               	.LM20:
+ 186 005e 822F      		mov r24,r18
+ 187 0060 9927      		clr r25
+ 188 0062 99BD      		out (72)+1-0x20,r25
+ 189 0064 88BD      		out 72-0x20,r24
+ 175:sumoTry.c     **** 			RIGHT_MOTOR_PWM =  ((100-randumNum)* g_TOP_PWM)/100;
+ 191               	.LM21:
+ 192 0066 24E6      		ldi r18,lo8(100)
+ 193 0068 30E0      		ldi r19,hi8(100)
+ 194 006a 241B      		sub r18,r20
+ 195 006c 350B      		sbc r19,r21
+ 196 006e AC01      		movw r20,r24
+ 197 0070 249F      		mul r18,r20
+ 198 0072 C001      		movw r24,r0
+ 199 0074 259F      		mul r18,r21
+ 200 0076 900D      		add r25,r0
+ 201 0078 349F      		mul r19,r20
+ 202 007a 900D      		add r25,r0
+ 203 007c 1124      		clr r1
+ 204 007e 64E6      		ldi r22,lo8(100)
+ 205 0080 70E0      		ldi r23,hi8(100)
+ 206 0082 00D0      		rcall __divmodhi4
+ 207 0084 7BBD      		out (74)+1-0x20,r23
+ 208 0086 6ABD      		out 74-0x20,r22
+ 209 0088 0895      		ret
+ 210               	.L6:
+ 176:sumoTry.c     **** 		}
+ 177:sumoTry.c     **** 	if(randumNum > PER_PWM_WINDOW)
+ 178:sumoTry.c     **** 		{
+ 179:sumoTry.c     **** 			LEFT_MOTOR_PWM  =  ((100 - (randumNum - PER_PWM_WINDOW))* g_TOP_PWM)/100;
+ 212               	.LM22:
+ 213 008a 84EB      		ldi r24,lo8(180)
+ 214 008c 90E0      		ldi r25,hi8(180)
+ 215 008e 841B      		sub r24,r20
+ 216 0090 950B      		sbc r25,r21
+ 217 0092 3327      		clr r19
+ 218 0094 AC01      		movw r20,r24
+ 219 0096 429F      		mul r20,r18
+ 220 0098 C001      		movw r24,r0
+ 221 009a 439F      		mul r20,r19
+ 222 009c 900D      		add r25,r0
+ 223 009e 529F      		mul r21,r18
+ 224 00a0 900D      		add r25,r0
+ 225 00a2 1124      		clr r1
+ 226 00a4 64E6      		ldi r22,lo8(100)
+ 227 00a6 70E0      		ldi r23,hi8(100)
+ 228 00a8 00D0      		rcall __divmodhi4
+ 229 00aa 79BD      		out (72)+1-0x20,r23
+ 230 00ac 68BD      		out 72-0x20,r22
+ 180:sumoTry.c     **** 			RIGHT_MOTOR_PWM =  g_TOP_PWM;
+ 232               	.LM23:
+ 233 00ae 3BBD      		out (74)+1-0x20,r19
+ 234 00b0 2ABD      		out 74-0x20,r18
+ 235 00b2 0895      		ret
+ 236               	/* epilogue: frame size=0 */
+ 237               	/* epilogue: noreturn */
+ 238               	/* epilogue end (size=0) */
+ 239               	/* function MakePWMrandom size 52 (52) */
+ 244               	.Lscope3:
+ 246               	.global	RotateRobotAtCornor
+ 248               	RotateRobotAtCornor:
+ 181:sumoTry.c     **** 		}
+ 182:sumoTry.c     **** }
+ 183:sumoTry.c     **** 
+ 184:sumoTry.c     **** void RotateRobotAtCornor()
+ 185:sumoTry.c     **** {
+ 250               	.LM24:
+ 251               	.LFBB4:
+ 252               	/* prologue: frame size=0 */
+ 253               	/* prologue end (size=0) */
+ 186:sumoTry.c     **** 	// give maximum PWM to motors	
+ 187:sumoTry.c     **** 	RIGHT_MOTOR_PWM = g_TOP_PWM;
+ 255               	.LM25:
+ 256 00b4 8091 0000 		lds r24,g_TOP_PWM
+ 257 00b8 9927      		clr r25
+ 258 00ba 9BBD      		out (74)+1-0x20,r25
+ 259 00bc 8ABD      		out 74-0x20,r24
+ 188:sumoTry.c     **** 	LEFT_MOTOR_PWM	= g_TOP_PWM;
+ 261               	.LM26:
+ 262 00be 99BD      		out (72)+1-0x20,r25
+ 263 00c0 88BD      		out 72-0x20,r24
+ 189:sumoTry.c     **** 	//move robot either clock wise or anti clock wise
+ 190:sumoTry.c     **** 	if(RandomNumGenerator(0 ,1))
+ 265               	.LM27:
+ 266 00c2 61E0      		ldi r22,lo8(1)
+ 267 00c4 80E0      		ldi r24,lo8(0)
+ 268 00c6 00D0      		rcall RandomNumGenerator
+ 269 00c8 8823      		tst r24
+ 270 00ca 01F0      		breq .L11
+ 191:sumoTry.c     **** 		//rotate clock wise
+ 192:sumoTry.c     **** 			MOTOR_OUTPUT = MOTOR_OUTPUT_CLOCKWISE;
+ 272               	.LM28:
+ 273 00cc 89E0      		ldi r24,lo8(9)
+ 274 00ce 00C0      		rjmp .L18
+ 275               	.L11:
+ 193:sumoTry.c     **** 	else
+ 194:sumoTry.c     **** 		//rotate Anti-clock wise
+ 195:sumoTry.c     ****  		MOTOR_OUTPUT = MOTOR_OUTPUT_ANTICLOCKWISE;
+ 277               	.LM29:
+ 278 00d0 86E0      		ldi r24,lo8(6)
+ 279               	.L18:
+ 280 00d2 82BB      		out 50-0x20,r24
+ 281 00d4 20E0      		ldi r18,lo8(0)
+ 282 00d6 00C0      		rjmp .L14
+ 283               	.L15:
+ 284               	.LBB12:
+ 285               	.LBB13:
+ 286               	.LBB14:
+ 287               	.LBB15:
+ 289               	.Ltext1:
+   1:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    Copyright (c) 2007 Joerg Wunsch
+   3:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    All rights reserved.
+   4:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+   5:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    Redistribution and use in source and binary forms, with or without
+   6:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    modification, are permitted provided that the following conditions are met:
+   7:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+   8:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    * Redistributions of source code must retain the above copyright
+   9:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      notice, this list of conditions and the following disclaimer.
+  10:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  11:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    * Redistributions in binary form must reproduce the above copyright
+  12:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      notice, this list of conditions and the following disclaimer in
+  13:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      the documentation and/or other materials provided with the
+  14:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      distribution.
+  15:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  16:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    * Neither the name of the copyright holders nor the names of
+  17:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      contributors may be used to endorse or promote products derived
+  18:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      from this software without specific prior written permission.
+  19:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  20:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  21:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  22:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  23:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  24:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  25:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  26:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  27:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  28:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  29:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  30:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  31:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  32:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /* $Id: delay_basic.h,v 1.1.2.2 2007/05/13 21:26:06 joerg_wunsch Exp $ */
+  33:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  34:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #ifndef _UTIL_DELAY_BASIC_H_
+  35:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #define _UTIL_DELAY_BASIC_H_ 1
+  36:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  37:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #include <inttypes.h>
+  38:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  39:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /** \file */
+  40:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /** \defgroup util_delay_basic <util/delay_basic.h>: Basic busy-wait delay loops
+  41:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     \code
+  42:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     #include <util/delay_basic.h>
+  43:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     \endcode
+  44:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  45:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     The functions in this header file implement simple delay loops
+  46:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     that perform a busy-waiting.  They are typically used to
+  47:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     facilitate short delays in the program execution.  They are
+  48:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     implemented as count-down loops with a well-known CPU cycle
+  49:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     count per loop iteration.  As such, no other processing can
+  50:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     occur simultaneously.  It should be kept in mind that the
+  51:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     functions described here do not disable interrupts.
+  52:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  53:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     In general, for long delays, the use of hardware timers is
+  54:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     much preferrable, as they free the CPU, and allow for
+  55:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     concurrent processing of other events while the timer is
+  56:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     running.  However, in particular for very short delays, the
+  57:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     overhead of setting up a hardware timer is too much compared
+  58:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     to the overall delay time.
+  59:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  60:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Two inline functions are provided for the actual delay algorithms.
+  61:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  62:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** */
+  63:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  64:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #if !defined(__DOXYGEN__)
+  65:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** static inline void _delay_loop_1(uint8_t __count) __attribute__((always_inline));
+  66:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** static inline void _delay_loop_2(uint16_t __count) __attribute__((always_inline));
+  67:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #endif
+  68:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  69:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /** \ingroup util_delay_basic
+  70:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  71:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Delay loop using an 8-bit counter \c __count, so up to 256
+  72:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     iterations are possible.  (The value 256 would have to be passed
+  73:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     as 0.)  The loop executes three CPU cycles per iteration, not
+  74:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     including the overhead the compiler needs to setup the counter
+  75:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     register.
+  76:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  77:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Thus, at a CPU speed of 1 MHz, delays of up to 768 microseconds
+  78:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     can be achieved.
+  79:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** */
+  80:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** void
+  81:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** _delay_loop_1(uint8_t __count)
+  82:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** {
+  83:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 	__asm__ volatile (
+  84:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 		"1: dec %0" "\n\t"
+  85:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 		"brne 1b"
+  86:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 		: "=r" (__count)
+  87:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 		: "0" (__count)
+  88:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 	);
+  89:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** }
+  90:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  91:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /** \ingroup util_delay_basic
+  92:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  93:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Delay loop using a 16-bit counter \c __count, so up to 65536
+  94:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     iterations are possible.  (The value 65536 would have to be
+  95:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     passed as 0.)  The loop executes four CPU cycles per iteration,
+  96:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     not including the overhead the compiler requires to setup the
+  97:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     counter register pair.
+  98:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  99:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Thus, at a CPU speed of 1 MHz, delays of up to about 262.1
+ 100:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     milliseconds can be achieved.
+ 101:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****  */
+ 102:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** void
+ 103:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** _delay_loop_2(uint16_t __count)
+ 104:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** {
+ 105:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 	__asm__ volatile (
+ 291               	.LM30:
+ 292 00d8 80EA      		ldi r24,lo8(4000)
+ 293 00da 9FE0      		ldi r25,hi8(4000)
+ 294               	/* #APP */
+ 295 00dc 0197      		1: sbiw r24,1
+ 296 00de 01F4      		brne 1b
+ 297               	/* #NOAPP */
+ 298 00e0 2F5F      		subi r18,lo8(-(1))
+ 299               	.L14:
+ 300               	.LBE15:
+ 301               	.LBE14:
+ 302               	.LBE13:
+ 303               	.LBE12:
+ 305               	.Ltext2:
+ 196:sumoTry.c     **** 	// creating delay for some time	
+ 197:sumoTry.c     **** 	for(temp1=0;temp1 < DELAY_FOR_NINTY_DEGREE;temp1++ )
+ 307               	.LM31:
+ 308 00e2 2833      		cpi r18,lo8(56)
+ 309 00e4 00F0      		brlo .L15
+ 310 00e6 2093 0000 		sts temp1,r18
+ 198:sumoTry.c     **** 				_delay_ms(DELAY_PRECISION);
+ 199:sumoTry.c     **** 	
+ 200:sumoTry.c     **** 	// switch off the motors
+ 201:sumoTry.c     **** 	RIGHT_MOTOR_PWM = LEFT_MOTOR_PWM = MOTOR_OUTPUT =0;
+ 312               	.LM32:
+ 313 00ea 12BA      		out 50-0x20,__zero_reg__
+ 314 00ec 19BC      		out (72)+1-0x20,__zero_reg__
+ 315 00ee 18BC      		out 72-0x20,__zero_reg__
+ 316 00f0 88B5      		in r24,72-0x20
+ 317 00f2 99B5      		in r25,(72)+1-0x20
+ 318 00f4 9BBD      		out (74)+1-0x20,r25
+ 319 00f6 8ABD      		out 74-0x20,r24
+ 320               	/* epilogue: frame size=0 */
+ 321 00f8 0895      		ret
+ 322               	/* epilogue end (size=1) */
+ 323               	/* function RotateRobotAtCornor size 37 (36) */
+ 328               	.Lscope4:
+ 331               	.global	getADCValue
+ 333               	getADCValue:
+ 202:sumoTry.c     ****     
+ 203:sumoTry.c     **** 			
+ 204:sumoTry.c     **** }
+ 205:sumoTry.c     **** 
+ 206:sumoTry.c     **** uint8_t getSensorValues()
+ 207:sumoTry.c     **** {
+ 208:sumoTry.c     **** 	ADCSRA|= (1<<ADEN); //enable adc
+ 209:sumoTry.c     **** 	temp1=0;
+ 210:sumoTry.c     **** 	//Line sensors
+ 211:sumoTry.c     **** 		for(temp2=0;temp2<2;temp2++)
+ 212:sumoTry.c     **** 			if(getADCValue(temp2) > LINE_SENSOR_THRESHHOLD_ADC )
+ 213:sumoTry.c     **** 				temp1|=1<<temp2;
+ 214:sumoTry.c     **** 		
+ 215:sumoTry.c     **** 	//OBST sensors
+ 216:sumoTry.c     **** 		for(temp2=2;temp2<4;temp2++)
+ 217:sumoTry.c     **** 			if(getADCValue(temp2) > OBS_SENSOR_THRESHHOLD_ADC )
+ 218:sumoTry.c     **** 				temp1|=1<<temp2;
+ 219:sumoTry.c     **** 	
+ 220:sumoTry.c     **** 		ADCSRA=(0<<ADEN);// added by me to switc off the adc , so as it doesnt consume power
+ 221:sumoTry.c     **** 		return temp1;
+ 222:sumoTry.c     **** 
+ 223:sumoTry.c     **** }
+ 224:sumoTry.c     **** 
+ 225:sumoTry.c     **** inline uint8_t getADCValue(uint8_t selectADC)
+ 226:sumoTry.c     **** {
+ 335               	.LM33:
+ 336               	.LFBB5:
+ 337               	/* prologue: frame size=0 */
+ 338               	/* prologue end (size=0) */
+ 227:sumoTry.c     **** 	
+ 228:sumoTry.c     **** 	ADMUX&=0xF0;
+ 340               	.LM34:
+ 341 00fa 97B1      		in r25,39-0x20
+ 342 00fc 907F      		andi r25,lo8(-16)
+ 343 00fe 97B9      		out 39-0x20,r25
+ 229:sumoTry.c     **** 	ADMUX|=selectADC;  // MUX values needed to be changed to use ADC0
+ 345               	.LM35:
+ 346 0100 97B1      		in r25,39-0x20
+ 347 0102 982B      		or r25,r24
+ 348 0104 97B9      		out 39-0x20,r25
+ 230:sumoTry.c     **** 
+ 231:sumoTry.c     **** 	ADCSRA|= (1<<ADSC);    //start conversion
+ 350               	.LM36:
+ 351 0106 369A      		sbi 38-0x20,6
+ 352               	.L20:
+ 232:sumoTry.c     **** 	while(!(ADCSRA & 0x10))
+ 354               	.LM37:
+ 355 0108 349B      		sbis 38-0x20,4
+ 356 010a 00C0      		rjmp .L20
+ 233:sumoTry.c     **** 		{
+ 234:sumoTry.c     **** 		;//wait to finish convertion ADIF is set.will come out of loop 
+ 235:sumoTry.c     **** 		}			
+ 236:sumoTry.c     **** 	return ADCH;
+ 358               	.LM38:
+ 359 010c 85B1      		in r24,37-0x20
+ 237:sumoTry.c     **** }...
+ 361               	.LM39:
+ 362 010e 9927      		clr r25
+ 363               	/* epilogue: frame size=0 */
+ 364 0110 0895      		ret
+ 365               	/* epilogue end (size=1) */
+ 366               	/* function getADCValue size 12 (11) */
+ 368               	.Lscope5:
+ 370               	.global	getSensorValues
+ 372               	getSensorValues:
+ 374               	.LM40:
+ 375               	.LFBB6:
+ 376               	/* prologue: frame size=0 */
+ 377               	/* prologue end (size=0) */
+ 379               	.LM41:
+ 380 0112 379A      		sbi 38-0x20,7
+ 382               	.LM42:
+ 383 0114 1092 0000 		sts temp1,__zero_reg__
+ 385               	.LM43:
+ 386 0118 1092 0000 		sts temp2,__zero_reg__
+ 387 011c 00C0      		rjmp .L26
+ 388               	.L27:
+ 390               	.LM44:
+ 391 011e 00D0      		rcall getADCValue
+ 392 0120 8D33      		cpi r24,lo8(61)
+ 393 0122 00F0      		brlo .L28
+ 395               	.LM45:
+ 396 0124 81E0      		ldi r24,lo8(1)
+ 397 0126 90E0      		ldi r25,hi8(1)
+ 398 0128 0090 0000 		lds r0,temp2
+ 399 012c 00C0      		rjmp 2f
+ 400 012e 880F      	1:	lsl r24
+ 401 0130 991F      		rol r25
+ 402 0132 0A94      	2:	dec r0
+ 403 0134 02F4      		brpl 1b
+ 404 0136 2091 0000 		lds r18,temp1
+ 405 013a 282B      		or r18,r24
+ 406 013c 2093 0000 		sts temp1,r18
+ 407               	.L28:
+ 409               	.LM46:
+ 410 0140 8091 0000 		lds r24,temp2
+ 411 0144 8F5F      		subi r24,lo8(-(1))
+ 412 0146 8093 0000 		sts temp2,r24
+ 413               	.L26:
+ 414 014a 8091 0000 		lds r24,temp2
+ 415 014e 8230      		cpi r24,lo8(2)
+ 416 0150 00F0      		brlo .L27
+ 418               	.LM47:
+ 419 0152 82E0      		ldi r24,lo8(2)
+ 420 0154 00C0      		rjmp .L37
+ 421               	.L32:
+ 423               	.LM48:
+ 424 0156 00D0      		rcall getADCValue
+ 425 0158 8135      		cpi r24,lo8(81)
+ 426 015a 00F0      		brlo .L33
+ 428               	.LM49:
+ 429 015c 81E0      		ldi r24,lo8(1)
+ 430 015e 90E0      		ldi r25,hi8(1)
+ 431 0160 0090 0000 		lds r0,temp2
+ 432 0164 00C0      		rjmp 2f
+ 433 0166 880F      	1:	lsl r24
+ 434 0168 991F      		rol r25
+ 435 016a 0A94      	2:	dec r0
+ 436 016c 02F4      		brpl 1b
+ 437 016e 2091 0000 		lds r18,temp1
+ 438 0172 282B      		or r18,r24
+ 439 0174 2093 0000 		sts temp1,r18
+ 440               	.L33:
+ 442               	.LM50:
+ 443 0178 8091 0000 		lds r24,temp2
+ 444 017c 8F5F      		subi r24,lo8(-(1))
+ 445               	.L37:
+ 446 017e 8093 0000 		sts temp2,r24
+ 447 0182 8091 0000 		lds r24,temp2
+ 448 0186 8430      		cpi r24,lo8(4)
+ 449 0188 00F0      		brlo .L32
+ 451               	.LM51:
+ 452 018a 16B8      		out 38-0x20,__zero_reg__
+ 453 018c 8091 0000 		lds r24,temp1
+ 455               	.LM52:
+ 456 0190 9927      		clr r25
+ 457               	/* epilogue: frame size=0 */
+ 458 0192 0895      		ret
+ 459               	/* epilogue end (size=1) */
+ 460               	/* function getSensorValues size 65 (64) */
+ 462               	.Lscope6:
+ 464               	.global	main
+ 466               	main:
+ 468               	.LM53:
+ 469               	.LFBB7:
+ 470               	/* prologue: frame size=0 */
+ 471 0194 C0E0      		ldi r28,lo8(__stack - 0)
+ 472 0196 D0E0      		ldi r29,hi8(__stack - 0)
+ 473 0198 DEBF      		out __SP_H__,r29
+ 474 019a CDBF      		out __SP_L__,r28
+ 475               	/* prologue end (size=4) */
+ 477               	.LM54:
+ 478 019c 00D0      		rcall initVariables
+ 479               	.L58:
+ 481               	.LM55:
+ 482 019e 00D0      		rcall getSensorValues
+ 484               	.LM56:
+ 485 01a0 8095      		com r24
+ 486 01a2 8093 0000 		sts sensorInput,r24
+ 488               	.LM57:
+ 489 01a6 8F70      		andi r24,lo8(15)
+ 490 01a8 8093 0000 		sts temp,r24
+ 492               	.LM58:
+ 493 01ac 9927      		clr r25
+ 494 01ae AA27      		clr r26
+ 495 01b0 BB27      		clr r27
+ 496 01b2 FC01      		movw r30,r24
+ 497 01b4 3197      		sbiw r30,1
+ 498 01b6 EE30      		cpi r30,14
+ 499 01b8 F105      		cpc r31,__zero_reg__
+ 500 01ba 00F4      		brsh .L40
+ 501 01bc E050      		subi r30,lo8(-(pm(.L47)))
+ 502 01be F040      		sbci r31,hi8(-(pm(.L47)))
+ 503 01c0 0994      		ijmp
+ 504               		.data
+ 505               		.section .progmem.gcc_sw_table, "ax", @progbits
+ 506               		.p2align 1
+ 507               	.L47:
+ 508               		.data
+ 509               		.section .progmem.gcc_sw_table, "ax", @progbits
+ 510               		.p2align 1
+ 511 0000 00C0      		rjmp .L45
+ 512 0002 00C0      		rjmp .L42
+ 513 0004 00C0      		rjmp .L40
+ 514 0006 00C0      		rjmp .L42
+ 515 0008 00C0      		rjmp .L45
+ 516 000a 00C0      		rjmp .L44
+ 517 000c 00C0      		rjmp .L40
+ 518 000e 00C0      		rjmp .L45
+ 519 0010 00C0      		rjmp .L46
+ 520 0012 00C0      		rjmp .L42
+ 521 0014 00C0      		rjmp .L40
+ 522 0016 00C0      		rjmp .L40
+ 523 0018 00C0      		rjmp .L45
+ 524 001a 00C0      		rjmp .L42
+ 525               		.text
+ 526               	.L42:
+ 528               	.LM59:
+ 529 01c2 1092 0000 		sts makeRandomPWMflag,__zero_reg__
+ 531               	.LM60:
+ 532 01c6 8AE0      		ldi r24,lo8(10)
+ 533               	.L56:
+ 534 01c8 82BB      		out 50-0x20,r24
+ 535 01ca 00C0      		rjmp .L48
+ 536               	.L45:
+ 538               	.LM61:
+ 539 01cc 1092 0000 		sts makeRandomPWMflag,__zero_reg__
+ 541               	.LM62:
+ 542 01d0 85E0      		ldi r24,lo8(5)
+ 543 01d2 00C0      		rjmp .L56
+ 544               	.L46:
+ 546               	.LM63:
+ 547 01d4 00D0      		rcall RotateRobotAtCornor
+ 549               	.LM64:
+ 550 01d6 8AE0      		ldi r24,lo8(10)
+ 551 01d8 00C0      		rjmp .L57
+ 552               	.L44:
+ 554               	.LM65:
+ 555 01da 00D0      		rcall RotateRobotAtCornor
+ 557               	.LM66:
+ 558 01dc 85E0      		ldi r24,lo8(5)
+ 559               	.L57:
+ 560 01de 82BB      		out 50-0x20,r24
+ 562               	.LM67:
+ 563 01e0 1092 0000 		sts makeRandomPWMflag,__zero_reg__
+ 564 01e4 00C0      		rjmp .L48
+ 565               	.L40:
+ 567               	.LM68:
+ 568 01e6 8091 0000 		lds r24,makeRandomPWMflag
+ 569 01ea 8823      		tst r24
+ 570 01ec 01F4      		brne .L49
+ 572               	.LM69:
+ 573 01ee C09A      		sbi 56-0x20,0
+ 575               	.LM70:
+ 576 01f0 00D0      		rcall MakePWMrandom
+ 577               	.L49:
+ 579               	.LM71:
+ 580 01f2 81E0      		ldi r24,lo8(1)
+ 581 01f4 8093 0000 		sts makeRandomPWMflag,r24
+ 582               	.L48:
+ 584               	.LM72:
+ 585 01f8 8091 0000 		lds r24,makeRandomPWMflag
+ 586 01fc 8823      		tst r24
+ 587 01fe 01F4      		brne .L58
+ 589               	.LM73:
+ 590 0200 C098      		cbi 56-0x20,0
+ 592               	.LM74:
+ 593 0202 8091 0000 		lds r24,g_TOP_PWM
+ 594 0206 9927      		clr r25
+ 595 0208 9BBD      		out (74)+1-0x20,r25
+ 596 020a 8ABD      		out 74-0x20,r24
+ 598               	.LM75:
+ 599 020c 99BD      		out (72)+1-0x20,r25
+ 600 020e 88BD      		out 72-0x20,r24
+ 601 0210 00C0      		rjmp .L58
+ 602               	/* epilogue: frame size=0 */
+ 603               	/* epilogue: noreturn */
+ 604               	/* epilogue end (size=0) */
+ 605               	/* function main size 77 (73) */
+ 607               	.Lscope7:
+ 608               	.global	makeRandomPWMflag
+ 609               	.global	makeRandomPWMflag
+ 610               		.section .bss
+ 613               	makeRandomPWMflag:
+ 614 0000 00        		.skip 1,0
+ 615               	.global	g_TOP_PWM
+ 616               		.data
+ 619               	g_TOP_PWM:
+ 620 0000 A0        		.byte	-96
+ 621               		.comm temp1,1,1
+ 622               		.comm temp2,1,1
+ 623               		.comm sensorInput,1,1
+ 624               		.comm temp,1,1
+ 631               		.text
+ 633               	.Letext0:
+ 634               	/* File "sumoTry.c": code  281 = 0x0119 ( 272), prologues   4, epilogues   5 */
+DEFINED SYMBOLS
+                            *ABS*:00000000 sumoTry.c
+     /tmp/cclLEB2j.s:2      *ABS*:0000003f __SREG__
+     /tmp/cclLEB2j.s:3      *ABS*:0000003e __SP_H__
+     /tmp/cclLEB2j.s:4      *ABS*:0000003d __SP_L__
+     /tmp/cclLEB2j.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/cclLEB2j.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/cclLEB2j.s:65     .text:00000000 initVariables
+     /tmp/cclLEB2j.s:126    .text:0000002a RandomNumGenerator
+     /tmp/cclLEB2j.s:166    .text:0000004c MakePWMrandom
+     /tmp/cclLEB2j.s:619    .data:00000000 g_TOP_PWM
+     /tmp/cclLEB2j.s:248    .text:000000b4 RotateRobotAtCornor
+                            *COM*:00000001 temp1
+     /tmp/cclLEB2j.s:333    .text:000000fa getADCValue
+     /tmp/cclLEB2j.s:372    .text:00000112 getSensorValues
+                            *COM*:00000001 temp2
+     /tmp/cclLEB2j.s:466    .text:00000194 main
+                            *COM*:00000001 sensorInput
+                            *COM*:00000001 temp
+     /tmp/cclLEB2j.s:613    .bss:00000000 makeRandomPWMflag
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+__divmodhi4
+__stack

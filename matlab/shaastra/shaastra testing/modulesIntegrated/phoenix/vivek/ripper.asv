@@ -1,0 +1,35 @@
+function [input2]=ripper(input,th,l)
+if l==0
+if(th>.08)
+    a=th-.05;
+else
+    a=th;
+end
+
+if(th<.94)
+    b=th+.05;
+else
+    b=th;
+end    
+
+input1=im2bw(input,a);
+input1 = bwmorph(bwmorph(bwmorph(input1,'spur'),'clean'),'fill');
+%imshow(input1);
+
+input=im2bw(input,b);
+input = bwmorph(bwmorph(bwmorph(input,'spur'),'clean'),'fill');
+% figure;
+% imshow(input);
+
+[I,J]=find(and(input1,input)==1);
+input1(I,J)=0;
+input2=input1;
+% figure;
+% imshow(input1);
+
+else
+    input3=ripper(input,l,0);
+    input2
+end
+
+end

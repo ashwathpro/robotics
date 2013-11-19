@@ -1,0 +1,63 @@
+function ret=botSlope()
+
+% RGB=getsnapshot(obj);
+% RGB=imcrop(RGB);
+
+%% 
+
+RGB=imread('botSample.jpg');
+RGB=imresize(RGB,[480 640]);
+
+%% THIS IS THE PLACE WHERE THE PICTURE SHOULD BE MADE TO HAVE ONLY TWO WHITE CIRCLES.
+
+I = rgb2gray(RGB); 
+threshold = graythresh(I); 
+bw = im2bw(I,threshold); 
+% remove all object containing fewer than 30 pixels
+bw = bwareaopen(bw,80);
+
+% fill a gap in the pen's cap
+se = strel('disk',3);
+bw = imclose(bw,se);
+
+% figure, imshow(bw);
+[B,L] = bwboundaries(bw,'noholes'); 
+
+% Display the label matrix and draw each boundary 
+imshow(label2rgb(L, @jet, [.5 .5 .5])) 
+hold on 
+for k = 1:length(B) 
+    boundary = B{k}; 
+%     plot(boundary(:,2), boundary(:,1), 'w', 'LineWidth', 2) 
+end
+
+
+%%
+ 
+
+stats = regionprops(L,'Area','Centroid'); threshold = 0.80; 
+% loop over the boundaries 
+for k = 1:2 
+    % obtain (X,Y) boundary coordinates corresponding to label 'k' 
+    boundary = B{k}; 
+    % compute a simple estimate of the object's perimeter 
+    delta_sq = diff(boundary).^2; 
+    perimeter = sum(sqrt(sum(delta_sq,2))); 
+    % obtain the area calculation corresponding to label 'k' 
+    area1 = stats(k).Area; 
+    
+   metric = 4*pi*area1/perimeter^2; % display the results 
+    if (metric > threshold)
+        centroid = stats(k).Centroid;
+        temp(k,1)=centroid(1);
+        temp(k,2)=centroid(2);
+        temp(k,3)=area1;
+    end
+end
+
+temp=sortrows(temp,3);
+c1=[temp(1,1) temp(1,2)];
+c2=[temp(2,1) temp(2,2)];
+[dy,dx]=findSlope(c1,c2);
+ret=deg(-dy,dx);
+return   

@@ -1,0 +1,305 @@
+
+SumoTesting.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000130  00000000  00000000  00000054  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .stab         00000378  00000000  00000000  00000184  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  2 .stabstr      00000054  00000000  00000000  000004fc  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  3 .debug_aranges 00000020  00000000  00000000  00000550  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_pubnames 0000005a  00000000  00000000  00000570  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   0000012f  00000000  00000000  000005ca  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 000000d4  00000000  00000000  000006f9  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   000001b7  00000000  00000000  000007cd  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000060  00000000  00000000  00000984  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    000000e3  00000000  00000000  000009e4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    00000013  00000000  00000000  00000ac7  2**0
+                  CONTENTS, READONLY, DEBUGGING
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	12 c0       	rjmp	.+36     	; 0x26 <__ctors_end>
+   2:	2c c0       	rjmp	.+88     	; 0x5c <__bad_interrupt>
+   4:	2b c0       	rjmp	.+86     	; 0x5c <__bad_interrupt>
+   6:	2a c0       	rjmp	.+84     	; 0x5c <__bad_interrupt>
+   8:	29 c0       	rjmp	.+82     	; 0x5c <__bad_interrupt>
+   a:	28 c0       	rjmp	.+80     	; 0x5c <__bad_interrupt>
+   c:	27 c0       	rjmp	.+78     	; 0x5c <__bad_interrupt>
+   e:	26 c0       	rjmp	.+76     	; 0x5c <__bad_interrupt>
+  10:	25 c0       	rjmp	.+74     	; 0x5c <__bad_interrupt>
+  12:	24 c0       	rjmp	.+72     	; 0x5c <__bad_interrupt>
+  14:	23 c0       	rjmp	.+70     	; 0x5c <__bad_interrupt>
+  16:	22 c0       	rjmp	.+68     	; 0x5c <__bad_interrupt>
+  18:	21 c0       	rjmp	.+66     	; 0x5c <__bad_interrupt>
+  1a:	20 c0       	rjmp	.+64     	; 0x5c <__bad_interrupt>
+  1c:	1f c0       	rjmp	.+62     	; 0x5c <__bad_interrupt>
+  1e:	1e c0       	rjmp	.+60     	; 0x5c <__bad_interrupt>
+  20:	1d c0       	rjmp	.+58     	; 0x5c <__bad_interrupt>
+  22:	1c c0       	rjmp	.+56     	; 0x5c <__bad_interrupt>
+  24:	1b c0       	rjmp	.+54     	; 0x5c <__bad_interrupt>
+
+00000026 <__ctors_end>:
+  26:	11 24       	eor	r1, r1
+  28:	1f be       	out	0x3f, r1	; 63
+  2a:	cf e5       	ldi	r28, 0x5F	; 95
+  2c:	d4 e0       	ldi	r29, 0x04	; 4
+  2e:	de bf       	out	0x3e, r29	; 62
+  30:	cd bf       	out	0x3d, r28	; 61
+
+00000032 <__do_copy_data>:
+  32:	10 e0       	ldi	r17, 0x00	; 0
+  34:	a0 e6       	ldi	r26, 0x60	; 96
+  36:	b0 e0       	ldi	r27, 0x00	; 0
+  38:	e0 e3       	ldi	r30, 0x30	; 48
+  3a:	f1 e0       	ldi	r31, 0x01	; 1
+  3c:	02 c0       	rjmp	.+4      	; 0x42 <.do_copy_data_start>
+
+0000003e <.do_copy_data_loop>:
+  3e:	05 90       	lpm	r0, Z+
+  40:	0d 92       	st	X+, r0
+
+00000042 <.do_copy_data_start>:
+  42:	a0 36       	cpi	r26, 0x60	; 96
+  44:	b1 07       	cpc	r27, r17
+  46:	d9 f7       	brne	.-10     	; 0x3e <__SP_H__>
+
+00000048 <__do_clear_bss>:
+  48:	10 e0       	ldi	r17, 0x00	; 0
+  4a:	a0 e6       	ldi	r26, 0x60	; 96
+  4c:	b0 e0       	ldi	r27, 0x00	; 0
+  4e:	01 c0       	rjmp	.+2      	; 0x52 <.do_clear_bss_start>
+
+00000050 <.do_clear_bss_loop>:
+  50:	1d 92       	st	X+, r1
+
+00000052 <.do_clear_bss_start>:
+  52:	a0 36       	cpi	r26, 0x60	; 96
+  54:	b1 07       	cpc	r27, r17
+  56:	e1 f7       	brne	.-8      	; 0x50 <.do_clear_bss_loop>
+  58:	21 d0       	rcall	.+66     	; 0x9c <main>
+  5a:	69 c0       	rjmp	.+210    	; 0x12e <_exit>
+
+0000005c <__bad_interrupt>:
+  5c:	d1 cf       	rjmp	.-94     	; 0x0 <__heap_end>
+
+0000005e <initi_IO>:
+//################################################
+
+
+void initi_IO()	
+
+	{
+  5e:	8f e0       	ldi	r24, 0x0F	; 15
+  60:	81 bb       	out	0x11, r24	; 17
+		DDRD=0x0F;  //configure output pins of motors
+		DDRC=0x00;  //configure input pins for sensors
+  62:	14 ba       	out	0x14, r1	; 20
+		DDRB=0x07;  //configure ouptput pin for LED , PWM and input pin for switch
+  64:	87 e0       	ldi	r24, 0x07	; 7
+  66:	87 bb       	out	0x17, r24	; 23
+		PORTB|=0x20; // activate internal pull up for switch 
+  68:	c5 9a       	sbi	0x18, 5	; 24
+  6a:	08 95       	ret
+
+0000006c <initi_ADC>:
+	}
+	
+void initi_ADC()
+	{
+  6c:	86 b1       	in	r24, 0x06	; 6
+  6e:	83 60       	ori	r24, 0x03	; 3
+  70:	86 b9       	out	0x06, r24	; 6
+		ADCSRA |= (0 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Set ADC prescalar to 8 //125KHz sample rate @ 1MHz 
+		ADMUX |= (1 << REFS0);   // Set ADC reference to AVCC 
+  72:	3e 9a       	sbi	0x07, 6	; 7
+		ADMUX |= (1 << ADLAR);   // Left adjust ADC result to allow easy 8 bit reading
+  74:	3d 9a       	sbi	0x07, 5	; 7
+		ADCSRA|= (1<<ADEN);      //enable adc
+  76:	37 9a       	sbi	0x06, 7	; 6
+  78:	08 95       	ret
+
+0000007a <initi_PWM>:
+	}
+	
+void initi_PWM()	
+	{
+  7a:	81 ea       	ldi	r24, 0xA1	; 161
+  7c:	8f bd       	out	0x2f, r24	; 47
+		TCCR1A=0xA1; //setting for PWM
+		TCCR1B=0x05; // seting for prescaler and start
+  7e:	85 e0       	ldi	r24, 0x05	; 5
+  80:	8e bd       	out	0x2e, r24	; 46
+  82:	08 95       	ret
+
+00000084 <getDigitalValueOf>:
+	}
+	
+uint8_t getDigitalValueOf(uint8_t channel)
+	{
+  84:	97 b1       	in	r25, 0x07	; 7
+  86:	90 7f       	andi	r25, 0xF0	; 240
+  88:	97 b9       	out	0x07, r25	; 7
+		ADMUX&=0xF0;
+		ADMUX|=channel;  // MUX values needed to be changed to use ADC0
+  8a:	97 b1       	in	r25, 0x07	; 7
+  8c:	98 2b       	or	r25, r24
+  8e:	97 b9       	out	0x07, r25	; 7
+		ADCSRA|= (1<<ADSC);    //start conversion
+  90:	36 9a       	sbi	0x06, 6	; 6
+		
+		while(!(ADCSRA & 0x10))
+  92:	34 9b       	sbis	0x06, 4	; 6
+  94:	fe cf       	rjmp	.-4      	; 0x92 <getDigitalValueOf+0xe>
+		{
+		;//wait to finish convertion ADIF is set.will come out of loop 
+		}	
+		return ADCH; //return digital value 
+  96:	85 b1       	in	r24, 0x05	; 5
+	} 
+  98:	99 27       	eor	r25, r25
+  9a:	08 95       	ret
+
+0000009c <main>:
+//################################################
+
+
+int main()
+
+{
+  9c:	cf e5       	ldi	r28, 0x5F	; 95
+  9e:	d4 e0       	ldi	r29, 0x04	; 4
+  a0:	de bf       	out	0x3e, r29	; 62
+  a2:	cd bf       	out	0x3d, r28	; 61
+
+	initi_IO(); // configure the IO pins
+  a4:	dc df       	rcall	.-72     	; 0x5e <initi_IO>
+	initi_ADC(); // configure the ADC
+  a6:	e2 df       	rcall	.-60     	; 0x6c <initi_ADC>
+		ADCSRA|= (1<<ADEN);      //enable adc
+	}
+	
+void initi_PWM()	
+	{
+		TCCR1A=0xA1; //setting for PWM
+  a8:	81 ea       	ldi	r24, 0xA1	; 161
+  aa:	8f bd       	out	0x2f, r24	; 47
+		TCCR1B=0x05; // seting for prescaler and start
+  ac:	85 e0       	ldi	r24, 0x05	; 5
+  ae:	8e bd       	out	0x2e, r24	; 46
+	while(1)
+	{
+		
+		// LED control
+		
+		if(PINB&0x20)
+  b0:	b5 9b       	sbis	0x16, 5	; 22
+  b2:	02 c0       	rjmp	.+4      	; 0xb8 <main+0x1c>
+			LED_OFF;
+  b4:	c0 9a       	sbi	0x18, 0	; 24
+  b6:	01 c0       	rjmp	.+2      	; 0xba <main+0x1e>
+		else
+			LED_ON;
+  b8:	c0 98       	cbi	0x18, 0	; 24
+
+		//motor control
+		maxSpeed = getDigitalValueOf(POT);  //SET the Speed of motors
+  ba:	85 e0       	ldi	r24, 0x05	; 5
+  bc:	e3 df       	rcall	.-58     	; 0x84 <getDigitalValueOf>
+  be:	18 2f       	mov	r17, r24
+
+		digitalVlaue = getDigitalValueOf(I0);	//get input form sensor1	
+  c0:	80 e0       	ldi	r24, 0x00	; 0
+  c2:	e0 df       	rcall	.-64     	; 0x84 <getDigitalValueOf>
+  c4:	08 2f       	mov	r16, r24
+		sensorInput = (digitalVlaue > threshold)?(1<<I0):0;
+		
+		digitalVlaue = getDigitalValueOf(I1);	//get input form sensor2	
+  c6:	81 e0       	ldi	r24, 0x01	; 1
+  c8:	dd df       	rcall	.-70     	; 0x84 <getDigitalValueOf>
+		sensorInput|=(digitalVlaue > threshold)?(1<<I1):0;
+  ca:	87 39       	cpi	r24, 0x97	; 151
+  cc:	10 f0       	brcs	.+4      	; 0xd2 <main+0x36>
+  ce:	92 e0       	ldi	r25, 0x02	; 2
+  d0:	01 c0       	rjmp	.+2      	; 0xd4 <main+0x38>
+  d2:	90 e0       	ldi	r25, 0x00	; 0
+  d4:	80 e0       	ldi	r24, 0x00	; 0
+  d6:	07 39       	cpi	r16, 0x97	; 151
+  d8:	08 f0       	brcs	.+2      	; 0xdc <main+0x40>
+  da:	81 e0       	ldi	r24, 0x01	; 1
+  dc:	89 2b       	or	r24, r25
+		
+		
+		
+		switch (sensorInput)
+  de:	81 30       	cpi	r24, 0x01	; 1
+  e0:	69 f0       	breq	.+26     	; 0xfc <main+0x60>
+  e2:	81 30       	cpi	r24, 0x01	; 1
+  e4:	28 f0       	brcs	.+10     	; 0xf0 <main+0x54>
+  e6:	82 30       	cpi	r24, 0x02	; 2
+  e8:	89 f0       	breq	.+34     	; 0x10c <main+0x70>
+  ea:	83 30       	cpi	r24, 0x03	; 3
+  ec:	09 f7       	brne	.-62     	; 0xb0 <main+0x14>
+  ee:	16 c0       	rjmp	.+44     	; 0x11c <main+0x80>
+		{
+			case 0b00:
+				{
+					RIGHT_MOTOR_SPEED=0;	LEFT_MOTOR_SPEED=0;		MOTOR_OUTPUT=STOP;
+  f0:	1b bc       	out	0x2b, r1	; 43
+  f2:	1a bc       	out	0x2a, r1	; 42
+  f4:	19 bc       	out	0x29, r1	; 41
+  f6:	18 bc       	out	0x28, r1	; 40
+  f8:	12 ba       	out	0x12, r1	; 18
+  fa:	da cf       	rjmp	.-76     	; 0xb0 <main+0x14>
+					continue;
+				}
+			case 0b01:
+				{
+					RIGHT_MOTOR_SPEED=maxSpeed;		LEFT_MOTOR_SPEED=0;		MOTOR_OUTPUT=LEFT_TURN;
+  fc:	81 2f       	mov	r24, r17
+  fe:	99 27       	eor	r25, r25
+ 100:	9b bd       	out	0x2b, r25	; 43
+ 102:	8a bd       	out	0x2a, r24	; 42
+ 104:	19 bc       	out	0x29, r1	; 41
+ 106:	18 bc       	out	0x28, r1	; 40
+ 108:	82 e0       	ldi	r24, 0x02	; 2
+ 10a:	0f c0       	rjmp	.+30     	; 0x12a <main+0x8e>
+					continue;
+				}			
+			case 0b10:
+				{
+					RIGHT_MOTOR_SPEED=0;	LEFT_MOTOR_SPEED=maxSpeed;		MOTOR_OUTPUT=RIGHT_TURN;
+ 10c:	1b bc       	out	0x2b, r1	; 43
+ 10e:	1a bc       	out	0x2a, r1	; 42
+ 110:	81 2f       	mov	r24, r17
+ 112:	99 27       	eor	r25, r25
+ 114:	99 bd       	out	0x29, r25	; 41
+ 116:	88 bd       	out	0x28, r24	; 40
+ 118:	88 e0       	ldi	r24, 0x08	; 8
+ 11a:	07 c0       	rjmp	.+14     	; 0x12a <main+0x8e>
+					continue;
+				}
+			case 0b11:
+				{
+					RIGHT_MOTOR_SPEED=maxSpeed;		LEFT_MOTOR_SPEED=maxSpeed;		MOTOR_OUTPUT=FORWARD;
+ 11c:	81 2f       	mov	r24, r17
+ 11e:	99 27       	eor	r25, r25
+ 120:	9b bd       	out	0x2b, r25	; 43
+ 122:	8a bd       	out	0x2a, r24	; 42
+ 124:	99 bd       	out	0x29, r25	; 41
+ 126:	88 bd       	out	0x28, r24	; 40
+ 128:	8a e0       	ldi	r24, 0x0A	; 10
+ 12a:	82 bb       	out	0x12, r24	; 18
+ 12c:	c1 cf       	rjmp	.-126    	; 0xb0 <main+0x14>
+
+0000012e <_exit>:
+ 12e:	ff cf       	rjmp	.-2      	; 0x12e <_exit>

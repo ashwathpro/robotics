@@ -1,0 +1,424 @@
+   1               		.file	"pragyan.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.global __do_copy_data
+   8               		.global __do_clear_bss
+  10               		.text
+  11               	.Ltext0:
+  68               	.global	calc
+  70               	calc:
+   1:pragyan.c     **** /*
+   2:pragyan.c     **** 	my assumption...
+   3:pragyan.c     **** 	PORTC		PC3	PC2	PC1	PC0
+   4:pragyan.c     **** 				BLS	FLS	BBS	FBS
+   5:pragyan.c     **** 	in da bot originally....
+   6:pragyan.c     **** 	PORTC		PC3	PC2	PC1	PC0
+   7:pragyan.c     **** 				BBS	FBS	BLS	FLS
+   8:pragyan.c     **** 	OCR1B	ENABLE FOR RIGHT
+   9:pragyan.c     **** 	OCR1A	ENABLE FOR LEFT
+  10:pragyan.c     **** 	+++*
+  11:pragyan.c     **** 
+  12:pragyan.c     **** 
+  13:pragyan.c     **** */
+  14:pragyan.c     **** 
+  15:pragyan.c     **** #include <avr/io.h> 	//header file to include input output port
+  16:pragyan.c     **** 
+  17:pragyan.c     **** #include <util/delay.h>
+  18:pragyan.c     **** #define LED_ON PORTB&=0xFE;
+  19:pragyan.c     **** #define LED_OFF PORTB|=0x01;
+  20:pragyan.c     **** #define SWITCH_PRESSED !(PINB & 0x20)	
+  21:pragyan.c     **** #define RIGHT_MOTOR OCR1A
+  22:pragyan.c     **** #define LEFT_MOTOR OCR1B
+  23:pragyan.c     **** #define rightdec 0
+  24:pragyan.c     **** uint8_t calc(uint8_t w)
+  25:pragyan.c     **** 	{
+  72               	.LM0:
+  73               	.LFBB1:
+  74               	/* prologue: frame size=0 */
+  75               	/* prologue end (size=0) */
+  26:pragyan.c     **** 		//put adc code here...
+  27:pragyan.c     **** 	ADMUX&=0xF0;
+  77               	.LM1:
+  78 0000 97B1      		in r25,39-0x20
+  79 0002 907F      		andi r25,lo8(-16)
+  80 0004 97B9      		out 39-0x20,r25
+  28:pragyan.c     **** 	ADMUX|=w;
+  82               	.LM2:
+  83 0006 97B1      		in r25,39-0x20
+  84 0008 982B      		or r25,r24
+  85 000a 97B9      		out 39-0x20,r25
+  29:pragyan.c     **** 	ADCSRA|=_BV(ADEN);
+  87               	.LM3:
+  88 000c 379A      		sbi 38-0x20,7
+  30:pragyan.c     **** 	ADCSRA|= (1<<ADSC);
+  90               	.LM4:
+  91 000e 369A      		sbi 38-0x20,6
+  92               	.L2:
+  31:pragyan.c     **** 	while(!(ADCSRA & 0x10));//ADIF is set.will come out of loop 
+  94               	.LM5:
+  95 0010 349B      		sbis 38-0x20,4
+  96 0012 00C0      		rjmp .L2
+  32:pragyan.c     **** 	ADCSRA=(0<<ADEN);// added by me to switc off the adc , so as it doesnt consume power
+  98               	.LM6:
+  99 0014 16B8      		out 38-0x20,__zero_reg__
+  33:pragyan.c     **** 	return ADCH;
+ 101               	.LM7:
+ 102 0016 85B1      		in r24,37-0x20
+  34:pragyan.c     **** 
+  35:pragyan.c     **** 
+  36:pragyan.c     **** 	//	return 0x0;		//change here
+  37:pragyan.c     **** 	}
+ 104               	.LM8:
+ 105 0018 9927      		clr r25
+ 106               	/* epilogue: frame size=0 */
+ 107 001a 0895      		ret
+ 108               	/* epilogue end (size=1) */
+ 109               	/* function calc size 14 (13) */
+ 111               	.Lscope1:
+ 113               	.global	main_initialize
+ 115               	main_initialize:
+  38:pragyan.c     **** 
+  39:pragyan.c     **** #define  M_OUTPUT PORTD
+  40:pragyan.c     **** 	
+  41:pragyan.c     **** uint8_t MASTER_PWM,lineSensors,botSensors;
+  42:pragyan.c     **** 
+  43:pragyan.c     **** 
+  44:pragyan.c     **** 
+  45:pragyan.c     **** void main_initialize()
+  46:pragyan.c     **** {
+ 117               	.LM9:
+ 118               	.LFBB2:
+ 119               	/* prologue: frame size=0 */
+ 120               	/* prologue end (size=0) */
+  47:pragyan.c     **** 		
+  48:pragyan.c     **** 		ADCSRA&=~(1<<ADIF);  		// to disable the adc interrupt flag....
+ 122               	.LM10:
+ 123 001c 3498      		cbi 38-0x20,4
+  49:pragyan.c     **** 		ADMUX |= (1 << REFS0); 		// set the voltage reference as AVcc 
+ 125               	.LM11:
+ 126 001e 3E9A      		sbi 39-0x20,6
+  50:pragyan.c     **** 		ADMUX|=_BV(ADLAR);			// left adjusted Result
+ 128               	.LM12:
+ 129 0020 3D9A      		sbi 39-0x20,5
+  51:pragyan.c     **** 		
+  52:pragyan.c     **** 		ADCSRA|=(_BV(ADPS0) | _BV(ADPS1) );  // set the ADC input frequency at 125 Khz(Prescaling of 8)
+ 131               	.LM13:
+ 132 0022 86B1      		in r24,38-0x20
+ 133 0024 8360      		ori r24,lo8(3)
+ 134 0026 86B9      		out 38-0x20,r24
+  53:pragyan.c     **** 	
+  54:pragyan.c     **** 		OCR1B=0xff;   	// output compare register  for right motor  
+ 136               	.LM14:
+ 137 0028 8FEF      		ldi r24,lo8(255)
+ 138 002a 90E0      		ldi r25,hi8(255)
+ 139 002c 99BD      		out (72)+1-0x20,r25
+ 140 002e 88BD      		out 72-0x20,r24
+  55:pragyan.c     **** 		OCR1A=0xff;		// output compare register  for left motor
+ 142               	.LM15:
+ 143 0030 9BBD      		out (74)+1-0x20,r25
+ 144 0032 8ABD      		out 74-0x20,r24
+  56:pragyan.c     **** 		
+  57:pragyan.c     **** 
+  58:pragyan.c     **** 
+  59:pragyan.c     **** 		/* TOP value is 00FFh for both OCR1A and OCR1B*/
+  60:pragyan.c     **** 
+  61:pragyan.c     **** 		TCCR1A=0xA1;	// define type of PWM	
+ 146               	.LM16:
+ 147 0034 81EA      		ldi r24,lo8(-95)
+ 148 0036 8FBD      		out 79-0x20,r24
+  62:pragyan.c     **** 
+  63:pragyan.c     **** 		/*Timer/Counter 1 Control  and pwm at pin OCR1A(PB1) */
+  64:pragyan.c     **** 
+  65:pragyan.c     **** 		TCCR1B=0x04; //for start pwm
+ 150               	.LM17:
+ 151 0038 84E0      		ldi r24,lo8(4)
+ 152 003a 8EBD      		out 78-0x20,r24
+ 153               	/* epilogue: frame size=0 */
+ 154 003c 0895      		ret
+ 155               	/* epilogue end (size=1) */
+ 156               	/* function main_initialize size 17 (16) */
+ 158               	.Lscope2:
+ 160               	.global	main
+ 162               	main:
+  66:pragyan.c     **** }
+  67:pragyan.c     **** 
+  68:pragyan.c     **** int main()
+  69:pragyan.c     **** {
+ 164               	.LM18:
+ 165               	.LFBB3:
+ 166               	/* prologue: frame size=0 */
+ 167 003e C0E0      		ldi r28,lo8(__stack - 0)
+ 168 0040 D0E0      		ldi r29,hi8(__stack - 0)
+ 169 0042 DEBF      		out __SP_H__,r29
+ 170 0044 CDBF      		out __SP_L__,r28
+ 171               	/* prologue end (size=4) */
+  70:pragyan.c     **** 			uint8_t SWAP=0,lastDir=0b0,botDir=0,forward=0b1010,count=0x0,sensorReference0,sensorReference1,s
+  71:pragyan.c     **** 			uint16_t cnt=0,temp;
+  72:pragyan.c     **** 			//uint8_t 
+  73:pragyan.c     **** 			DDRD=0b00001111; 
+ 173               	.LM19:
+ 174 0046 8FE0      		ldi r24,lo8(15)
+ 175 0048 81BB      		out 49-0x20,r24
+  74:pragyan.c     **** 			DDRB=0x0f;
+ 177               	.LM20:
+ 178 004a 87BB      		out 55-0x20,r24
+  75:pragyan.c     **** 			PORTB=0xf0;
+ 180               	.LM21:
+ 181 004c 80EF      		ldi r24,lo8(-16)
+ 182 004e 88BB      		out 56-0x20,r24
+  76:pragyan.c     **** 			DDRC=0x00;  
+ 184               	.LM22:
+ 185 0050 14BA      		out 52-0x20,__zero_reg__
+  77:pragyan.c     **** 
+  78:pragyan.c     **** 		main_initialize();
+ 187               	.LM23:
+ 188 0052 00D0      		rcall main_initialize
+ 189               	.LBB12:
+ 190               	.LBB13:
+ 191               	.LBB14:
+ 192               	.LBB15:
+ 194               	.Ltext1:
+   1:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    Copyright (c) 2007 Joerg Wunsch
+   3:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    All rights reserved.
+   4:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+   5:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    Redistribution and use in source and binary forms, with or without
+   6:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    modification, are permitted provided that the following conditions are met:
+   7:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+   8:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    * Redistributions of source code must retain the above copyright
+   9:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      notice, this list of conditions and the following disclaimer.
+  10:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  11:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    * Redistributions in binary form must reproduce the above copyright
+  12:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      notice, this list of conditions and the following disclaimer in
+  13:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      the documentation and/or other materials provided with the
+  14:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      distribution.
+  15:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  16:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****    * Neither the name of the copyright holders nor the names of
+  17:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      contributors may be used to endorse or promote products derived
+  18:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****      from this software without specific prior written permission.
+  19:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  20:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  21:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  22:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  23:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  24:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  25:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  26:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  27:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  28:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  29:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  30:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  31:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  32:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /* $Id: delay_basic.h,v 1.1.2.2 2007/05/13 21:26:06 joerg_wunsch Exp $ */
+  33:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  34:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #ifndef _UTIL_DELAY_BASIC_H_
+  35:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #define _UTIL_DELAY_BASIC_H_ 1
+  36:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  37:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #include <inttypes.h>
+  38:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  39:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /** \file */
+  40:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /** \defgroup util_delay_basic <util/delay_basic.h>: Basic busy-wait delay loops
+  41:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     \code
+  42:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     #include <util/delay_basic.h>
+  43:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     \endcode
+  44:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  45:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     The functions in this header file implement simple delay loops
+  46:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     that perform a busy-waiting.  They are typically used to
+  47:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     facilitate short delays in the program execution.  They are
+  48:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     implemented as count-down loops with a well-known CPU cycle
+  49:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     count per loop iteration.  As such, no other processing can
+  50:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     occur simultaneously.  It should be kept in mind that the
+  51:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     functions described here do not disable interrupts.
+  52:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  53:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     In general, for long delays, the use of hardware timers is
+  54:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     much preferrable, as they free the CPU, and allow for
+  55:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     concurrent processing of other events while the timer is
+  56:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     running.  However, in particular for very short delays, the
+  57:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     overhead of setting up a hardware timer is too much compared
+  58:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     to the overall delay time.
+  59:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  60:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Two inline functions are provided for the actual delay algorithms.
+  61:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  62:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** */
+  63:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  64:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #if !defined(__DOXYGEN__)
+  65:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** static inline void _delay_loop_1(uint8_t __count) __attribute__((always_inline));
+  66:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** static inline void _delay_loop_2(uint16_t __count) __attribute__((always_inline));
+  67:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** #endif
+  68:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  69:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /** \ingroup util_delay_basic
+  70:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  71:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Delay loop using an 8-bit counter \c __count, so up to 256
+  72:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     iterations are possible.  (The value 256 would have to be passed
+  73:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     as 0.)  The loop executes three CPU cycles per iteration, not
+  74:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     including the overhead the compiler needs to setup the counter
+  75:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     register.
+  76:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  77:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Thus, at a CPU speed of 1 MHz, delays of up to 768 microseconds
+  78:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     can be achieved.
+  79:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** */
+  80:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** void
+  81:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** _delay_loop_1(uint8_t __count)
+  82:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** {
+  83:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 	__asm__ volatile (
+  84:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 		"1: dec %0" "\n\t"
+  85:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 		"brne 1b"
+  86:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 		: "=r" (__count)
+  87:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 		: "0" (__count)
+  88:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 	);
+  89:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** }
+  90:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  91:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** /** \ingroup util_delay_basic
+  92:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  93:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Delay loop using a 16-bit counter \c __count, so up to 65536
+  94:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     iterations are possible.  (The value 65536 would have to be
+  95:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     passed as 0.)  The loop executes four CPU cycles per iteration,
+  96:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     not including the overhead the compiler requires to setup the
+  97:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     counter register pair.
+  98:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 
+  99:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     Thus, at a CPU speed of 1 MHz, delays of up to about 262.1
+ 100:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****     milliseconds can be achieved.
+ 101:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h ****  */
+ 102:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** void
+ 103:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** _delay_loop_2(uint16_t __count)
+ 104:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** {
+ 105:/usr/lib/gcc/avr/4.2.2/../../../../avr/include/util/delay_basic.h **** 	__asm__ volatile (
+ 196               	.LM24:
+ 197 0054 80E4      		ldi r24,lo8(-25536)
+ 198 0056 9CE9      		ldi r25,hi8(-25536)
+ 199 0058 FC01      		movw r30,r24
+ 200               	/* #APP */
+ 201 005a 3197      		1: sbiw r30,1
+ 202 005c 01F4      		brne 1b
+ 203               	/* #NOAPP */
+ 204 005e FC01      		movw r30,r24
+ 205               	/* #APP */
+ 206 0060 3197      		1: sbiw r30,1
+ 207 0062 01F4      		brne 1b
+ 208               	/* #NOAPP */
+ 209 0064 FC01      		movw r30,r24
+ 210               	/* #APP */
+ 211 0066 3197      		1: sbiw r30,1
+ 212 0068 01F4      		brne 1b
+ 213               	/* #NOAPP */
+ 214 006a FC01      		movw r30,r24
+ 215               	/* #APP */
+ 216 006c 3197      		1: sbiw r30,1
+ 217 006e 01F4      		brne 1b
+ 218 0070 0197      		1: sbiw r24,1
+ 219 0072 01F4      		brne 1b
+ 220               	/* #NOAPP */
+ 221               	.LBE15:
+ 222               	.LBE14:
+ 223               	.LBE13:
+ 224               	.LBE12:
+ 226               	.Ltext2:
+  79:pragyan.c     **** 		
+  80:pragyan.c     **** 		/*
+  81:pragyan.c     **** 		while(!(SWITCH_PRESSED))
+  82:pragyan.c     **** 		{
+  83:pragyan.c     **** 			//wait here
+  84:pragyan.c     **** 		}
+  85:pragyan.c     **** 		*/
+  86:pragyan.c     **** 				
+  87:pragyan.c     **** 			for(temp=0;temp<5;temp++)
+  88:pragyan.c     **** 				{
+  89:pragyan.c     **** 				_delay_ms(20);
+  90:pragyan.c     **** 				}
+  91:pragyan.c     **** 				PORTB=0x00;
+ 228               	.LM25:
+ 229 0074 18BA      		out 56-0x20,__zero_reg__
+  92:pragyan.c     **** 				//PORTD=0x1010;			
+  93:pragyan.c     **** 
+  94:pragyan.c     **** 		/* pwm at pin OCR1B(PB2) and clock freq. of timer(3 LSB 000 sys. clock) */ 
+  95:pragyan.c     **** 		/* maximum MASTER_PWM value can be 00FFh */
+  96:pragyan.c     **** 
+  97:pragyan.c     **** 		MASTER_PWM=75;
+ 231               	.LM26:
+ 232 0076 8BE4      		ldi r24,lo8(75)
+ 233 0078 8093 0000 		sts MASTER_PWM,r24
+ 234               	.L10:
+  98:pragyan.c     **** 		sensorReference0=128;
+  99:pragyan.c     **** 		sensorReference1=180;
+ 100:pragyan.c     **** 		sensorReference2=128;
+ 101:pragyan.c     **** 		sensorReference3=128;
+ 102:pragyan.c     **** 		sensorReference4=180;
+ 103:pragyan.c     **** 		
+ 104:pragyan.c     **** 		while(1)
+ 105:pragyan.c     **** 		{	
+ 106:pragyan.c     **** 			test:
+ 107:pragyan.c     **** 			Actual_input=0x0;
+ 108:pragyan.c     **** 			if(calc(0)>sensorReference0)		//check
+ 236               	.LM27:
+ 237 007c 80E0      		ldi r24,lo8(0)
+ 238 007e 00D0      		rcall calc
+ 109:pragyan.c     **** 				Actual_input|=(1<<PC0);
+ 110:pragyan.c     **** 			if(calc(1)>sensorReference1)
+ 240               	.LM28:
+ 241 0080 81E0      		ldi r24,lo8(1)
+ 242 0082 00D0      		rcall calc
+ 111:pragyan.c     **** 				Actual_input|=(1<<PC1);
+ 112:pragyan.c     **** 			if(calc(2)>sensorReference2)
+ 244               	.LM29:
+ 245 0084 82E0      		ldi r24,lo8(2)
+ 246 0086 00D0      		rcall calc
+ 113:pragyan.c     **** 				Actual_input|=(1<<PC2);
+ 114:pragyan.c     **** 			if(calc(3)>sensorReference3)
+ 248               	.LM30:
+ 249 0088 83E0      		ldi r24,lo8(3)
+ 250 008a 00D0      		rcall calc
+ 115:pragyan.c     **** 				Actual_input|=(1<<PC3);
+ 116:pragyan.c     **** 			if(calc(4)>sensorReference4)
+ 252               	.LM31:
+ 253 008c 84E0      		ldi r24,lo8(4)
+ 254 008e 00D0      		rcall calc
+ 117:pragyan.c     **** 				Actual_input|=(1<<PC4);
+ 118:pragyan.c     **** 			
+ 119:pragyan.c     **** 			Actual_input&=0b11111;  // make bits zero other than 4 LSB bits
+ 120:pragyan.c     **** 			//PORTD=Actual_input;
+ 121:pragyan.c     **** 			M_OUTPUT=0b1010;			 //	output for motors
+ 256               	.LM32:
+ 257 0090 8AE0      		ldi r24,lo8(10)
+ 258 0092 82BB      		out 50-0x20,r24
+ 122:pragyan.c     **** 			RIGHT_MOTOR=MASTER_PWM;
+ 260               	.LM33:
+ 261 0094 8091 0000 		lds r24,MASTER_PWM
+ 262 0098 9927      		clr r25
+ 263 009a 9BBD      		out (74)+1-0x20,r25
+ 264 009c 8ABD      		out 74-0x20,r24
+ 123:pragyan.c     **** 			LEFT_MOTOR=MASTER_PWM;
+ 266               	.LM34:
+ 267 009e 99BD      		out (72)+1-0x20,r25
+ 268 00a0 88BD      		out 72-0x20,r24
+ 269 00a2 00C0      		rjmp .L10
+ 270               	/* epilogue: frame size=0 */
+ 271               	/* epilogue: noreturn */
+ 272               	/* epilogue end (size=0) */
+ 273               	/* function main size 61 (57) */
+ 278               	.Lscope3:
+ 279               		.comm MASTER_PWM,1,1
+ 280               		.comm lineSensors,1,1
+ 281               		.comm botSensors,1,1
+ 286               	.Letext0:
+ 287               	/* File "pragyan.c": code   92 = 0x005c (  86), prologues   4, epilogues   2 */
+DEFINED SYMBOLS
+                            *ABS*:00000000 pragyan.c
+     /tmp/ccPsY9Fd.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccPsY9Fd.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccPsY9Fd.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccPsY9Fd.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccPsY9Fd.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccPsY9Fd.s:70     .text:00000000 calc
+     /tmp/ccPsY9Fd.s:115    .text:0000001c main_initialize
+     /tmp/ccPsY9Fd.s:162    .text:0000003e main
+                            *COM*:00000001 MASTER_PWM
+                            *COM*:00000001 lineSensors
+                            *COM*:00000001 botSensors
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+__stack

@@ -1,0 +1,21 @@
+tmpimg = imread('ibot1.jpg');
+tmpfig=figure('numbertitle','off','name','Tathva-- Agent Eye','visible','off');
+imshow(tmpimg);
+set(tmpfig,'units','pixels','position',[0 0 1000 800]);
+centerfig(tmpfig);
+set(tmpfig,'visible','on');
+
+uicontrol('style','pushbutton','string','Get Snapshot','units','normalized',...
+	'pos',[0.05 0.12 0.3 0.05],'callback',@exportMain);
+uicontrol('style','pushbutton','string','Remove Noise','units','normalized',...
+	'pos',[0.35 0.12 0.3 0.05],'callback',@exportClusterMask);
+uicontrol('style','pushbutton','string','Index Image','units','normalized',...
+	'pos',[0.65 0.12 0.3 0.05],'callback',@asdfasdf);
+
+uicontrol('style','popupmenu','string','Get Snapshot','units','normalized',...
+	'pos',[0.05 0.05 0.3 0.05],'callback',@exportMain);
+uicontrol('text','pushbutton','string','Remove Noise','units','normalized',...
+	'pos',[0.35 0.05 0.3 0.05],'callback',@exportClusterMask);
+uicontrol('style','pushbutton','string','Index Image','units','normalized',...
+	'pos',[0.65 0.05 0.3 0.05],'callback',@asdfasdf);
+

@@ -1,0 +1,1 @@
+goal.o: goal.c

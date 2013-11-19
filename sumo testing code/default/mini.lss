@@ -1,0 +1,433 @@
+
+mini.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         0000017e  00000000  00000000  00000054  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .debug_aranges 00000020  00000000  00000000  000001d2  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  2 .debug_pubnames 0000005a  00000000  00000000  000001f2  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  3 .debug_info   000001b5  00000000  00000000  0000024c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_abbrev 00000105  00000000  00000000  00000401  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_line   00000313  00000000  00000000  00000506  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_frame  00000060  00000000  00000000  0000081c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_str    000000f0  00000000  00000000  0000087c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_loc    0000005f  00000000  00000000  0000096c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	12 c0       	rjmp	.+36     	; 0x26 <__ctors_end>
+   2:	2c c0       	rjmp	.+88     	; 0x5c <__bad_interrupt>
+   4:	2b c0       	rjmp	.+86     	; 0x5c <__bad_interrupt>
+   6:	2a c0       	rjmp	.+84     	; 0x5c <__bad_interrupt>
+   8:	29 c0       	rjmp	.+82     	; 0x5c <__bad_interrupt>
+   a:	28 c0       	rjmp	.+80     	; 0x5c <__bad_interrupt>
+   c:	27 c0       	rjmp	.+78     	; 0x5c <__bad_interrupt>
+   e:	26 c0       	rjmp	.+76     	; 0x5c <__bad_interrupt>
+  10:	25 c0       	rjmp	.+74     	; 0x5c <__bad_interrupt>
+  12:	24 c0       	rjmp	.+72     	; 0x5c <__bad_interrupt>
+  14:	23 c0       	rjmp	.+70     	; 0x5c <__bad_interrupt>
+  16:	22 c0       	rjmp	.+68     	; 0x5c <__bad_interrupt>
+  18:	21 c0       	rjmp	.+66     	; 0x5c <__bad_interrupt>
+  1a:	20 c0       	rjmp	.+64     	; 0x5c <__bad_interrupt>
+  1c:	1f c0       	rjmp	.+62     	; 0x5c <__bad_interrupt>
+  1e:	1e c0       	rjmp	.+60     	; 0x5c <__bad_interrupt>
+  20:	1d c0       	rjmp	.+58     	; 0x5c <__bad_interrupt>
+  22:	1c c0       	rjmp	.+56     	; 0x5c <__bad_interrupt>
+  24:	1b c0       	rjmp	.+54     	; 0x5c <__bad_interrupt>
+
+00000026 <__ctors_end>:
+  26:	11 24       	eor	r1, r1
+  28:	1f be       	out	0x3f, r1	; 63
+  2a:	cf e5       	ldi	r28, 0x5F	; 95
+  2c:	d4 e0       	ldi	r29, 0x04	; 4
+  2e:	de bf       	out	0x3e, r29	; 62
+  30:	cd bf       	out	0x3d, r28	; 61
+
+00000032 <__do_copy_data>:
+  32:	10 e0       	ldi	r17, 0x00	; 0
+  34:	a0 e6       	ldi	r26, 0x60	; 96
+  36:	b0 e0       	ldi	r27, 0x00	; 0
+  38:	ee e7       	ldi	r30, 0x7E	; 126
+  3a:	f1 e0       	ldi	r31, 0x01	; 1
+  3c:	02 c0       	rjmp	.+4      	; 0x42 <.do_copy_data_start>
+
+0000003e <.do_copy_data_loop>:
+  3e:	05 90       	lpm	r0, Z+
+  40:	0d 92       	st	X+, r0
+
+00000042 <.do_copy_data_start>:
+  42:	a0 36       	cpi	r26, 0x60	; 96
+  44:	b1 07       	cpc	r27, r17
+  46:	d9 f7       	brne	.-10     	; 0x3e <.do_copy_data_loop>
+
+00000048 <__do_clear_bss>:
+  48:	10 e0       	ldi	r17, 0x00	; 0
+  4a:	a0 e6       	ldi	r26, 0x60	; 96
+  4c:	b0 e0       	ldi	r27, 0x00	; 0
+  4e:	01 c0       	rjmp	.+2      	; 0x52 <.do_clear_bss_start>
+
+00000050 <.do_clear_bss_loop>:
+  50:	1d 92       	st	X+, r1
+
+00000052 <.do_clear_bss_start>:
+  52:	a0 36       	cpi	r26, 0x60	; 96
+  54:	b1 07       	cpc	r27, r17
+  56:	e1 f7       	brne	.-8      	; 0x50 <.do_clear_bss_loop>
+  58:	29 d0       	rcall	.+82     	; 0xac <main>
+  5a:	8f c0       	rjmp	.+286    	; 0x17a <_exit>
+
+0000005c <__bad_interrupt>:
+  5c:	d1 cf       	rjmp	.-94     	; 0x0 <__vectors>
+
+0000005e <initi_IO>:
+
+
+
+void initi_IO()	
+
+	{
+  5e:	8f e0       	ldi	r24, 0x0F	; 15
+  60:	81 bb       	out	0x11, r24	; 17
+		DDRD=0x0F;
+		DDRC=0x00;
+  62:	14 ba       	out	0x14, r1	; 20
+		DDRB=0x07;
+  64:	87 e0       	ldi	r24, 0x07	; 7
+  66:	87 bb       	out	0x17, r24	; 23
+		PORTB=0x20;
+  68:	80 e2       	ldi	r24, 0x20	; 32
+  6a:	88 bb       	out	0x18, r24	; 24
+	}
+  6c:	08 95       	ret
+
+0000006e <initi_ADC>:
+	
+void initi_ADC()
+	{
+  6e:	86 b1       	in	r24, 0x06	; 6
+  70:	83 60       	ori	r24, 0x03	; 3
+  72:	86 b9       	out	0x06, r24	; 6
+	ADCSRA |= (0 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Set ADC prescalar to 8
+                                    //125KHz sample rate @ 1MHz 
+    ADMUX |= (1 << REFS0);   // Set ADC reference to AVCC 
+  74:	3e 9a       	sbi	0x07, 6	; 7
+    ADMUX |= (1 << ADLAR); // Left adjust ADC result to allow easy 8 bit reading     
+  76:	3d 9a       	sbi	0x07, 5	; 7
+
+	ADCSRA |= (1 << ADEN);  // Enable ADC 
+  78:	37 9a       	sbi	0x06, 7	; 6
+	ADCSRA |= (1 << ADSC);  // Start A2D Conversions 
+  7a:	36 9a       	sbi	0x06, 6	; 6
+
+	
+	}
+  7c:	08 95       	ret
+
+0000007e <initi_PWM>:
+	
+void initi_PWM()	
+	{
+  7e:	81 ea       	ldi	r24, 0xA1	; 161
+  80:	8f bd       	out	0x2f, r24	; 47
+	TCCR1A=0xA1;
+	OCR1A=20;
+  82:	84 e1       	ldi	r24, 0x14	; 20
+  84:	90 e0       	ldi	r25, 0x00	; 0
+  86:	9b bd       	out	0x2b, r25	; 43
+  88:	8a bd       	out	0x2a, r24	; 42
+	TCCR1B=0x04;
+  8a:	84 e0       	ldi	r24, 0x04	; 4
+  8c:	8e bd       	out	0x2e, r24	; 46
+	}
+  8e:	08 95       	ret
+
+00000090 <getDigitalValueOf>:
+	
+uint8_t getDigitalValueOf(uint8_t channel)
+	{
+  90:	37 9a       	sbi	0x06, 7	; 6
+	
+		ADCSRA|= (1<<ADEN); //enable adc
+		ADMUX&=0xF0;
+  92:	97 b1       	in	r25, 0x07	; 7
+  94:	90 7f       	andi	r25, 0xF0	; 240
+  96:	97 b9       	out	0x07, r25	; 7
+		ADMUX|=channel;  // MUX values needed to be changed to use ADC0
+  98:	97 b1       	in	r25, 0x07	; 7
+  9a:	98 2b       	or	r25, r24
+  9c:	97 b9       	out	0x07, r25	; 7
+
+		ADCSRA|= (1<<ADSC);    //start conversion
+  9e:	36 9a       	sbi	0x06, 6	; 6
+		while(!(ADCSRA & 0x10))
+  a0:	34 9b       	sbis	0x06, 4	; 6
+  a2:	fe cf       	rjmp	.-4      	; 0xa0 <getDigitalValueOf+0x10>
+		{
+		;//wait to finish convertion ADIF is set.will come out of loop 
+		}	
+		ADCSRA&=(0<<ADEN);
+  a4:	86 b1       	in	r24, 0x06	; 6
+  a6:	16 b8       	out	0x06, r1	; 6
+		return ADCH;
+  a8:	85 b1       	in	r24, 0x05	; 5
+
+	} 
+  aa:	08 95       	ret
+
+000000ac <main>:
+
+int main()
+
+{
+  ac:	8f e0       	ldi	r24, 0x0F	; 15
+  ae:	81 bb       	out	0x11, r24	; 17
+
+void initi_IO()	
+
+	{
+		DDRD=0x0F;
+		DDRC=0x00;
+  b0:	14 ba       	out	0x14, r1	; 20
+		DDRB=0x07;
+  b2:	87 e0       	ldi	r24, 0x07	; 7
+  b4:	87 bb       	out	0x17, r24	; 23
+		PORTB=0x20;
+  b6:	80 e2       	ldi	r24, 0x20	; 32
+  b8:	88 bb       	out	0x18, r24	; 24
+	}
+	
+void initi_ADC()
+	{
+	ADCSRA |= (0 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Set ADC prescalar to 8
+  ba:	86 b1       	in	r24, 0x06	; 6
+  bc:	83 60       	ori	r24, 0x03	; 3
+  be:	86 b9       	out	0x06, r24	; 6
+                                    //125KHz sample rate @ 1MHz 
+    ADMUX |= (1 << REFS0);   // Set ADC reference to AVCC 
+  c0:	3e 9a       	sbi	0x07, 6	; 7
+    ADMUX |= (1 << ADLAR); // Left adjust ADC result to allow easy 8 bit reading     
+  c2:	3d 9a       	sbi	0x07, 5	; 7
+
+	ADCSRA |= (1 << ADEN);  // Enable ADC 
+  c4:	37 9a       	sbi	0x06, 7	; 6
+	ADCSRA |= (1 << ADSC);  // Start A2D Conversions 
+  c6:	36 9a       	sbi	0x06, 6	; 6
+	
+	}
+	
+void initi_PWM()	
+	{
+	TCCR1A=0xA1;
+  c8:	81 ea       	ldi	r24, 0xA1	; 161
+  ca:	8f bd       	out	0x2f, r24	; 47
+	OCR1A=20;
+  cc:	84 e1       	ldi	r24, 0x14	; 20
+  ce:	90 e0       	ldi	r25, 0x00	; 0
+  d0:	9b bd       	out	0x2b, r25	; 43
+  d2:	8a bd       	out	0x2a, r24	; 42
+	TCCR1B=0x04;
+  d4:	84 e0       	ldi	r24, 0x04	; 4
+  d6:	8e bd       	out	0x2e, r24	; 46
+	}
+	
+uint8_t getDigitalValueOf(uint8_t channel)
+	{
+	
+		ADCSRA|= (1<<ADEN); //enable adc
+  d8:	37 9a       	sbi	0x06, 7	; 6
+		ADMUX&=0xF0;
+  da:	87 b1       	in	r24, 0x07	; 7
+  dc:	80 7f       	andi	r24, 0xF0	; 240
+  de:	87 b9       	out	0x07, r24	; 7
+		ADMUX|=channel;  // MUX values needed to be changed to use ADC0
+  e0:	87 b1       	in	r24, 0x07	; 7
+  e2:	85 60       	ori	r24, 0x05	; 5
+  e4:	87 b9       	out	0x07, r24	; 7
+
+		ADCSRA|= (1<<ADSC);    //start conversion
+  e6:	36 9a       	sbi	0x06, 6	; 6
+		while(!(ADCSRA & 0x10))
+  e8:	34 9b       	sbis	0x06, 4	; 6
+  ea:	fe cf       	rjmp	.-4      	; 0xe8 <main+0x3c>
+		{
+		;//wait to finish convertion ADIF is set.will come out of loop 
+		}	
+		ADCSRA&=(0<<ADEN);
+  ec:	86 b1       	in	r24, 0x06	; 6
+  ee:	16 b8       	out	0x06, r1	; 6
+		return ADCH;
+  f0:	85 b1       	in	r24, 0x05	; 5
+					MOTOR_OUTPUT=0;
+					break;
+				}
+			case 0b01:
+				{
+					RIGHT_MOTOR_SPEED=maxSpeed;
+  f2:	28 2f       	mov	r18, r24
+  f4:	30 e0       	ldi	r19, 0x00	; 0
+					LEFT_MOTOR_SPEED=0;
+					MOTOR_OUTPUT=2;
+  f6:	62 e0       	ldi	r22, 0x02	; 2
+			
+			case 0b10:
+				{
+					RIGHT_MOTOR_SPEED=0;
+					LEFT_MOTOR_SPEED=maxSpeed;
+					MOTOR_OUTPUT=8;
+  f8:	58 e0       	ldi	r21, 0x08	; 8
+				}
+			case 0b11:
+				{
+					RIGHT_MOTOR_SPEED=maxSpeed;
+					LEFT_MOTOR_SPEED=maxSpeed;
+					MOTOR_OUTPUT=10;
+  fa:	4a e0       	ldi	r20, 0x0A	; 10
+	}
+	
+uint8_t getDigitalValueOf(uint8_t channel)
+	{
+	
+		ADCSRA|= (1<<ADEN); //enable adc
+  fc:	37 9a       	sbi	0x06, 7	; 6
+		ADMUX&=0xF0;
+  fe:	87 b1       	in	r24, 0x07	; 7
+ 100:	80 7f       	andi	r24, 0xF0	; 240
+ 102:	87 b9       	out	0x07, r24	; 7
+		ADMUX|=channel;  // MUX values needed to be changed to use ADC0
+ 104:	87 b1       	in	r24, 0x07	; 7
+ 106:	87 b9       	out	0x07, r24	; 7
+
+		ADCSRA|= (1<<ADSC);    //start conversion
+ 108:	36 9a       	sbi	0x06, 6	; 6
+		while(!(ADCSRA & 0x10))
+ 10a:	34 9b       	sbis	0x06, 4	; 6
+ 10c:	fe cf       	rjmp	.-4      	; 0x10a <main+0x5e>
+		{
+		;//wait to finish convertion ADIF is set.will come out of loop 
+		}	
+		ADCSRA&=(0<<ADEN);
+ 10e:	86 b1       	in	r24, 0x06	; 6
+ 110:	16 b8       	out	0x06, r1	; 6
+		return ADCH;
+ 112:	85 b1       	in	r24, 0x05	; 5
+ 114:	90 e0       	ldi	r25, 0x00	; 0
+ 116:	85 36       	cpi	r24, 0x65	; 101
+ 118:	08 f0       	brcs	.+2      	; 0x11c <main+0x70>
+ 11a:	91 e0       	ldi	r25, 0x01	; 1
+	}
+	
+uint8_t getDigitalValueOf(uint8_t channel)
+	{
+	
+		ADCSRA|= (1<<ADEN); //enable adc
+ 11c:	37 9a       	sbi	0x06, 7	; 6
+		ADMUX&=0xF0;
+ 11e:	87 b1       	in	r24, 0x07	; 7
+ 120:	80 7f       	andi	r24, 0xF0	; 240
+ 122:	87 b9       	out	0x07, r24	; 7
+		ADMUX|=channel;  // MUX values needed to be changed to use ADC0
+ 124:	38 9a       	sbi	0x07, 0	; 7
+
+		ADCSRA|= (1<<ADSC);    //start conversion
+ 126:	36 9a       	sbi	0x06, 6	; 6
+		while(!(ADCSRA & 0x10))
+ 128:	34 9b       	sbis	0x06, 4	; 6
+ 12a:	fe cf       	rjmp	.-4      	; 0x128 <main+0x7c>
+		{
+		;//wait to finish convertion ADIF is set.will come out of loop 
+		}	
+		ADCSRA&=(0<<ADEN);
+ 12c:	86 b1       	in	r24, 0x06	; 6
+ 12e:	16 b8       	out	0x06, r1	; 6
+		return ADCH;
+ 130:	85 b1       	in	r24, 0x05	; 5
+		{
+		sensorInput=1;
+		}
+		
+		digitalVlaue = getDigitalValueOf(I1);
+		if(digitalVlaue>threshold)
+ 132:	85 36       	cpi	r24, 0x65	; 101
+ 134:	08 f0       	brcs	.+2      	; 0x138 <main+0x8c>
+		{
+		sensorInput=sensorInput+2;
+ 136:	9e 5f       	subi	r25, 0xFE	; 254
+		}
+		
+		switch (sensorInput)
+ 138:	91 30       	cpi	r25, 0x01	; 1
+ 13a:	69 f0       	breq	.+26     	; 0x156 <main+0xaa>
+ 13c:	91 30       	cpi	r25, 0x01	; 1
+ 13e:	28 f0       	brcs	.+10     	; 0x14a <main+0x9e>
+ 140:	92 30       	cpi	r25, 0x02	; 2
+ 142:	79 f0       	breq	.+30     	; 0x162 <main+0xb6>
+ 144:	93 30       	cpi	r25, 0x03	; 3
+ 146:	d1 f6       	brne	.-76     	; 0xfc <main+0x50>
+ 148:	12 c0       	rjmp	.+36     	; 0x16e <main+0xc2>
+		{
+			case 0b00:
+				{
+					RIGHT_MOTOR_SPEED=0;
+ 14a:	1b bc       	out	0x2b, r1	; 43
+ 14c:	1a bc       	out	0x2a, r1	; 42
+					LEFT_MOTOR_SPEED=0;
+ 14e:	19 bc       	out	0x29, r1	; 41
+ 150:	18 bc       	out	0x28, r1	; 40
+					MOTOR_OUTPUT=0;
+ 152:	12 ba       	out	0x12, r1	; 18
+ 154:	d3 cf       	rjmp	.-90     	; 0xfc <main+0x50>
+					break;
+				}
+			case 0b01:
+				{
+					RIGHT_MOTOR_SPEED=maxSpeed;
+ 156:	3b bd       	out	0x2b, r19	; 43
+ 158:	2a bd       	out	0x2a, r18	; 42
+					LEFT_MOTOR_SPEED=0;
+ 15a:	19 bc       	out	0x29, r1	; 41
+ 15c:	18 bc       	out	0x28, r1	; 40
+					MOTOR_OUTPUT=2;
+ 15e:	62 bb       	out	0x12, r22	; 18
+ 160:	cd cf       	rjmp	.-102    	; 0xfc <main+0x50>
+					break;
+				}
+			
+			case 0b10:
+				{
+					RIGHT_MOTOR_SPEED=0;
+ 162:	1b bc       	out	0x2b, r1	; 43
+ 164:	1a bc       	out	0x2a, r1	; 42
+					LEFT_MOTOR_SPEED=maxSpeed;
+ 166:	39 bd       	out	0x29, r19	; 41
+ 168:	28 bd       	out	0x28, r18	; 40
+					MOTOR_OUTPUT=8;
+ 16a:	52 bb       	out	0x12, r21	; 18
+ 16c:	c7 cf       	rjmp	.-114    	; 0xfc <main+0x50>
+					break;
+				}
+			case 0b11:
+				{
+					RIGHT_MOTOR_SPEED=maxSpeed;
+ 16e:	3b bd       	out	0x2b, r19	; 43
+ 170:	2a bd       	out	0x2a, r18	; 42
+					LEFT_MOTOR_SPEED=maxSpeed;
+ 172:	39 bd       	out	0x29, r19	; 41
+ 174:	28 bd       	out	0x28, r18	; 40
+					MOTOR_OUTPUT=10;
+ 176:	42 bb       	out	0x12, r20	; 18
+ 178:	c1 cf       	rjmp	.-126    	; 0xfc <main+0x50>
+
+0000017a <_exit>:
+ 17a:	f8 94       	cli
+
+0000017c <__stop_program>:
+ 17c:	ff cf       	rjmp	.-2      	; 0x17c <__stop_program>

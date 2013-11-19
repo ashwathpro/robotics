@@ -1,0 +1,59 @@
+   1               		.file	"VIV.c"
+   2               		.arch atmega8
+   3               	__SREG__ = 0x3f
+   4               	__SP_H__ = 0x3e
+   5               	__SP_L__ = 0x3d
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   8               		.global __do_copy_data
+   9               		.global __do_clear_bss
+  11               		.text
+  12               	.Ltext0:
+  74               	.global	main
+  76               	main:
+   1:VIV.c         **** #include<avr/io.h>
+   2:VIV.c         **** 
+   3:VIV.c         **** 
+   4:VIV.c         **** int main(void)
+   5:VIV.c         **** {
+  78               	.LM1:
+  79               	/* prologue: frame size=0 */
+  80 0000 C0E0      		ldi r28,lo8(__stack - 0)
+  81 0002 D0E0      		ldi r29,hi8(__stack - 0)
+  82 0004 DEBF      		out __SP_H__,r29
+  83 0006 CDBF      		out __SP_L__,r28
+  84               	/* prologue end (size=4) */
+   6:VIV.c         **** 
+   7:VIV.c         **** DDRD=0b11111111;
+  86               	.LM2:
+  87 0008 8FEF      		ldi r24,lo8(-1)
+  88 000a 81BB      		out 49-0x20,r24
+  89               	.L2:
+   8:VIV.c         **** while(1)
+   9:VIV.c         **** {
+  10:VIV.c         **** PORTD=0b11111111;
+  91               	.LM3:
+  92 000c 82BB      		out 50-0x20,r24
+  93 000e FECF      		rjmp .L2
+  94               	/* epilogue: frame size=0 */
+  95               	/* epilogue: noreturn */
+  96               	/* epilogue end (size=0) */
+  97               	/* function main size 8 (4) */
+  99               	.Lscope0:
+ 100               		.text
+ 102               	Letext:
+ 103               	/* File "VIV.c": code    8 = 0x0008 (   4), prologues   4, epilogues   0 */
+DEFINED SYMBOLS
+                            *ABS*:00000000 VIV.c
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccUlbaaa.s:3      *ABS*:0000003f __SREG__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccUlbaaa.s:4      *ABS*:0000003e __SP_H__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccUlbaaa.s:5      *ABS*:0000003d __SP_L__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccUlbaaa.s:6      *ABS*:00000000 __tmp_reg__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccUlbaaa.s:7      *ABS*:00000001 __zero_reg__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccUlbaaa.s:76     .text:00000000 main
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccUlbaaa.s:102    .text:00000010 Letext
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+__stack

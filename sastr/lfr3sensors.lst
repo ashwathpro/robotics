@@ -1,0 +1,562 @@
+   1               		.file	"lfr3sensors.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.global __do_copy_data
+   8               		.global __do_clear_bss
+  10               		.text
+  11               	.Ltext0:
+  71               	.global	calc
+  73               	calc:
+   1:lfr3sensors.c **** 	/*
+   2:lfr3sensors.c **** 	The foloowing c code is for simple line folllower robot, having three sensors.
+   3:lfr3sensors.c **** 	The line is made of black color on white surface.   
+   4:lfr3sensors.c **** 		We wrote this c program for one workshop robot to drive in smooth fashion, thus lots of
+   5:lfr3sensors.c **** 	variable may vary if you changed the hardware.
+   6:lfr3sensors.c **** 		Dont stick on our coding style try experiments with your ideas also.
+   7:lfr3sensors.c **** 		GOOD LUCK
+   8:lfr3sensors.c **** 		*/
+   9:lfr3sensors.c **** 	
+  10:lfr3sensors.c **** #include <avr/io.h> //header file to include input output port
+  11:lfr3sensors.c **** //#include <avr\iom8.h>
+  12:lfr3sensors.c **** #include <avr/interrupt.h>
+  13:lfr3sensors.c **** //#include <util/delay.h>
+  14:lfr3sensors.c **** 
+  15:lfr3sensors.c ****  
+  16:lfr3sensors.c **** #define LED_ON PORTB&=0xFE;
+  17:lfr3sensors.c **** #define LED_OFF PORTB|=0x01;
+  18:lfr3sensors.c **** 
+  19:lfr3sensors.c **** 
+  20:lfr3sensors.c **** 
+  21:lfr3sensors.c **** 
+  22:lfr3sensors.c **** 	/*port C as input PORT
+  23:lfr3sensors.c **** 			2	  1  	0
+  24:lfr3sensors.c **** 	      left        right 
+  25:lfr3sensors.c **** 	  for line follower (on line=1,not on line=0;) */
+  26:lfr3sensors.c **** 	
+  27:lfr3sensors.c **** 	//#define  SENSOR_INPUTS (PINC)
+  28:lfr3sensors.c **** 	
+  29:lfr3sensors.c **** 	
+  30:lfr3sensors.c **** 	/* 
+  31:lfr3sensors.c **** 	At hardware level ( from comparator output ) we are getting 1 for white surface and 0 for black on
+  32:lfr3sensors.c **** 	but we have black line and we also want line be taken as 1 thus we use NOT(~) before inputs.
+  33:lfr3sensors.c ****  
+  34:lfr3sensors.c **** 	*/
+  35:lfr3sensors.c **** 	//	l   r
+  36:lfr3sensors.c **** 	//	+ - - +
+  37:lfr3sensors.c **** 	#define  M_OUTPUT PORTD
+  38:lfr3sensors.c **** 		
+  39:lfr3sensors.c **** 	/*port D as output PORT*/
+  40:lfr3sensors.c **** 	
+  41:lfr3sensors.c **** 	/*	PORTD ==== L M R M
+  42:lfr3sensors.c **** 			   + - - +
+  43:lfr3sensors.c **** 	*/
+  44:lfr3sensors.c **** 	
+  45:lfr3sensors.c **** 	#define FORWARD 9	//CHECK ALL THIS
+  46:lfr3sensors.c **** 	#define LEFT 5
+  47:lfr3sensors.c **** 	#define RIGHT 10
+  48:lfr3sensors.c **** 	//#define SHARPLEFT 
+  49:lfr3sensors.c **** 	//#define SHARPRIGHT
+  50:lfr3sensors.c **** 	uint8_t MASTER_PWM;
+  51:lfr3sensors.c **** 	/* We set MASTER_PWM inversely proportional to battery voltage,
+  52:lfr3sensors.c **** 	its also define the overall speed of line follower robot.
+  53:lfr3sensors.c **** 	*/
+  54:lfr3sensors.c **** 	uint8_t PERCENTAGE_LEFT_PWM,PERCENTAGE_RIGHT_PWM;
+  55:lfr3sensors.c **** 	// shows percentage PWM of left and right motor
+  56:lfr3sensors.c **** 
+  57:lfr3sensors.c **** 	uint8_t PERCENTAGE_PWM_STEP_SIZE=5;
+  58:lfr3sensors.c **** 	/* PERCENTAGE_PWM_STEP_SIZE shows,steps size we are increasing our PWM of each motor*/
+  59:lfr3sensors.c ****  
+  60:lfr3sensors.c **** 	uint8_t REVERSE_LEFT_RIGHT_MOTOR=0;	
+  61:lfr3sensors.c **** 	/*
+  62:lfr3sensors.c **** 	REVERSE_LEFT_RIGHT_MOTOR define the direction of each motor ie they r moving forward or reverse ma
+  63:lfr3sensors.c **** 	if REVERSE_LEFT_RIGHT_MOTOR=0...both  motor moving forward direction 
+  64:lfr3sensors.c **** 	if REVERSE_LEFT_RIGHT_MOTOR=1...Left motor moving forward direction ,Right motor moving reverse di
+  65:lfr3sensors.c **** 	and if REVERSE_LEFT_RIGHT_MOTOR=8...Right motor moving forward direction ,Left motor moving revers
+  66:lfr3sensors.c **** 	
+  67:lfr3sensors.c **** 	*/
+  68:lfr3sensors.c **** 	uint8_t Actual_input,LAST_INPUT=0,SENSOR_INPUTS,sensorReference0,sensorReference1,sensorReference2
+  69:lfr3sensors.c **** 
+  70:lfr3sensors.c **** uint8_t calc(uint8_t w)
+  71:lfr3sensors.c **** 	{
+  75               	.LM0:
+  76               	.LFBB1:
+  77               	/* prologue: function */
+  78               	/* frame size = 0 */
+  72:lfr3sensors.c **** 		//put adc code here...
+  73:lfr3sensors.c **** 	ADMUX&=0xF0;
+  80               	.LM1:
+  81 0000 97B1      		in r25,39-0x20
+  82 0002 907F      		andi r25,lo8(-16)
+  83 0004 97B9      		out 39-0x20,r25
+  74:lfr3sensors.c **** 	ADMUX|=w;
+  85               	.LM2:
+  86 0006 97B1      		in r25,39-0x20
+  87 0008 982B      		or r25,r24
+  88 000a 97B9      		out 39-0x20,r25
+  75:lfr3sensors.c **** 	ADCSRA|=_BV(ADEN);
+  90               	.LM3:
+  91 000c 379A      		sbi 38-0x20,7
+  76:lfr3sensors.c **** 	ADCSRA|= (1<<ADSC);
+  93               	.LM4:
+  94 000e 369A      		sbi 38-0x20,6
+  95               	.L2:
+  77:lfr3sensors.c **** 	while(!(ADCSRA & 0x10));//ADIF is set.will come out of loop 
+  97               	.LM5:
+  98 0010 349B      		sbis 38-0x20,4
+  99 0012 00C0      		rjmp .L2
+  78:lfr3sensors.c **** 	ADCSRA=(0<<ADEN);// added by me to switc off the adc , so as it doesnt consume power
+ 101               	.LM6:
+ 102 0014 16B8      		out 38-0x20,__zero_reg__
+  79:lfr3sensors.c **** 	return ADCH;
+ 104               	.LM7:
+ 105 0016 85B1      		in r24,37-0x20
+ 106               	/* epilogue start */
+  80:lfr3sensors.c **** 
+  81:lfr3sensors.c **** 
+  82:lfr3sensors.c **** 	//	return 0x0;		//change here
+  83:lfr3sensors.c **** 	}
+ 108               	.LM8:
+ 109 0018 0895      		ret
+ 111               	.Lscope1:
+ 113               	.global	main
+ 115               	main:
+  84:lfr3sensors.c **** 
+  85:lfr3sensors.c **** 
+  86:lfr3sensors.c **** int main()
+  87:lfr3sensors.c **** {
+ 117               	.LM9:
+ 118               	.LFBB2:
+ 119 001a 1F93      		push r17
+ 120 001c CF93      		push r28
+ 121 001e DF93      		push r29
+ 122               	/* prologue: function */
+ 123               	/* frame size = 0 */
+  88:lfr3sensors.c **** 			//uint8_t Actual_input,Check_input,LAST_INPUT=0;	
+  89:lfr3sensors.c **** 			//DDRC=0b11000000; 
+  90:lfr3sensors.c **** 			/* DDR=Data Direction register... its to define PD0(pin2),PD1(pin3),PD2(pin4) as input pin
+  91:lfr3sensors.c **** 			rest bits of DDRD can be 0 or 1 does not make any significance */
+  92:lfr3sensors.c **** 			DDRD=0b00001111;  
+ 125               	.LM10:
+ 126 0020 8FE0      		ldi r24,lo8(15)
+ 127 0022 81BB      		out 49-0x20,r24
+  93:lfr3sensors.c **** 			DDRB=0x0f;
+ 129               	.LM11:
+ 130 0024 87BB      		out 55-0x20,r24
+  94:lfr3sensors.c **** 			PORTB=0xf0;
+ 132               	.LM12:
+ 133 0026 80EF      		ldi r24,lo8(-16)
+ 134 0028 88BB      		out 56-0x20,r24
+  95:lfr3sensors.c **** 			DDRC=0x00;  
+ 136               	.LM13:
+ 137 002a 14BA      		out 52-0x20,__zero_reg__
+  96:lfr3sensors.c **** 
+  97:lfr3sensors.c **** 		  /* DDR=Data Direction register... its to define PB0(pin14),PB1(pin15),PB2(pin16),PB3(pin17) as 
+  98:lfr3sensors.c **** 			rest bits of DDRD can be 0 or 1 does not make any significance */
+  99:lfr3sensors.c **** 			
+ 100:lfr3sensors.c **** 		/*  PB1(OC1A) o/p for right motor   (connected to positive pin of right motor)
+ 101:lfr3sensors.c **** 			PB2(OC1B) o/p for left motor	(connected to positive pin of left motor)
+ 102:lfr3sensors.c **** 			PB0  o/p for right motor Ground (its change in program )	(connected to negative pin of right mot
+ 103:lfr3sensors.c **** 			PB3  o/p for left motor Ground (its change in program )	(connected to negative pin of leftt moto
+ 104:lfr3sensors.c **** 			*/
+ 105:lfr3sensors.c **** 			
+ 106:lfr3sensors.c **** 		ADCSRA&=~(1<<ADIF);  		// to disable the adc interrupt flag....
+ 139               	.LM14:
+ 140 002c 3498      		cbi 38-0x20,4
+ 107:lfr3sensors.c **** 		ADMUX |= (1 << REFS0); 		// set the voltage reference as AVcc 
+ 142               	.LM15:
+ 143 002e 3E9A      		sbi 39-0x20,6
+ 108:lfr3sensors.c **** 		ADMUX|=_BV(ADLAR);			// left adjusted Result
+ 145               	.LM16:
+ 146 0030 3D9A      		sbi 39-0x20,5
+ 109:lfr3sensors.c **** 		
+ 110:lfr3sensors.c **** 		ADCSRA|=(_BV(ADPS0) | _BV(ADPS1) );  // set the ADC input frequency at 125 Khz(Prescaling of 8)
+ 148               	.LM17:
+ 149 0032 86B1      		in r24,38-0x20
+ 150 0034 8360      		ori r24,lo8(3)
+ 151 0036 86B9      		out 38-0x20,r24
+ 111:lfr3sensors.c **** 	
+ 112:lfr3sensors.c **** 		OCR1A=0x00ff;   // output compare register  for right motor  
+ 153               	.LM18:
+ 154 0038 8FEF      		ldi r24,lo8(255)
+ 155 003a 90E0      		ldi r25,hi8(255)
+ 156 003c 9BBD      		out (74)+1-0x20,r25
+ 157 003e 8ABD      		out 74-0x20,r24
+ 113:lfr3sensors.c **** 		OCR1B=0x00ff;	// output compare register  for left motor
+ 159               	.LM19:
+ 160 0040 99BD      		out (72)+1-0x20,r25
+ 161 0042 88BD      		out 72-0x20,r24
+ 114:lfr3sensors.c **** 		
+ 115:lfr3sensors.c **** 		/* TOP value is 00FFh for both OC1A and OC1B*/
+ 116:lfr3sensors.c **** 		TCCR1A=0xA1;	// define type of PWM	
+ 163               	.LM20:
+ 164 0044 81EA      		ldi r24,lo8(-95)
+ 165 0046 8FBD      		out 79-0x20,r24
+ 117:lfr3sensors.c **** 		/*Timer/Counter 1 Control  and pwm at pin OC1A(PB1) */
+ 118:lfr3sensors.c **** 		TCCR1B=0x01; //for start pwm
+ 167               	.LM21:
+ 168 0048 81E0      		ldi r24,lo8(1)
+ 169 004a 8EBD      		out 78-0x20,r24
+ 119:lfr3sensors.c **** 		
+ 120:lfr3sensors.c **** 		/* pwm at pin OC1B(PB2) and clock freq. of timer(3 LSB 000 sys. clock) */ 
+ 121:lfr3sensors.c **** 			/*maximum MASTER_PWM value can be 00FFh */
+ 122:lfr3sensors.c **** 		//MASTER_PWM=230;
+ 123:lfr3sensors.c **** 		PERCENTAGE_LEFT_PWM=100;
+ 171               	.LM22:
+ 172 004c 84E6      		ldi r24,lo8(100)
+ 173 004e 8093 0000 		sts PERCENTAGE_LEFT_PWM,r24
+ 124:lfr3sensors.c **** 		PERCENTAGE_RIGHT_PWM=100;
+ 175               	.LM23:
+ 176 0052 8093 0000 		sts PERCENTAGE_RIGHT_PWM,r24
+ 177 0056 9091 0000 		lds r25,LAST_INPUT
+ 125:lfr3sensors.c **** 				
+ 126:lfr3sensors.c **** 			
+ 127:lfr3sensors.c **** 		/*/ Global Enable INT0,INT1 interrupt
+ 128:lfr3sensors.c **** 		GICR |= ( 1 << 1);
+ 129:lfr3sensors.c **** 		GICR |= ( 1 << INT1);
+ 130:lfr3sensors.c ****   		// Low Level triggers interrupt
+ 131:lfr3sensors.c ****   		MCUCR |= ( 0 << ISC00);
+ 132:lfr3sensors.c ****   		MCUCR |= ( 0 << ISC01);
+ 133:lfr3sensors.c **** 		MCUCR |= ( 0 << ISC10);
+ 134:lfr3sensors.c ****   		MCUCR |= ( 0 << ISC11);
+ 135:lfr3sensors.c **** 
+ 136:lfr3sensors.c ****         sei();       /* enable interrupts */
+ 137:lfr3sensors.c **** 		
+ 138:lfr3sensors.c **** 			
+ 139:lfr3sensors.c **** 
+ 140:lfr3sensors.c **** line_following:
+ 141:lfr3sensors.c **** 		
+ 142:lfr3sensors.c **** 		
+ 143:lfr3sensors.c **** 		
+ 144:lfr3sensors.c **** 		MASTER_PWM=75;
+ 145:lfr3sensors.c **** 		sensorReference0=100;
+ 146:lfr3sensors.c **** 		sensorReference1=100;
+ 147:lfr3sensors.c **** 		sensorReference2=100;
+ 148:lfr3sensors.c **** 		//sensorReference3=128;
+ 149:lfr3sensors.c **** 		//sensorReference4=128;
+ 150:lfr3sensors.c **** 		
+ 151:lfr3sensors.c **** 		Actual_input=0x0;
+ 152:lfr3sensors.c **** 		if(calc(0)>sensorReference0)		//check
+ 153:lfr3sensors.c **** 			Actual_input|=(1<<PC0);
+ 154:lfr3sensors.c **** 		if(calc(1)>sensorReference1)
+ 155:lfr3sensors.c **** 			Actual_input|=(1<<PC1);
+ 156:lfr3sensors.c **** 		if(calc(2)>sensorReference2)
+ 157:lfr3sensors.c **** 			Actual_input|=(1<<PC2);
+ 158:lfr3sensors.c **** 			
+ 159:lfr3sensors.c **** 		//MASTER_PWM=calc(5);
+ 160:lfr3sensors.c **** 		/*
+ 161:lfr3sensors.c **** 		if(calc(3)>sensorReference3)
+ 162:lfr3sensors.c **** 			Actual_input|=(1<<PC3);
+ 163:lfr3sensors.c **** 		if(calc(4)>sensorReference4)
+ 164:lfr3sensors.c **** 			Actual_input|=(1<<PC4);
+ 165:lfr3sensors.c **** 		*/
+ 166:lfr3sensors.c **** 		
+ 167:lfr3sensors.c **** 		
+ 168:lfr3sensors.c **** 		Actual_input = (~Actual_input) & 0b111;  // make bits zero other than 4 LSB bits
+ 169:lfr3sensors.c **** 		//*
+ 170:lfr3sensors.c **** 		//while(1)
+ 171:lfr3sensors.c **** 			//PORTD=Actual_input;
+ 172:lfr3sensors.c **** 			//goto line_following;
+ 173:lfr3sensors.c **** 		//*/
+ 174:lfr3sensors.c **** 		//Actual_input=(0b111)&SENSOR_INPUTS;	
+ 175:lfr3sensors.c **** 	
+ 176:lfr3sensors.c **** 		if(LAST_INPUT==Actual_input)goto line_following;
+ 177:lfr3sensors.c **** 		
+ 178:lfr3sensors.c **** 		
+ 179:lfr3sensors.c **** 		/*
+ 180:lfr3sensors.c **** 		Because other bit may be high due to noise. Thus the actual input may differ from we get from har
+ 181:lfr3sensors.c **** 		Therefore, above statement is very important.Here we are using only last three bits of SENSOR_INP
+ 182:lfr3sensors.c **** 		we make other bits to zero.		
+ 183:lfr3sensors.c **** 		*/
+ 184:lfr3sensors.c **** 		/*
+ 185:lfr3sensors.c **** 		if(OCR1A==0)
+ 186:lfr3sensors.c **** 		{
+ 187:lfr3sensors.c **** 			goto l;
+ 188:lfr3sensors.c **** 		}
+ 189:lfr3sensors.c **** 		//if same input from sensor then no need to calculate PWM just follow as last
+ 190:lfr3sensors.c **** 		if(LAST_INPUT==Actual_input)goto line_following;
+ 191:lfr3sensors.c **** 		*/
+ 192:lfr3sensors.c **** 		
+ 193:lfr3sensors.c **** 		
+ 194:lfr3sensors.c **** 	
+ 195:lfr3sensors.c **** 	switch(Actual_input)
+ 196:lfr3sensors.c **** 	{
+ 197:lfr3sensors.c **** 		// all the variables values we given here,depends on robot behavior on different conditions 
+ 198:lfr3sensors.c **** 		// these values will differ robot to robot 
+ 199:lfr3sensors.c **** 		//case 0b00000:
+ 200:lfr3sensors.c **** 		//case 0b111:  
+ 201:lfr3sensors.c **** 		case 0b010: // forward
+ 202:lfr3sensors.c ****             		M_OUTPUT=FORWARD;	//	output for motors
+ 203:lfr3sensors.c **** 			OCR1A=(MASTER_PWM*80/100);   // enable for right
+ 204:lfr3sensors.c **** 			OCR1B=(MASTER_PWM*80/100);	 // enable for left
+ 205:lfr3sensors.c **** 			LED_OFF;
+ 206:lfr3sensors.c ****             		break; 
+ 207:lfr3sensors.c **** 		case 0b001: // sharp right 
+ 208:lfr3sensors.c **** 		//case 0b011:
+ 209:lfr3sensors.c **** 		//case 0b111:
+ 210:lfr3sensors.c **** 			LED_OFF;
+ 211:lfr3sensors.c **** 			M_OUTPUT=LEFT;				
+ 212:lfr3sensors.c **** 			OCR1A=(MASTER_PWM*70/100);	 // enable for left
+ 213:lfr3sensors.c **** 			OCR1B=(MASTER_PWM*50/100);
+ 214:lfr3sensors.c **** 			
+ 215:lfr3sensors.c **** 			break;
+ 216:lfr3sensors.c **** 		case 0b100:// sharp left
+ 217:lfr3sensors.c **** 		//case 0b11000:
+ 218:lfr3sensors.c **** 		//case 0b11100:
+ 219:lfr3sensors.c **** 			M_OUTPUT=RIGHT;
+ 220:lfr3sensors.c **** 			OCR1A=(MASTER_PWM*50/100); 
+ 221:lfr3sensors.c **** 			OCR1B=(MASTER_PWM*70/100);
+ 222:lfr3sensors.c **** 			LED_OFF;
+ 223:lfr3sensors.c **** 			break;				
+ 224:lfr3sensors.c **** 		//case 0b010: 
+ 225:lfr3sensors.c **** 		case 0b011: 	// sharp right with at slower speed    
+ 226:lfr3sensors.c **** 			M_OUTPUT=FORWARD;	//	output for motors
+ 227:lfr3sensors.c **** 			OCR1A=(MASTER_PWM*60/100);   // enable for right
+ 228:lfr3sensors.c **** 			OCR1B=(MASTER_PWM*80/100);	 // enable for left
+ 229:lfr3sensors.c **** 			LED_OFF;
+ 230:lfr3sensors.c **** 			break;
+ 231:lfr3sensors.c **** 		//case 0b01000:                                   
+ 232:lfr3sensors.c **** 		case 0b110:	// sharp left with at slower speed
+ 233:lfr3sensors.c **** 			M_OUTPUT=FORWARD;	//	output for motors
+ 179               	.LM24:
+ 180 005a 49E0      		ldi r20,lo8(9)
+ 234:lfr3sensors.c **** 			OCR1A=(MASTER_PWM*80/100);   // enable for right
+ 182               	.LM25:
+ 183 005c 2CE3      		ldi r18,lo8(60)
+ 184 005e 30E0      		ldi r19,hi8(60)
+ 235:lfr3sensors.c **** 			OCR1B=(MASTER_PWM*60/100);	 // enable for left
+ 186               	.LM26:
+ 187 0060 CDE2      		ldi r28,lo8(45)
+ 188 0062 D0E0      		ldi r29,hi8(45)
+ 190               	.LM27:
+ 191 0064 1AE0      		ldi r17,lo8(10)
+ 193               	.LM28:
+ 194 0066 A5E2      		ldi r26,lo8(37)
+ 195 0068 B0E0      		ldi r27,hi8(37)
+ 197               	.LM29:
+ 198 006a 64E3      		ldi r22,lo8(52)
+ 199 006c 70E0      		ldi r23,hi8(52)
+ 201               	.LM30:
+ 202 006e 55E0      		ldi r21,lo8(5)
+ 203               	.L27:
+ 204               	.LBB8:
+ 205               	.LBB9:
+ 207               	.LM31:
+ 208 0070 87B1      		in r24,39-0x20
+ 209 0072 807F      		andi r24,lo8(-16)
+ 210 0074 87B9      		out 39-0x20,r24
+ 212               	.LM32:
+ 213 0076 87B1      		in r24,39-0x20
+ 214 0078 87B9      		out 39-0x20,r24
+ 216               	.LM33:
+ 217 007a 379A      		sbi 38-0x20,7
+ 219               	.LM34:
+ 220 007c 369A      		sbi 38-0x20,6
+ 221               	.L6:
+ 223               	.LM35:
+ 224 007e 349B      		sbis 38-0x20,4
+ 225 0080 00C0      		rjmp .L6
+ 227               	.LM36:
+ 228 0082 16B8      		out 38-0x20,__zero_reg__
+ 230               	.LM37:
+ 231 0084 85B1      		in r24,37-0x20
+ 232 0086 E0E0      		ldi r30,lo8(0)
+ 233 0088 8536      		cpi r24,lo8(101)
+ 234 008a 00F0      		brlo .L7
+ 235 008c E1E0      		ldi r30,lo8(1)
+ 236               	.L7:
+ 237               	.LBE9:
+ 238               	.LBE8:
+ 239               	.LBB10:
+ 240               	.LBB11:
+ 242               	.LM38:
+ 243 008e 87B1      		in r24,39-0x20
+ 244 0090 807F      		andi r24,lo8(-16)
+ 245 0092 87B9      		out 39-0x20,r24
+ 247               	.LM39:
+ 248 0094 389A      		sbi 39-0x20,0
+ 250               	.LM40:
+ 251 0096 379A      		sbi 38-0x20,7
+ 253               	.LM41:
+ 254 0098 369A      		sbi 38-0x20,6
+ 255               	.L8:
+ 257               	.LM42:
+ 258 009a 349B      		sbis 38-0x20,4
+ 259 009c 00C0      		rjmp .L8
+ 261               	.LM43:
+ 262 009e 16B8      		out 38-0x20,__zero_reg__
+ 264               	.LM44:
+ 265 00a0 85B1      		in r24,37-0x20
+ 266               	.LBE11:
+ 267               	.LBE10:
+ 269               	.LM45:
+ 270 00a2 8536      		cpi r24,lo8(101)
+ 271 00a4 00F0      		brlo .L9
+ 273               	.LM46:
+ 274 00a6 E260      		ori r30,lo8(2)
+ 275               	.L9:
+ 276               	.LBB12:
+ 277               	.LBB13:
+ 279               	.LM47:
+ 280 00a8 87B1      		in r24,39-0x20
+ 281 00aa 807F      		andi r24,lo8(-16)
+ 282 00ac 87B9      		out 39-0x20,r24
+ 284               	.LM48:
+ 285 00ae 399A      		sbi 39-0x20,1
+ 287               	.LM49:
+ 288 00b0 379A      		sbi 38-0x20,7
+ 290               	.LM50:
+ 291 00b2 369A      		sbi 38-0x20,6
+ 292               	.L10:
+ 294               	.LM51:
+ 295 00b4 349B      		sbis 38-0x20,4
+ 296 00b6 00C0      		rjmp .L10
+ 298               	.LM52:
+ 299 00b8 16B8      		out 38-0x20,__zero_reg__
+ 301               	.LM53:
+ 302 00ba 85B1      		in r24,37-0x20
+ 303               	.LBE13:
+ 304               	.LBE12:
+ 306               	.LM54:
+ 307 00bc 8536      		cpi r24,lo8(101)
+ 308 00be 00F0      		brlo .L11
+ 310               	.LM55:
+ 311 00c0 E460      		ori r30,lo8(4)
+ 312               	.L11:
+ 314               	.LM56:
+ 315 00c2 8E2F      		mov r24,r30
+ 316 00c4 8095      		com r24
+ 317 00c6 8770      		andi r24,lo8(7)
+ 319               	.LM57:
+ 320 00c8 9817      		cp r25,r24
+ 321 00ca 01F0      		breq .L27
+ 323               	.LM58:
+ 324 00cc E82F      		mov r30,r24
+ 325 00ce F0E0      		ldi r31,lo8(0)
+ 326 00d0 E050      		subi r30,lo8(-(pm(.L20)))
+ 327 00d2 F040      		sbci r31,hi8(-(pm(.L20)))
+ 328 00d4 0994      		ijmp
+ 329               		.data
+ 330               		.section .progmem.gcc_sw_table, "ax", @progbits
+ 331               		.p2align 1
+ 332               	.L20:
+ 333               		.data
+ 334               		.section .progmem.gcc_sw_table, "ax", @progbits
+ 335               		.p2align 1
+ 336 0000 00C0      		rjmp .L29
+ 337 0002 00C0      		rjmp .L15
+ 338 0004 00C0      		rjmp .L16
+ 339 0006 00C0      		rjmp .L17
+ 340 0008 00C0      		rjmp .L18
+ 341 000a 00C0      		rjmp .L29
+ 342 000c 00C0      		rjmp .L19
+ 343 000e 00C0      		rjmp .L29
+ 344               		.text
+ 345               	.L16:
+ 347               	.LM59:
+ 348 00d6 42BB      		out 50-0x20,r20
+ 350               	.LM60:
+ 351 00d8 3BBD      		out (74)+1-0x20,r19
+ 352 00da 2ABD      		out 74-0x20,r18
+ 353 00dc 00C0      		rjmp .L31
+ 354               	.L15:
+ 356               	.LM61:
+ 357 00de C09A      		sbi 56-0x20,0
+ 359               	.LM62:
+ 360 00e0 52BB      		out 50-0x20,r21
+ 362               	.LM63:
+ 363 00e2 7BBD      		out (74)+1-0x20,r23
+ 364 00e4 6ABD      		out 74-0x20,r22
+ 366               	.LM64:
+ 367 00e6 B9BD      		out (72)+1-0x20,r27
+ 368 00e8 A8BD      		out 72-0x20,r26
+ 369 00ea 00C0      		rjmp .L30
+ 370               	.L18:
+ 372               	.LM65:
+ 373 00ec 12BB      		out 50-0x20,r17
+ 375               	.LM66:
+ 376 00ee BBBD      		out (74)+1-0x20,r27
+ 377 00f0 AABD      		out 74-0x20,r26
+ 379               	.LM67:
+ 380 00f2 79BD      		out (72)+1-0x20,r23
+ 381 00f4 68BD      		out 72-0x20,r22
+ 382 00f6 00C0      		rjmp .L29
+ 383               	.L17:
+ 385               	.LM68:
+ 386 00f8 42BB      		out 50-0x20,r20
+ 388               	.LM69:
+ 389 00fa DBBD      		out (74)+1-0x20,r29
+ 390 00fc CABD      		out 74-0x20,r28
+ 391               	.L31:
+ 393               	.LM70:
+ 394 00fe 39BD      		out (72)+1-0x20,r19
+ 395 0100 28BD      		out 72-0x20,r18
+ 396               	.L29:
+ 398               	.LM71:
+ 399 0102 C09A      		sbi 56-0x20,0
+ 400               	.L30:
+ 401 0104 982F      		mov r25,r24
+ 402 0106 00C0      		rjmp .L27
+ 403               	.L19:
+ 405               	.LM72:
+ 406 0108 42BB      		out 50-0x20,r20
+ 408               	.LM73:
+ 409 010a 3BBD      		out (74)+1-0x20,r19
+ 410 010c 2ABD      		out 74-0x20,r18
+ 412               	.LM74:
+ 413 010e D9BD      		out (72)+1-0x20,r29
+ 414 0110 C8BD      		out 72-0x20,r28
+ 236:lfr3sensors.c **** 			LED_ON;
+ 416               	.LM75:
+ 417 0112 C098      		cbi 56-0x20,0
+ 418 0114 00C0      		rjmp .L30
+ 420               	.Lscope2:
+ 421               	.global	PERCENTAGE_PWM_STEP_SIZE
+ 422               		.data
+ 425               	PERCENTAGE_PWM_STEP_SIZE:
+ 426 0000 05        		.byte	5
+ 427               	.global	REVERSE_LEFT_RIGHT_MOTOR
+ 428               	.global	REVERSE_LEFT_RIGHT_MOTOR
+ 429               		.section .bss
+ 432               	REVERSE_LEFT_RIGHT_MOTOR:
+ 433 0000 00        		.skip 1,0
+ 434               	.global	LAST_INPUT
+ 435               	.global	LAST_INPUT
+ 438               	LAST_INPUT:
+ 439 0001 00        		.skip 1,0
+ 440               		.comm MASTER_PWM,1,1
+ 441               		.comm PERCENTAGE_LEFT_PWM,1,1
+ 442               		.comm PERCENTAGE_RIGHT_PWM,1,1
+ 443               		.comm Actual_input,1,1
+ 444               		.comm SENSOR_INPUTS,1,1
+ 445               		.comm sensorReference0,1,1
+ 446               		.comm sensorReference1,1,1
+ 447               		.comm sensorReference2,1,1
+ 459               		.text
+ 461               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 lfr3sensors.c
+     /tmp/ccClVWha.s:2      *ABS*:0000003f __SREG__
+     /tmp/ccClVWha.s:3      *ABS*:0000003e __SP_H__
+     /tmp/ccClVWha.s:4      *ABS*:0000003d __SP_L__
+     /tmp/ccClVWha.s:5      *ABS*:00000000 __tmp_reg__
+     /tmp/ccClVWha.s:6      *ABS*:00000001 __zero_reg__
+     /tmp/ccClVWha.s:73     .text:00000000 calc
+     /tmp/ccClVWha.s:115    .text:0000001a main
+                            *COM*:00000001 PERCENTAGE_LEFT_PWM
+                            *COM*:00000001 PERCENTAGE_RIGHT_PWM
+     /tmp/ccClVWha.s:438    .bss:00000001 LAST_INPUT
+     /tmp/ccClVWha.s:425    .data:00000000 PERCENTAGE_PWM_STEP_SIZE
+     /tmp/ccClVWha.s:432    .bss:00000000 REVERSE_LEFT_RIGHT_MOTOR
+                            *COM*:00000001 MASTER_PWM
+                            *COM*:00000001 Actual_input
+                            *COM*:00000001 SENSOR_INPUTS
+                            *COM*:00000001 sensorReference0
+                            *COM*:00000001 sensorReference1
+                            *COM*:00000001 sensorReference2
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss

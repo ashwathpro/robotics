@@ -1,0 +1,169 @@
+   1               		.file	"usart1.c"
+   2               		.arch atmega8
+   3               	__SREG__ = 0x3f
+   4               	__SP_H__ = 0x3e
+   5               	__SP_L__ = 0x3d
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   8               		.global __do_copy_data
+   9               		.global __do_clear_bss
+  11               		.text
+  12               	.Ltext0:
+  75               	.global	USART_Init
+  77               	USART_Init:
+   1:usart1.c      **** #include<avr/io.h>
+   2:usart1.c      **** #include<stdint.h>
+   3:usart1.c      **** 
+   4:usart1.c      **** 
+   5:usart1.c      **** void USART_Init( uint8_t baud )
+   6:usart1.c      **** {
+  79               	.LM1:
+  80               	/* prologue: frame size=0 */
+  81               	/* prologue end (size=0) */
+   7:usart1.c      **** /* Set baud rate */
+   8:usart1.c      **** //UBRRH = (unsigned char)(baud>>8);
+   9:usart1.c      **** UBRRL = (unsigned char)baud;
+  83               	.LM2:
+  84 0000 89B9      		out 41-0x20,r24
+  10:usart1.c      **** /* Enable Receiver and Transmitter */
+  11:usart1.c      **** UCSRB = (1<<RXEN)|(1<<TXEN);
+  86               	.LM3:
+  87 0002 88E1      		ldi r24,lo8(24)
+  88 0004 8AB9      		out 42-0x20,r24
+  12:usart1.c      **** /* Set frame format: 8data, 2stop bit */
+  13:usart1.c      **** UCSRC = (1<<URSEL)|(1<<USBS)|(3<<UCSZ0);
+  90               	.LM4:
+  91 0006 8EE8      		ldi r24,lo8(-114)
+  92 0008 80BD      		out 64-0x20,r24
+  93               	/* epilogue: frame size=0 */
+  94 000a 0895      		ret
+  95               	/* epilogue end (size=1) */
+  96               	/* function USART_Init size 6 (5) */
+  98               	.Lscope0:
+ 101               	.global	USART_Transmit
+ 103               	USART_Transmit:
+  14:usart1.c      **** }
+  15:usart1.c      **** 
+  16:usart1.c      **** 
+  17:usart1.c      **** void USART_Transmit( unsigned char data )
+  18:usart1.c      **** {
+ 105               	.LM5:
+ 106               	/* prologue: frame size=0 */
+ 107               	/* prologue end (size=0) */
+ 108               	.L3:
+  19:usart1.c      **** /* Wait for empty transmit buffer */
+  20:usart1.c      **** while ( !( UCSRA & (1<<UDRE)) )
+ 110               	.LM6:
+ 111 000c 5D9B      		sbis 43-0x20,5
+ 112 000e FECF      		rjmp .L3
+  21:usart1.c      **** ;
+  22:usart1.c      **** /* Put data into buffer, sends the data */
+  23:usart1.c      **** UDR = data;
+ 114               	.LM7:
+ 115 0010 8CB9      		out 44-0x20,r24
+ 116               	/* epilogue: frame size=0 */
+ 117 0012 0895      		ret
+ 118               	/* epilogue end (size=1) */
+ 119               	/* function USART_Transmit size 4 (3) */
+ 121               	.Lscope1:
+ 123               	.global	USART_Receive
+ 125               	USART_Receive:
+  24:usart1.c      **** //while ( !( UCSRA & (1<<UDRE)) )
+  25:usart1.c      **** 
+  26:usart1.c      **** }
+  27:usart1.c      **** 
+  28:usart1.c      **** unsigned char USART_Receive( void )
+  29:usart1.c      **** {
+ 127               	.LM8:
+ 128               	/* prologue: frame size=0 */
+ 129               	/* prologue end (size=0) */
+ 130               	.L7:
+  30:usart1.c      **** /* Wait for data to be received */
+  31:usart1.c      **** while ( !(UCSRA & (1<<RXC)) );
+ 132               	.LM9:
+ 133 0014 5F9B      		sbis 43-0x20,7
+ 134 0016 FECF      		rjmp .L7
+  32:usart1.c      **** /* Get and return received data from buffer */
+  33:usart1.c      **** return UDR;
+ 136               	.LM10:
+ 137 0018 8CB1      		in r24,44-0x20
+  34:usart1.c      **** }
+ 139               	.LM11:
+ 140 001a 9927      		clr r25
+ 141               	/* epilogue: frame size=0 */
+ 142 001c 0895      		ret
+ 143               	/* epilogue end (size=1) */
+ 144               	/* function USART_Receive size 5 (4) */
+ 146               	.Lscope2:
+ 148               	.global	main
+ 150               	main:
+  35:usart1.c      **** 
+  36:usart1.c      **** 
+  37:usart1.c      **** 
+  38:usart1.c      **** int main(void)
+  39:usart1.c      **** {
+ 152               	.LM12:
+ 153               	/* prologue: frame size=0 */
+ 154 001e C0E0      		ldi r28,lo8(__stack - 0)
+ 155 0020 D0E0      		ldi r29,hi8(__stack - 0)
+ 156 0022 DEBF      		out __SP_H__,r29
+ 157 0024 CDBF      		out __SP_L__,r28
+ 158               	/* prologue end (size=4) */
+  40:usart1.c      **** //DDRB=0b11111111;
+  41:usart1.c      **** DDRD=0b11111111;
+ 160               	.LM13:
+ 161 0026 1FEF      		ldi r17,lo8(-1)
+ 162 0028 11BB      		out 49-0x20,r17
+  42:usart1.c      **** 
+  43:usart1.c      **** unsigned char a,b;
+  44:usart1.c      **** uint8_t baud=207;
+  45:usart1.c      **** USART_Init( baud );
+ 164               	.LM14:
+ 165 002a 8FEC      		ldi r24,lo8(-49)
+ 166 002c E9DF      		rcall USART_Init
+  46:usart1.c      **** a='v';
+  47:usart1.c      **** 
+  48:usart1.c      **** PORTD=0b11111111;
+ 168               	.LM15:
+ 169 002e 12BB      		out 50-0x20,r17
+  49:usart1.c      **** /*
+  50:usart1.c      **** while(1)
+  51:usart1.c      **** {
+  52:usart1.c      **** USART_Transmit(a);
+  53:usart1.c      **** b=USART_Receive();
+  54:usart1.c      **** if(b=='v')
+  55:usart1.c      **** PORTC=0b00011000;
+  56:usart1.c      **** else
+  57:usart1.c      **** PORTC=0b00001000;
+  58:usart1.c      **** }
+  59:usart1.c      **** */
+  60:usart1.c      **** }
+ 171               	.LM16:
+ 172 0030 80E0      		ldi r24,lo8(0)
+ 173 0032 90E0      		ldi r25,hi8(0)
+ 174               	/* epilogue: frame size=0 */
+ 175 0034 00C0      		rjmp exit
+ 176               	/* epilogue end (size=1) */
+ 177               	/* function main size 12 (7) */
+ 179               	.Lscope3:
+ 180               		.text
+ 182               	Letext:
+ 183               	/* File "usart1.c": code   27 = 0x001b (  19), prologues   4, epilogues   4 */
+DEFINED SYMBOLS
+                            *ABS*:00000000 usart1.c
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccI9aaaa.s:3      *ABS*:0000003f __SREG__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccI9aaaa.s:4      *ABS*:0000003e __SP_H__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccI9aaaa.s:5      *ABS*:0000003d __SP_L__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccI9aaaa.s:6      *ABS*:00000000 __tmp_reg__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccI9aaaa.s:7      *ABS*:00000001 __zero_reg__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccI9aaaa.s:77     .text:00000000 USART_Init
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccI9aaaa.s:103    .text:0000000c USART_Transmit
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccI9aaaa.s:125    .text:00000014 USART_Receive
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccI9aaaa.s:150    .text:0000001e main
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccI9aaaa.s:182    .text:00000036 Letext
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+__stack
+exit

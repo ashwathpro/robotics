@@ -1,0 +1,178 @@
+
+usart1.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000094  00000000  00000000  00000094  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000000  00800060  00000094  00000128  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000000  00800060  00000094  00000128  2**0
+                  ALLOC
+  3 .noinit       00000000  00800060  00800060  00000128  2**0
+                  CONTENTS
+  4 .eeprom       00000000  00810000  00810000  00000128  2**0
+                  CONTENTS
+  5 .stab         0000075c  00000000  00000000  00000128  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  6 .stabstr      0000075f  00000000  00000000  00000884  2**0
+                  CONTENTS, READONLY, DEBUGGING
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	12 c0       	rjmp	.+36     	; 0x26 <__ctors_end>
+   2:	2b c0       	rjmp	.+86     	; 0x5a <__bad_interrupt>
+   4:	2a c0       	rjmp	.+84     	; 0x5a <__bad_interrupt>
+   6:	29 c0       	rjmp	.+82     	; 0x5a <__bad_interrupt>
+   8:	28 c0       	rjmp	.+80     	; 0x5a <__bad_interrupt>
+   a:	27 c0       	rjmp	.+78     	; 0x5a <__bad_interrupt>
+   c:	26 c0       	rjmp	.+76     	; 0x5a <__bad_interrupt>
+   e:	25 c0       	rjmp	.+74     	; 0x5a <__bad_interrupt>
+  10:	24 c0       	rjmp	.+72     	; 0x5a <__bad_interrupt>
+  12:	23 c0       	rjmp	.+70     	; 0x5a <__bad_interrupt>
+  14:	22 c0       	rjmp	.+68     	; 0x5a <__bad_interrupt>
+  16:	21 c0       	rjmp	.+66     	; 0x5a <__bad_interrupt>
+  18:	20 c0       	rjmp	.+64     	; 0x5a <__bad_interrupt>
+  1a:	1f c0       	rjmp	.+62     	; 0x5a <__bad_interrupt>
+  1c:	1e c0       	rjmp	.+60     	; 0x5a <__bad_interrupt>
+  1e:	1d c0       	rjmp	.+58     	; 0x5a <__bad_interrupt>
+  20:	1c c0       	rjmp	.+56     	; 0x5a <__bad_interrupt>
+  22:	1b c0       	rjmp	.+54     	; 0x5a <__bad_interrupt>
+  24:	1a c0       	rjmp	.+52     	; 0x5a <__bad_interrupt>
+
+00000026 <__ctors_end>:
+  26:	11 24       	eor	r1, r1
+  28:	1f be       	out	0x3f, r1	; 63
+  2a:	cf e5       	ldi	r28, 0x5F	; 95
+  2c:	d4 e0       	ldi	r29, 0x04	; 4
+  2e:	de bf       	out	0x3e, r29	; 62
+  30:	cd bf       	out	0x3d, r28	; 61
+
+00000032 <__do_copy_data>:
+  32:	10 e0       	ldi	r17, 0x00	; 0
+  34:	a0 e6       	ldi	r26, 0x60	; 96
+  36:	b0 e0       	ldi	r27, 0x00	; 0
+  38:	e4 e9       	ldi	r30, 0x94	; 148
+  3a:	f0 e0       	ldi	r31, 0x00	; 0
+  3c:	02 c0       	rjmp	.+4      	; 0x42 <.do_copy_data_start>
+
+0000003e <.do_copy_data_loop>:
+  3e:	05 90       	lpm	r0, Z+
+  40:	0d 92       	st	X+, r0
+
+00000042 <.do_copy_data_start>:
+  42:	a0 36       	cpi	r26, 0x60	; 96
+  44:	b1 07       	cpc	r27, r17
+  46:	d9 f7       	brne	.-10     	; 0x3e <.do_copy_data_loop>
+
+00000048 <__do_clear_bss>:
+  48:	10 e0       	ldi	r17, 0x00	; 0
+  4a:	a0 e6       	ldi	r26, 0x60	; 96
+  4c:	b0 e0       	ldi	r27, 0x00	; 0
+  4e:	01 c0       	rjmp	.+2      	; 0x52 <.do_clear_bss_start>
+
+00000050 <.do_clear_bss_loop>:
+  50:	1d 92       	st	X+, r1
+
+00000052 <.do_clear_bss_start>:
+  52:	a0 36       	cpi	r26, 0x60	; 96
+  54:	b1 07       	cpc	r27, r17
+  56:	e1 f7       	brne	.-8      	; 0x50 <.do_clear_bss_loop>
+  58:	10 c0       	rjmp	.+32     	; 0x7a <main>
+
+0000005a <__bad_interrupt>:
+  5a:	d2 cf       	rjmp	.-92     	; 0x0 <__vectors>
+
+0000005c <USART_Init>:
+void USART_Init( uint8_t baud )
+{
+/* Set baud rate */
+//UBRRH = (unsigned char)(baud>>8);
+UBRRL = (unsigned char)baud;
+  5c:	89 b9       	out	0x09, r24	; 9
+/* Enable Receiver and Transmitter */
+UCSRB = (1<<RXEN)|(1<<TXEN);
+  5e:	88 e1       	ldi	r24, 0x18	; 24
+  60:	8a b9       	out	0x0a, r24	; 10
+/* Set frame format: 8data, 2stop bit */
+UCSRC = (1<<URSEL)|(1<<USBS)|(3<<UCSZ0);
+  62:	8e e8       	ldi	r24, 0x8E	; 142
+  64:	80 bd       	out	0x20, r24	; 32
+  66:	08 95       	ret
+
+00000068 <USART_Transmit>:
+}
+
+
+void USART_Transmit( unsigned char data )
+{
+/* Wait for empty transmit buffer */
+while ( !( UCSRA & (1<<UDRE)) )
+  68:	5d 9b       	sbis	0x0b, 5	; 11
+  6a:	fe cf       	rjmp	.-4      	; 0x68 <USART_Transmit>
+;
+/* Put data into buffer, sends the data */
+UDR = data;
+  6c:	8c b9       	out	0x0c, r24	; 12
+  6e:	08 95       	ret
+
+00000070 <USART_Receive>:
+//while ( !( UCSRA & (1<<UDRE)) )
+
+}
+
+unsigned char USART_Receive( void )
+{
+/* Wait for data to be received */
+while ( !(UCSRA & (1<<RXC)) );
+  70:	5f 9b       	sbis	0x0b, 7	; 11
+  72:	fe cf       	rjmp	.-4      	; 0x70 <USART_Receive>
+/* Get and return received data from buffer */
+return UDR;
+  74:	8c b1       	in	r24, 0x0c	; 12
+}
+  76:	99 27       	eor	r25, r25
+  78:	08 95       	ret
+
+0000007a <main>:
+
+
+
+int main(void)
+{
+  7a:	cf e5       	ldi	r28, 0x5F	; 95
+  7c:	d4 e0       	ldi	r29, 0x04	; 4
+  7e:	de bf       	out	0x3e, r29	; 62
+  80:	cd bf       	out	0x3d, r28	; 61
+//DDRB=0b11111111;
+DDRD=0b11111111;
+  82:	1f ef       	ldi	r17, 0xFF	; 255
+  84:	11 bb       	out	0x11, r17	; 17
+
+unsigned char a,b;
+uint8_t baud=207;
+USART_Init( baud );
+  86:	8f ec       	ldi	r24, 0xCF	; 207
+  88:	e9 df       	rcall	.-46     	; 0x5c <USART_Init>
+a='v';
+
+PORTD=0b11111111;
+  8a:	12 bb       	out	0x12, r17	; 18
+/*
+while(1)
+{
+USART_Transmit(a);
+b=USART_Receive();
+if(b=='v')
+PORTC=0b00011000;
+else
+PORTC=0b00001000;
+}
+*/
+}
+  8c:	80 e0       	ldi	r24, 0x00	; 0
+  8e:	90 e0       	ldi	r25, 0x00	; 0
+  90:	00 c0       	rjmp	.+0      	; 0x92 <_exit>
+
+00000092 <_exit>:
+  92:	ff cf       	rjmp	.-2      	; 0x92 <_exit>

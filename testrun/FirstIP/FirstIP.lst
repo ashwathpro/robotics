@@ -1,0 +1,406 @@
+   1               		.file	"FirstIP.c"
+   2               		.arch atmega8
+   3               	__SREG__ = 0x3f
+   4               	__SP_H__ = 0x3e
+   5               	__SP_L__ = 0x3d
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   8               		.global __do_copy_data
+   9               		.global __do_clear_bss
+  11               		.text
+  12               	.Ltext0:
+  75               	.global	USART_Init
+  77               	USART_Init:
+   1:FirstIP.c     **** #include<avr/io.h>
+   2:FirstIP.c     **** #include<util/delay.h>
+   3:FirstIP.c     **** 
+   4:FirstIP.c     **** /*#define DELAY_TIME 500   
+   5:FirstIP.c     ****  DELAY_tIME for much time should the motor
+   6:FirstIP.c     ****  be on if one Char is received */
+   7:FirstIP.c     **** 
+   8:FirstIP.c     **** void USART_Init( unsigned int baud )
+   9:FirstIP.c     **** {
+  79               	.LM1:
+  80               	/* prologue: frame size=0 */
+  81               	/* prologue end (size=0) */
+  82 0000 9C01      		movw r18,r24
+  10:FirstIP.c     **** 	/* Set baud rate */
+  11:FirstIP.c     **** 	UBRRH = (unsigned char)(baud>>8);
+  84               	.LM2:
+  85 0002 832F      		mov r24,r19
+  86 0004 9927      		clr r25
+  87 0006 80BD      		out 64-0x20,r24
+  12:FirstIP.c     **** 	UBRRL = (unsigned char)baud;
+  89               	.LM3:
+  90 0008 29B9      		out 41-0x20,r18
+  13:FirstIP.c     **** 	
+  14:FirstIP.c     **** 	/* Enable Receiver and Transmitter */
+  15:FirstIP.c     **** 	UCSRB = (1<<RXEN)|(1<<TXEN);
+  92               	.LM4:
+  93 000a 88E1      		ldi r24,lo8(24)
+  94 000c 8AB9      		out 42-0x20,r24
+  16:FirstIP.c     **** 	
+  17:FirstIP.c     **** 	/* Set frame format: 8data, 2stop bit */
+  18:FirstIP.c     **** 	UCSRC = (1<<URSEL)|(0<<USBS)|(3<<UCSZ0);
+  96               	.LM5:
+  97 000e 86E8      		ldi r24,lo8(-122)
+  98 0010 80BD      		out 64-0x20,r24
+  99               	/* epilogue: frame size=0 */
+ 100 0012 0895      		ret
+ 101               	/* epilogue end (size=1) */
+ 102               	/* function USART_Init size 10 (9) */
+ 104               	.Lscope0:
+ 106               	.global	USART_Receive
+ 108               	USART_Receive:
+  19:FirstIP.c     **** }
+  20:FirstIP.c     **** 
+  21:FirstIP.c     **** 
+  22:FirstIP.c     **** 
+  23:FirstIP.c     **** /*void USART_Transmit( unsigned char data )
+  24:FirstIP.c     **** {
+  25:FirstIP.c     **** 	// Wait for empty transmit buffer 
+  26:FirstIP.c     **** 	while ( !( UCSRA & (1<<UDRE)) );
+  27:FirstIP.c     **** 	
+  28:FirstIP.c     **** 	// Put data into buffer, sends the data 
+  29:FirstIP.c     **** 	UDR = data;
+  30:FirstIP.c     **** 	PORTC=0b00111111;
+  31:FirstIP.c     **** 	
+  32:FirstIP.c     **** }*/
+  33:FirstIP.c     **** 
+  34:FirstIP.c     **** 
+  35:FirstIP.c     **** unsigned char USART_Receive( void )
+  36:FirstIP.c     **** {
+ 110               	.LM6:
+ 111               	/* prologue: frame size=0 */
+ 112               	/* prologue end (size=0) */
+ 113               	.L3:
+  37:FirstIP.c     **** 	// Wait for data to be received 
+  38:FirstIP.c     **** 	while ( !(UCSRA & (1<<RXC)) );
+ 115               	.LM7:
+ 116 0014 5F9B      		sbis 43-0x20,7
+ 117 0016 FECF      		rjmp .L3
+  39:FirstIP.c     **** 	// Get and return received data from buffer 
+  40:FirstIP.c     **** 	return UDR;
+ 119               	.LM8:
+ 120 0018 8CB1      		in r24,44-0x20
+  41:FirstIP.c     **** }
+ 122               	.LM9:
+ 123 001a 9927      		clr r25
+ 124               	/* epilogue: frame size=0 */
+ 125 001c 0895      		ret
+ 126               	/* epilogue end (size=1) */
+ 127               	/* function USART_Receive size 5 (4) */
+ 129               	.Lscope1:
+ 131               	.global	main
+ 133               	main:
+  42:FirstIP.c     **** 
+  43:FirstIP.c     **** 
+  44:FirstIP.c     **** int main(void)
+  45:FirstIP.c     **** {
+ 135               	.LM10:
+ 136               	/* prologue: frame size=0 */
+ 137 001e C0E0      		ldi r28,lo8(__stack - 0)
+ 138 0020 D0E0      		ldi r29,hi8(__stack - 0)
+ 139 0022 DEBF      		out __SP_H__,r29
+ 140 0024 CDBF      		out __SP_L__,r28
+ 141               	/* prologue end (size=4) */
+  46:FirstIP.c     **** 	DDRB=0b11111111;
+ 143               	.LM11:
+ 144 0026 8FEF      		ldi r24,lo8(-1)
+ 145 0028 87BB      		out 55-0x20,r24
+  47:FirstIP.c     **** 	PORTB=0b00000000;
+ 147               	.LM12:
+ 148 002a 18BA      		out 56-0x20,__zero_reg__
+  48:FirstIP.c     **** 	unsigned char b;
+  49:FirstIP.c     **** 	uint8_t baud;
+  50:FirstIP.c     **** 	baud=12;
+  51:FirstIP.c     **** 	USART_Init(baud);
+ 150               	.LM13:
+ 151 002c 8CE0      		ldi r24,lo8(12)
+ 152 002e 90E0      		ldi r25,hi8(12)
+ 153 0030 E7DF      		rcall USART_Init
+ 154               	.L43:
+  52:FirstIP.c     **** 	while(1)
+  53:FirstIP.c     **** 	{
+  54:FirstIP.c     **** 	PORTB=0b00000000;
+ 156               	.LM14:
+ 157 0032 18BA      		out 56-0x20,__zero_reg__
+  55:FirstIP.c     **** //	USART_Transmit(a);	
+  56:FirstIP.c     **** 	b=USART_Receive();
+ 159               	.LM15:
+ 160 0034 EFDF      		rcall USART_Receive
+  57:FirstIP.c     **** 	if(b=='3')
+ 162               	.LM16:
+ 163 0036 8333      		cpi r24,lo8(51)
+ 164 0038 29F4      		brne .L9
+  58:FirstIP.c     **** 	{
+  59:FirstIP.c     **** 		PORTB=0b0110;
+ 166               	.LM17:
+ 167 003a 86E0      		ldi r24,lo8(6)
+ 168 003c 88BB      		out 56-0x20,r24
+ 169               	.LBB2:
+ 170               	.LBB3:
+ 172               	.Ltext1:
+   1:d:/WinAVR/avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:d:/WinAVR/avr/include/util/delay.h ****    Copyright (c) 2004,2005 Joerg Wunsch
+   3:d:/WinAVR/avr/include/util/delay.h ****    All rights reserved.
+   4:d:/WinAVR/avr/include/util/delay.h **** 
+   5:d:/WinAVR/avr/include/util/delay.h ****    Redistribution and use in source and binary forms, with or without
+   6:d:/WinAVR/avr/include/util/delay.h ****    modification, are permitted provided that the following conditions are met:
+   7:d:/WinAVR/avr/include/util/delay.h **** 
+   8:d:/WinAVR/avr/include/util/delay.h ****    * Redistributions of source code must retain the above copyright
+   9:d:/WinAVR/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer.
+  10:d:/WinAVR/avr/include/util/delay.h **** 
+  11:d:/WinAVR/avr/include/util/delay.h ****    * Redistributions in binary form must reproduce the above copyright
+  12:d:/WinAVR/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer in
+  13:d:/WinAVR/avr/include/util/delay.h ****      the documentation and/or other materials provided with the
+  14:d:/WinAVR/avr/include/util/delay.h ****      distribution.
+  15:d:/WinAVR/avr/include/util/delay.h **** 
+  16:d:/WinAVR/avr/include/util/delay.h ****    * Neither the name of the copyright holders nor the names of
+  17:d:/WinAVR/avr/include/util/delay.h ****      contributors may be used to endorse or promote products derived
+  18:d:/WinAVR/avr/include/util/delay.h ****      from this software without specific prior written permission.
+  19:d:/WinAVR/avr/include/util/delay.h **** 
+  20:d:/WinAVR/avr/include/util/delay.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  21:d:/WinAVR/avr/include/util/delay.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  22:d:/WinAVR/avr/include/util/delay.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  23:d:/WinAVR/avr/include/util/delay.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  24:d:/WinAVR/avr/include/util/delay.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  25:d:/WinAVR/avr/include/util/delay.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  26:d:/WinAVR/avr/include/util/delay.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  27:d:/WinAVR/avr/include/util/delay.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  28:d:/WinAVR/avr/include/util/delay.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  29:d:/WinAVR/avr/include/util/delay.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  30:d:/WinAVR/avr/include/util/delay.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  31:d:/WinAVR/avr/include/util/delay.h **** 
+  32:d:/WinAVR/avr/include/util/delay.h **** /* $Id: delay.h,v 1.1.2.1 2005/12/12 23:19:49 joerg_wunsch Exp $ */
+  33:d:/WinAVR/avr/include/util/delay.h **** 
+  34:d:/WinAVR/avr/include/util/delay.h **** #ifndef _UTIL_DELAY_H_
+  35:d:/WinAVR/avr/include/util/delay.h **** #define _UTIL_DELAY_H_ 1
+  36:d:/WinAVR/avr/include/util/delay.h **** 
+  37:d:/WinAVR/avr/include/util/delay.h **** #include <inttypes.h>
+  38:d:/WinAVR/avr/include/util/delay.h **** 
+  39:d:/WinAVR/avr/include/util/delay.h **** /** \defgroup util_delay <util/delay.h>: Busy-wait delay loops
+  40:d:/WinAVR/avr/include/util/delay.h ****     \code
+  41:d:/WinAVR/avr/include/util/delay.h ****     #define F_CPU 1000000UL  // 1 MHz
+  42:d:/WinAVR/avr/include/util/delay.h ****     //#define F_CPU 14.7456E6
+  43:d:/WinAVR/avr/include/util/delay.h ****     #include <util/delay.h>
+  44:d:/WinAVR/avr/include/util/delay.h ****     \endcode
+  45:d:/WinAVR/avr/include/util/delay.h **** 
+  46:d:/WinAVR/avr/include/util/delay.h ****     \note As an alternative method, it is possible to pass the
+  47:d:/WinAVR/avr/include/util/delay.h ****     F_CPU macro down to the compiler from the Makefile.
+  48:d:/WinAVR/avr/include/util/delay.h ****     Obviously, in that case, no \c \#define statement should be
+  49:d:/WinAVR/avr/include/util/delay.h ****     used.
+  50:d:/WinAVR/avr/include/util/delay.h **** 
+  51:d:/WinAVR/avr/include/util/delay.h ****     The functions in this header file implement simple delay loops
+  52:d:/WinAVR/avr/include/util/delay.h ****     that perform a busy-waiting.  They are typically used to
+  53:d:/WinAVR/avr/include/util/delay.h ****     facilitate short delays in the program execution.  They are
+  54:d:/WinAVR/avr/include/util/delay.h ****     implemented as count-down loops with a well-known CPU cycle
+  55:d:/WinAVR/avr/include/util/delay.h ****     count per loop iteration.  As such, no other processing can
+  56:d:/WinAVR/avr/include/util/delay.h ****     occur simultaneously.  It should be kept in mind that the
+  57:d:/WinAVR/avr/include/util/delay.h ****     functions described here do not disable interrupts.
+  58:d:/WinAVR/avr/include/util/delay.h **** 
+  59:d:/WinAVR/avr/include/util/delay.h ****     In general, for long delays, the use of hardware timers is
+  60:d:/WinAVR/avr/include/util/delay.h ****     much preferrable, as they free the CPU, and allow for
+  61:d:/WinAVR/avr/include/util/delay.h ****     concurrent processing of other events while the timer is
+  62:d:/WinAVR/avr/include/util/delay.h ****     running.  However, in particular for very short delays, the
+  63:d:/WinAVR/avr/include/util/delay.h ****     overhead of setting up a hardware timer is too much compared
+  64:d:/WinAVR/avr/include/util/delay.h ****     to the overall delay time.
+  65:d:/WinAVR/avr/include/util/delay.h **** 
+  66:d:/WinAVR/avr/include/util/delay.h ****     Two inline functions are provided for the actual delay algorithms.
+  67:d:/WinAVR/avr/include/util/delay.h **** 
+  68:d:/WinAVR/avr/include/util/delay.h ****     Two wrapper functions allow the specification of microsecond, and
+  69:d:/WinAVR/avr/include/util/delay.h ****     millisecond delays directly, using the application-supplied macro
+  70:d:/WinAVR/avr/include/util/delay.h ****     F_CPU as the CPU clock frequency (in Hertz).  These functions
+  71:d:/WinAVR/avr/include/util/delay.h ****     operate on double typed arguments, however when optimization is
+  72:d:/WinAVR/avr/include/util/delay.h ****     turned on, the entire floating-point calculation will be done at
+  73:d:/WinAVR/avr/include/util/delay.h ****     compile-time.
+  74:d:/WinAVR/avr/include/util/delay.h **** 
+  75:d:/WinAVR/avr/include/util/delay.h ****     \note When using _delay_us() and _delay_ms(), the expressions
+  76:d:/WinAVR/avr/include/util/delay.h ****     passed as arguments to these functions shall be compile-time
+  77:d:/WinAVR/avr/include/util/delay.h ****     constants, otherwise the floating-point calculations to setup the
+  78:d:/WinAVR/avr/include/util/delay.h ****     loops will be done at run-time, thereby drastically increasing
+  79:d:/WinAVR/avr/include/util/delay.h ****     both the resulting code size, as well as the time required to
+  80:d:/WinAVR/avr/include/util/delay.h ****     setup the loops.
+  81:d:/WinAVR/avr/include/util/delay.h **** */
+  82:d:/WinAVR/avr/include/util/delay.h **** 
+  83:d:/WinAVR/avr/include/util/delay.h **** #if !defined(__DOXYGEN__)
+  84:d:/WinAVR/avr/include/util/delay.h **** static inline void _delay_loop_1(uint8_t __count) __attribute__((always_inline));
+  85:d:/WinAVR/avr/include/util/delay.h **** static inline void _delay_loop_2(uint16_t __count) __attribute__((always_inline));
+  86:d:/WinAVR/avr/include/util/delay.h **** static inline void _delay_us(double __us) __attribute__((always_inline));
+  87:d:/WinAVR/avr/include/util/delay.h **** static inline void _delay_ms(double __ms) __attribute__((always_inline));
+  88:d:/WinAVR/avr/include/util/delay.h **** #endif
+  89:d:/WinAVR/avr/include/util/delay.h **** 
+  90:d:/WinAVR/avr/include/util/delay.h **** /** \ingroup util_delay
+  91:d:/WinAVR/avr/include/util/delay.h **** 
+  92:d:/WinAVR/avr/include/util/delay.h ****     Delay loop using an 8-bit counter \c __count, so up to 256
+  93:d:/WinAVR/avr/include/util/delay.h ****     iterations are possible.  (The value 256 would have to be passed
+  94:d:/WinAVR/avr/include/util/delay.h ****     as 0.)  The loop executes three CPU cycles per iteration, not
+  95:d:/WinAVR/avr/include/util/delay.h ****     including the overhead the compiler needs to setup the counter
+  96:d:/WinAVR/avr/include/util/delay.h ****     register.
+  97:d:/WinAVR/avr/include/util/delay.h **** 
+  98:d:/WinAVR/avr/include/util/delay.h ****     Thus, at a CPU speed of 1 MHz, delays of up to 768 microseconds
+  99:d:/WinAVR/avr/include/util/delay.h ****     can be achieved.
+ 100:d:/WinAVR/avr/include/util/delay.h **** */
+ 101:d:/WinAVR/avr/include/util/delay.h **** void
+ 102:d:/WinAVR/avr/include/util/delay.h **** _delay_loop_1(uint8_t __count)
+ 103:d:/WinAVR/avr/include/util/delay.h **** {
+ 104:d:/WinAVR/avr/include/util/delay.h **** 	__asm__ volatile (
+ 105:d:/WinAVR/avr/include/util/delay.h **** 		"1: dec %0" "\n\t"
+ 106:d:/WinAVR/avr/include/util/delay.h **** 		"brne 1b"
+ 107:d:/WinAVR/avr/include/util/delay.h **** 		: "=r" (__count)
+ 108:d:/WinAVR/avr/include/util/delay.h **** 		: "0" (__count)
+ 109:d:/WinAVR/avr/include/util/delay.h **** 	);
+ 110:d:/WinAVR/avr/include/util/delay.h **** }
+ 111:d:/WinAVR/avr/include/util/delay.h **** 
+ 112:d:/WinAVR/avr/include/util/delay.h **** /** \ingroup util_delay
+ 113:d:/WinAVR/avr/include/util/delay.h **** 
+ 114:d:/WinAVR/avr/include/util/delay.h ****     Delay loop using a 16-bit counter \c __count, so up to 65536
+ 115:d:/WinAVR/avr/include/util/delay.h ****     iterations are possible.  (The value 65536 would have to be
+ 116:d:/WinAVR/avr/include/util/delay.h ****     passed as 0.)  The loop executes four CPU cycles per iteration,
+ 117:d:/WinAVR/avr/include/util/delay.h ****     not including the overhead the compiler requires to setup the
+ 118:d:/WinAVR/avr/include/util/delay.h ****     counter register pair.
+ 119:d:/WinAVR/avr/include/util/delay.h **** 
+ 120:d:/WinAVR/avr/include/util/delay.h ****     Thus, at a CPU speed of 1 MHz, delays of up to about 262.1
+ 121:d:/WinAVR/avr/include/util/delay.h ****     milliseconds can be achieved.
+ 122:d:/WinAVR/avr/include/util/delay.h ****  */
+ 123:d:/WinAVR/avr/include/util/delay.h **** void
+ 124:d:/WinAVR/avr/include/util/delay.h **** _delay_loop_2(uint16_t __count)
+ 125:d:/WinAVR/avr/include/util/delay.h **** {
+ 126:d:/WinAVR/avr/include/util/delay.h **** 	__asm__ volatile (
+ 127:d:/WinAVR/avr/include/util/delay.h **** 		"1: sbiw %0,1" "\n\t"
+ 128:d:/WinAVR/avr/include/util/delay.h **** 		"brne 1b"
+ 129:d:/WinAVR/avr/include/util/delay.h **** 		: "=w" (__count)
+ 130:d:/WinAVR/avr/include/util/delay.h **** 		: "0" (__count)
+ 131:d:/WinAVR/avr/include/util/delay.h **** 	);
+ 132:d:/WinAVR/avr/include/util/delay.h **** }
+ 133:d:/WinAVR/avr/include/util/delay.h **** 
+ 134:d:/WinAVR/avr/include/util/delay.h **** #ifndef F_CPU
+ 135:d:/WinAVR/avr/include/util/delay.h **** /* prevent compiler error by supplying a default */
+ 136:d:/WinAVR/avr/include/util/delay.h **** # warning "F_CPU not defined for <util/delay.h>"
+ 137:d:/WinAVR/avr/include/util/delay.h **** # define F_CPU 1000000UL
+ 138:d:/WinAVR/avr/include/util/delay.h **** #endif
+ 139:d:/WinAVR/avr/include/util/delay.h **** 
+ 140:d:/WinAVR/avr/include/util/delay.h **** /**
+ 141:d:/WinAVR/avr/include/util/delay.h ****    \ingroup util_delay
+ 142:d:/WinAVR/avr/include/util/delay.h **** 
+ 143:d:/WinAVR/avr/include/util/delay.h ****    Perform a delay of \c __us microseconds, using _delay_loop_1().
+ 144:d:/WinAVR/avr/include/util/delay.h **** 
+ 145:d:/WinAVR/avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 146:d:/WinAVR/avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 147:d:/WinAVR/avr/include/util/delay.h **** 
+ 148:d:/WinAVR/avr/include/util/delay.h ****    The maximal possible delay is 768 us / F_CPU in MHz.
+ 149:d:/WinAVR/avr/include/util/delay.h ****  */
+ 150:d:/WinAVR/avr/include/util/delay.h **** void
+ 151:d:/WinAVR/avr/include/util/delay.h **** _delay_us(double __us)
+ 152:d:/WinAVR/avr/include/util/delay.h **** {
+ 153:d:/WinAVR/avr/include/util/delay.h **** 	uint8_t __ticks;
+ 154:d:/WinAVR/avr/include/util/delay.h **** 	double __tmp = ((F_CPU) / 3e6) * __us;
+ 155:d:/WinAVR/avr/include/util/delay.h **** 	if (__tmp < 1.0)
+ 156:d:/WinAVR/avr/include/util/delay.h **** 		__ticks = 1;
+ 157:d:/WinAVR/avr/include/util/delay.h **** 	else if (__tmp > 255)
+ 158:d:/WinAVR/avr/include/util/delay.h **** 		__ticks = 0;	/* i.e. 256 */
+ 159:d:/WinAVR/avr/include/util/delay.h **** 	else
+ 160:d:/WinAVR/avr/include/util/delay.h **** 		__ticks = (uint8_t)__tmp;
+ 161:d:/WinAVR/avr/include/util/delay.h **** 	_delay_loop_1(__ticks);
+ 162:d:/WinAVR/avr/include/util/delay.h **** }
+ 163:d:/WinAVR/avr/include/util/delay.h **** 
+ 164:d:/WinAVR/avr/include/util/delay.h **** 
+ 165:d:/WinAVR/avr/include/util/delay.h **** /**
+ 166:d:/WinAVR/avr/include/util/delay.h ****    \ingroup util_delay
+ 167:d:/WinAVR/avr/include/util/delay.h **** 
+ 168:d:/WinAVR/avr/include/util/delay.h ****    Perform a delay of \c __ms milliseconds, using _delay_loop_2().
+ 169:d:/WinAVR/avr/include/util/delay.h **** 
+ 170:d:/WinAVR/avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 171:d:/WinAVR/avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 172:d:/WinAVR/avr/include/util/delay.h **** 
+ 173:d:/WinAVR/avr/include/util/delay.h ****    The maximal possible delay is 262.14 ms / F_CPU in MHz.
+ 174:d:/WinAVR/avr/include/util/delay.h ****  */
+ 175:d:/WinAVR/avr/include/util/delay.h **** void
+ 176:d:/WinAVR/avr/include/util/delay.h **** _delay_ms(double __ms)
+ 177:d:/WinAVR/avr/include/util/delay.h **** {
+ 178:d:/WinAVR/avr/include/util/delay.h **** 	uint16_t __ticks;
+ 179:d:/WinAVR/avr/include/util/delay.h **** 	double __tmp = ((F_CPU) / 4e3) * __ms;
+ 180:d:/WinAVR/avr/include/util/delay.h **** 	if (__tmp < 1.0)
+ 181:d:/WinAVR/avr/include/util/delay.h **** 		__ticks = 1;
+ 182:d:/WinAVR/avr/include/util/delay.h **** 	else if (__tmp > 65535)
+ 183:d:/WinAVR/avr/include/util/delay.h **** 		__ticks = 0;	/* i.e. 65536 */
+ 184:d:/WinAVR/avr/include/util/delay.h **** 	else
+ 185:d:/WinAVR/avr/include/util/delay.h **** 		__ticks = (uint16_t)__tmp;
+ 174               	.LM18:
+ 175 003e 80E2      		ldi r24,lo8(20000)
+ 176 0040 9EE4      		ldi r25,hi8(20000)
+ 177 0042 0AC0      		rjmp .L42
+ 178               	.L9:
+ 179               	.LBE3:
+ 180               	.LBE2:
+ 182               	.Ltext2:
+  60:FirstIP.c     **** 		_delay_ms(10);
+  61:FirstIP.c     **** 	}
+  62:FirstIP.c     **** 	else
+  63:FirstIP.c     **** 	{
+  64:FirstIP.c     **** 		if(b=='1')
+ 184               	.LM19:
+ 185 0044 8133      		cpi r24,lo8(49)
+ 186 0046 11F4      		brne .L19
+  65:FirstIP.c     **** 		{ 	
+  66:FirstIP.c     **** 			PORTB=0b1010;
+ 188               	.LM20:
+ 189 0048 8AE0      		ldi r24,lo8(10)
+ 190 004a 03C0      		rjmp .L41
+ 191               	.L19:
+  67:FirstIP.c     **** 			_delay_ms(5);
+  68:FirstIP.c     **** 		}
+  69:FirstIP.c     **** 		else
+  70:FirstIP.c     **** 		if(b=='5')
+ 193               	.LM21:
+ 194 004c 8533      		cpi r24,lo8(53)
+ 195 004e 89F7      		brne .L43
+  71:FirstIP.c     **** 		{ 
+  72:FirstIP.c     **** 			PORTB=0b101;
+ 197               	.LM22:
+ 198 0050 85E0      		ldi r24,lo8(5)
+ 199               	.L41:
+ 200 0052 88BB      		out 56-0x20,r24
+ 201               	.LBB4:
+ 202               	.LBB5:
+ 204               	.Ltext3:
+ 206               	.LM23:
+ 207 0054 80E1      		ldi r24,lo8(10000)
+ 208 0056 97E2      		ldi r25,hi8(10000)
+ 209               	.L42:
+ 210               	.LBB6:
+ 211               	.LBB7:
+ 213               	.LM24:
+ 214               	/* #APP */
+ 215 0058 0197      		1: sbiw r24,1
+ 216 005a F1F7      		brne 1b
+ 217               	/* #NOAPP */
+ 218               	.LBE7:
+ 219               	.LBE6:
+ 220               	.LBE5:
+ 221               	.LBE4:
+ 222 005c EACF      		rjmp .L43
+ 223               	/* epilogue: frame size=0 */
+ 224               	/* epilogue: noreturn */
+ 225               	/* epilogue end (size=0) */
+ 226               	/* function main size 34 (30) */
+ 234               	.Lscope2:
+ 235               		.text
+ 237               	Letext:
+ 238               	/* File "FirstIP.c": code   49 = 0x0031 (  43), prologues   4, epilogues   2 */
+DEFINED SYMBOLS
+                            *ABS*:00000000 FirstIP.c
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:3      *ABS*:0000003f __SREG__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:4      *ABS*:0000003e __SP_H__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:5      *ABS*:0000003d __SP_L__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:6      *ABS*:00000000 __tmp_reg__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:7      *ABS*:00000001 __zero_reg__
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:77     .text:00000000 USART_Init
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:108    .text:00000014 USART_Receive
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:133    .text:0000001e main
+G:\DOCUME~1\ADMINI~1\LOCALS~1\Temp/ccwXaaaa.s:237    .text:0000005e Letext
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+__stack

@@ -1,0 +1,366 @@
+
+goal.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         0000017c  00000000  00000000  00000054  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .debug_aranges 00000020  00000000  00000000  000001d0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  2 .debug_pubnames 0000002a  00000000  00000000  000001f0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  3 .debug_info   000000b9  00000000  00000000  0000021a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_abbrev 0000007b  00000000  00000000  000002d3  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_line   000001cc  00000000  00000000  0000034e  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_frame  00000030  00000000  00000000  0000051c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_str    000000b2  00000000  00000000  0000054c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_loc    00000034  00000000  00000000  000005fe  2**0
+                  CONTENTS, READONLY, DEBUGGING
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	12 c0       	rjmp	.+36     	; 0x26 <__ctors_end>
+   2:	2c c0       	rjmp	.+88     	; 0x5c <__bad_interrupt>
+   4:	2b c0       	rjmp	.+86     	; 0x5c <__bad_interrupt>
+   6:	2a c0       	rjmp	.+84     	; 0x5c <__bad_interrupt>
+   8:	29 c0       	rjmp	.+82     	; 0x5c <__bad_interrupt>
+   a:	28 c0       	rjmp	.+80     	; 0x5c <__bad_interrupt>
+   c:	27 c0       	rjmp	.+78     	; 0x5c <__bad_interrupt>
+   e:	26 c0       	rjmp	.+76     	; 0x5c <__bad_interrupt>
+  10:	25 c0       	rjmp	.+74     	; 0x5c <__bad_interrupt>
+  12:	24 c0       	rjmp	.+72     	; 0x5c <__bad_interrupt>
+  14:	23 c0       	rjmp	.+70     	; 0x5c <__bad_interrupt>
+  16:	22 c0       	rjmp	.+68     	; 0x5c <__bad_interrupt>
+  18:	21 c0       	rjmp	.+66     	; 0x5c <__bad_interrupt>
+  1a:	20 c0       	rjmp	.+64     	; 0x5c <__bad_interrupt>
+  1c:	1f c0       	rjmp	.+62     	; 0x5c <__bad_interrupt>
+  1e:	1e c0       	rjmp	.+60     	; 0x5c <__bad_interrupt>
+  20:	1d c0       	rjmp	.+58     	; 0x5c <__bad_interrupt>
+  22:	1c c0       	rjmp	.+56     	; 0x5c <__bad_interrupt>
+  24:	1b c0       	rjmp	.+54     	; 0x5c <__bad_interrupt>
+
+00000026 <__ctors_end>:
+  26:	11 24       	eor	r1, r1
+  28:	1f be       	out	0x3f, r1	; 63
+  2a:	cf e5       	ldi	r28, 0x5F	; 95
+  2c:	d4 e0       	ldi	r29, 0x04	; 4
+  2e:	de bf       	out	0x3e, r29	; 62
+  30:	cd bf       	out	0x3d, r28	; 61
+
+00000032 <__do_copy_data>:
+  32:	10 e0       	ldi	r17, 0x00	; 0
+  34:	a0 e6       	ldi	r26, 0x60	; 96
+  36:	b0 e0       	ldi	r27, 0x00	; 0
+  38:	ec e7       	ldi	r30, 0x7C	; 124
+  3a:	f1 e0       	ldi	r31, 0x01	; 1
+  3c:	02 c0       	rjmp	.+4      	; 0x42 <.do_copy_data_start>
+
+0000003e <.do_copy_data_loop>:
+  3e:	05 90       	lpm	r0, Z+
+  40:	0d 92       	st	X+, r0
+
+00000042 <.do_copy_data_start>:
+  42:	a0 36       	cpi	r26, 0x60	; 96
+  44:	b1 07       	cpc	r27, r17
+  46:	d9 f7       	brne	.-10     	; 0x3e <.do_copy_data_loop>
+
+00000048 <__do_clear_bss>:
+  48:	10 e0       	ldi	r17, 0x00	; 0
+  4a:	a0 e6       	ldi	r26, 0x60	; 96
+  4c:	b0 e0       	ldi	r27, 0x00	; 0
+  4e:	01 c0       	rjmp	.+2      	; 0x52 <.do_clear_bss_start>
+
+00000050 <.do_clear_bss_loop>:
+  50:	1d 92       	st	X+, r1
+
+00000052 <.do_clear_bss_start>:
+  52:	a0 36       	cpi	r26, 0x60	; 96
+  54:	b1 07       	cpc	r27, r17
+  56:	e1 f7       	brne	.-8      	; 0x50 <.do_clear_bss_loop>
+  58:	20 d0       	rcall	.+64     	; 0x9a <main>
+  5a:	8e c0       	rjmp	.+284    	; 0x178 <_exit>
+
+0000005c <__bad_interrupt>:
+  5c:	d1 cf       	rjmp	.-94     	; 0x0 <__vectors>
+
+0000005e <main_initi>:
+				
+	}
+*/
+
+void main_initi()
+	{
+  5e:	14 ba       	out	0x14, r1	; 20
+		DDRC=0x00;   //input pin for encoder
+		DDRD=0x1E;   //motor poutput pins
+  60:	8e e1       	ldi	r24, 0x1E	; 30
+  62:	81 bb       	out	0x11, r24	; 17
+		DDRB=0xFF;   //flap+LED
+  64:	8f ef       	ldi	r24, 0xFF	; 255
+  66:	87 bb       	out	0x17, r24	; 23
+		TCCR1A=0xA1; //PWM
+  68:	81 ea       	ldi	r24, 0xA1	; 161
+  6a:	8f bd       	out	0x2f, r24	; 47
+		TCCR1B=0x04; //PWM
+  6c:	84 e0       	ldi	r24, 0x04	; 4
+  6e:	8e bd       	out	0x2e, r24	; 46
+		RM_PWM=0;  //initi
+  70:	1b bc       	out	0x2b, r1	; 43
+  72:	1a bc       	out	0x2a, r1	; 42
+		LM_PWM=0;  //initi
+  74:	19 bc       	out	0x29, r1	; 41
+  76:	18 bc       	out	0x28, r1	; 40
+		STOP;LED_ON;
+  78:	12 ba       	out	0x12, r1	; 18
+  7a:	18 ba       	out	0x18, r1	; 24
+  7c:	1b bc       	out	0x2b, r1	; 43
+  7e:	1a bc       	out	0x2a, r1	; 42
+  80:	19 bc       	out	0x29, r1	; 41
+  82:	18 bc       	out	0x28, r1	; 40
+  84:	c0 98       	cbi	0x18, 0	; 24
+		wdt_enable(7);
+  86:	2f e0       	ldi	r18, 0x0F	; 15
+  88:	88 e1       	ldi	r24, 0x18	; 24
+  8a:	90 e0       	ldi	r25, 0x00	; 0
+  8c:	0f b6       	in	r0, 0x3f	; 63
+  8e:	f8 94       	cli
+  90:	a8 95       	wdr
+  92:	81 bd       	out	0x21, r24	; 33
+  94:	0f be       	out	0x3f, r0	; 63
+  96:	21 bd       	out	0x21, r18	; 33
+	}
+  98:	08 95       	ret
+
+0000009a <main>:
+		
+
+int main()
+
+{
+  9a:	cf 92       	push	r12
+  9c:	df 92       	push	r13
+  9e:	ef 92       	push	r14
+  a0:	ff 92       	push	r15
+  a2:	0f 93       	push	r16
+  a4:	1f 93       	push	r17
+	main_initi();
+  a6:	db df       	rcall	.-74     	; 0x5e <main_initi>
+	
+	else if(input==13)	{		LM_PWM=RM_PWM=(uint8_t)((topPWM*6)/10);LED_OFF;}
+	
+	else if(input==14)	{		LM_PWM=RM_PWM=(uint8_t)((topPWM*8)/10);LED_OFF;}
+	
+	else if(input==15)	{		RM_PWM=LM_PWM=TOP;LED_OFF;}
+  a8:	a4 e6       	ldi	r26, 0x64	; 100
+  aa:	b0 e0       	ldi	r27, 0x00	; 0
+	
+	else if(input==12)	{		LM_PWM=RM_PWM=(uint8_t)((topPWM*5)/10);LED_OFF;}
+	
+	else if(input==13)	{		LM_PWM=RM_PWM=(uint8_t)((topPWM*6)/10);LED_OFF;}
+	
+	else if(input==14)	{		LM_PWM=RM_PWM=(uint8_t)((topPWM*8)/10);LED_OFF;}
+  ac:	e0 e5       	ldi	r30, 0x50	; 80
+  ae:	f0 e0       	ldi	r31, 0x00	; 0
+	
+	else if(input==11)	{		RM_PWM=LM_PWM=(uint8_t)((topPWM*3)/10);LED_OFF;}
+	
+	else if(input==12)	{		LM_PWM=RM_PWM=(uint8_t)((topPWM*5)/10);LED_OFF;}
+	
+	else if(input==13)	{		LM_PWM=RM_PWM=(uint8_t)((topPWM*6)/10);LED_OFF;}
+  b0:	6c e3       	ldi	r22, 0x3C	; 60
+  b2:	70 e0       	ldi	r23, 0x00	; 0
+	
+	else if(input==10)	{		;}
+	
+	else if(input==11)	{		RM_PWM=LM_PWM=(uint8_t)((topPWM*3)/10);LED_OFF;}
+	
+	else if(input==12)	{		LM_PWM=RM_PWM=(uint8_t)((topPWM*5)/10);LED_OFF;}
+  b4:	42 e3       	ldi	r20, 0x32	; 50
+  b6:	50 e0       	ldi	r21, 0x00	; 0
+	
+	else if(input==9)	{		;}
+	
+	else if(input==10)	{		;}
+	
+	else if(input==11)	{		RM_PWM=LM_PWM=(uint8_t)((topPWM*3)/10);LED_OFF;}
+  b8:	2e e1       	ldi	r18, 0x1E	; 30
+  ba:	30 e0       	ldi	r19, 0x00	; 0
+	
+	else if(input==4)	{		TURN_RIGHT;LED_OFF;}
+	
+	else if(input==5)	{		FLAP_OPEN;LED_OFF;}
+	
+	else if(input==6)	{		FLAP_CLOSE;LED_OFF;}
+  bc:	00 e1       	ldi	r16, 0x10	; 16
+  be:	c0 2e       	mov	r12, r16
+	
+	else if(input==3)	{		TURN_LEFT;LED_OFF;}
+	
+	else if(input==4)	{		TURN_RIGHT;LED_OFF;}
+	
+	else if(input==5)	{		FLAP_OPEN;LED_OFF;}
+  c0:	10 e2       	ldi	r17, 0x20	; 32
+  c2:	d1 2e       	mov	r13, r17
+	
+	else if(input==2)	{		MOV_BACK;LED_OFF;}
+	
+	else if(input==3)	{		TURN_LEFT;LED_OFF;}
+	
+	else if(input==4)	{		TURN_RIGHT;LED_OFF;}
+  c4:	92 e1       	ldi	r25, 0x12	; 18
+  c6:	e9 2e       	mov	r14, r25
+	
+	else if(input==1)	{		MOV_FORWORD;LED_OFF;}
+	
+	else if(input==2)	{		MOV_BACK;LED_OFF;}
+	
+	else if(input==3)	{		TURN_LEFT;LED_OFF;}
+  c8:	8c e0       	ldi	r24, 0x0C	; 12
+  ca:	f8 2e       	mov	r15, r24
+	
+	if(input==0)	    {		STOP;LED_ON;}
+	
+	else if(input==1)	{		MOV_FORWORD;LED_OFF;}
+	
+	else if(input==2)	{		MOV_BACK;LED_OFF;}
+  cc:	0a e0       	ldi	r16, 0x0A	; 10
+ {
+	input=INPUT;
+	
+	if(input==0)	    {		STOP;LED_ON;}
+	
+	else if(input==1)	{		MOV_FORWORD;LED_OFF;}
+  ce:	14 e1       	ldi	r17, 0x14	; 20
+	uint8_t input;
+	uint16_t topPWM=TOP;
+	
+while(1)
+ {
+	input=INPUT;
+  d0:	83 b3       	in	r24, 0x13	; 19
+  d2:	90 e0       	ldi	r25, 0x00	; 0
+  d4:	8c 73       	andi	r24, 0x3C	; 60
+  d6:	90 70       	andi	r25, 0x00	; 0
+  d8:	95 95       	asr	r25
+  da:	87 95       	ror	r24
+  dc:	95 95       	asr	r25
+  de:	87 95       	ror	r24
+	
+	if(input==0)	    {		STOP;LED_ON;}
+  e0:	88 23       	and	r24, r24
+  e2:	41 f4       	brne	.+16     	; 0xf4 <main+0x5a>
+  e4:	12 ba       	out	0x12, r1	; 18
+  e6:	18 ba       	out	0x18, r1	; 24
+  e8:	1b bc       	out	0x2b, r1	; 43
+  ea:	1a bc       	out	0x2a, r1	; 42
+  ec:	19 bc       	out	0x29, r1	; 41
+  ee:	18 bc       	out	0x28, r1	; 40
+  f0:	c0 98       	cbi	0x18, 0	; 24
+  f2:	ee cf       	rjmp	.-36     	; 0xd0 <main+0x36>
+	
+	else if(input==1)	{		MOV_FORWORD;LED_OFF;}
+  f4:	81 30       	cpi	r24, 0x01	; 1
+  f6:	11 f4       	brne	.+4      	; 0xfc <main+0x62>
+  f8:	12 bb       	out	0x12, r17	; 18
+  fa:	3c c0       	rjmp	.+120    	; 0x174 <main+0xda>
+	
+	else if(input==2)	{		MOV_BACK;LED_OFF;}
+  fc:	82 30       	cpi	r24, 0x02	; 2
+  fe:	11 f4       	brne	.+4      	; 0x104 <main+0x6a>
+ 100:	02 bb       	out	0x12, r16	; 18
+ 102:	38 c0       	rjmp	.+112    	; 0x174 <main+0xda>
+	
+	else if(input==3)	{		TURN_LEFT;LED_OFF;}
+ 104:	83 30       	cpi	r24, 0x03	; 3
+ 106:	11 f4       	brne	.+4      	; 0x10c <main+0x72>
+ 108:	f2 ba       	out	0x12, r15	; 18
+ 10a:	34 c0       	rjmp	.+104    	; 0x174 <main+0xda>
+	
+	else if(input==4)	{		TURN_RIGHT;LED_OFF;}
+ 10c:	84 30       	cpi	r24, 0x04	; 4
+ 10e:	11 f4       	brne	.+4      	; 0x114 <main+0x7a>
+ 110:	e2 ba       	out	0x12, r14	; 18
+ 112:	30 c0       	rjmp	.+96     	; 0x174 <main+0xda>
+	
+	else if(input==5)	{		FLAP_OPEN;LED_OFF;}
+ 114:	85 30       	cpi	r24, 0x05	; 5
+ 116:	11 f4       	brne	.+4      	; 0x11c <main+0x82>
+ 118:	d8 ba       	out	0x18, r13	; 24
+ 11a:	2c c0       	rjmp	.+88     	; 0x174 <main+0xda>
+	
+	else if(input==6)	{		FLAP_CLOSE;LED_OFF;}
+ 11c:	86 30       	cpi	r24, 0x06	; 6
+ 11e:	11 f4       	brne	.+4      	; 0x124 <main+0x8a>
+ 120:	c8 ba       	out	0x18, r12	; 24
+ 122:	28 c0       	rjmp	.+80     	; 0x174 <main+0xda>
+	
+	else if(input==7)	{		HOLD_FLAP;LED_OFF;}
+ 124:	87 30       	cpi	r24, 0x07	; 7
+ 126:	11 f4       	brne	.+4      	; 0x12c <main+0x92>
+ 128:	18 ba       	out	0x18, r1	; 24
+ 12a:	24 c0       	rjmp	.+72     	; 0x174 <main+0xda>
+	
+	else if(input==8)	{		;}
+ 12c:	88 30       	cpi	r24, 0x08	; 8
+ 12e:	81 f2       	breq	.-96     	; 0xd0 <main+0x36>
+	
+	else if(input==9)	{		;}
+ 130:	89 30       	cpi	r24, 0x09	; 9
+ 132:	71 f2       	breq	.-100    	; 0xd0 <main+0x36>
+	
+	else if(input==10)	{		;}
+ 134:	8a 30       	cpi	r24, 0x0A	; 10
+ 136:	61 f2       	breq	.-104    	; 0xd0 <main+0x36>
+	
+	else if(input==11)	{		RM_PWM=LM_PWM=(uint8_t)((topPWM*3)/10);LED_OFF;}
+ 138:	8b 30       	cpi	r24, 0x0B	; 11
+ 13a:	19 f4       	brne	.+6      	; 0x142 <main+0xa8>
+ 13c:	39 bd       	out	0x29, r19	; 41
+ 13e:	28 bd       	out	0x28, r18	; 40
+ 140:	15 c0       	rjmp	.+42     	; 0x16c <main+0xd2>
+	
+	else if(input==12)	{		LM_PWM=RM_PWM=(uint8_t)((topPWM*5)/10);LED_OFF;}
+ 142:	8c 30       	cpi	r24, 0x0C	; 12
+ 144:	19 f4       	brne	.+6      	; 0x14c <main+0xb2>
+ 146:	5b bd       	out	0x2b, r21	; 43
+ 148:	4a bd       	out	0x2a, r20	; 42
+ 14a:	09 c0       	rjmp	.+18     	; 0x15e <main+0xc4>
+	
+	else if(input==13)	{		LM_PWM=RM_PWM=(uint8_t)((topPWM*6)/10);LED_OFF;}
+ 14c:	8d 30       	cpi	r24, 0x0D	; 13
+ 14e:	19 f4       	brne	.+6      	; 0x156 <main+0xbc>
+ 150:	7b bd       	out	0x2b, r23	; 43
+ 152:	6a bd       	out	0x2a, r22	; 42
+ 154:	04 c0       	rjmp	.+8      	; 0x15e <main+0xc4>
+	
+	else if(input==14)	{		LM_PWM=RM_PWM=(uint8_t)((topPWM*8)/10);LED_OFF;}
+ 156:	8e 30       	cpi	r24, 0x0E	; 14
+ 158:	39 f4       	brne	.+14     	; 0x168 <main+0xce>
+ 15a:	fb bd       	out	0x2b, r31	; 43
+ 15c:	ea bd       	out	0x2a, r30	; 42
+ 15e:	8a b5       	in	r24, 0x2a	; 42
+ 160:	9b b5       	in	r25, 0x2b	; 43
+ 162:	99 bd       	out	0x29, r25	; 41
+ 164:	88 bd       	out	0x28, r24	; 40
+ 166:	06 c0       	rjmp	.+12     	; 0x174 <main+0xda>
+	
+	else if(input==15)	{		RM_PWM=LM_PWM=TOP;LED_OFF;}
+ 168:	b9 bd       	out	0x29, r27	; 41
+ 16a:	a8 bd       	out	0x28, r26	; 40
+ 16c:	88 b5       	in	r24, 0x28	; 40
+ 16e:	99 b5       	in	r25, 0x29	; 41
+ 170:	9b bd       	out	0x2b, r25	; 43
+ 172:	8a bd       	out	0x2a, r24	; 42
+ 174:	c0 9a       	sbi	0x18, 0	; 24
+ 176:	ac cf       	rjmp	.-168    	; 0xd0 <main+0x36>
+
+00000178 <_exit>:
+ 178:	f8 94       	cli
+
+0000017a <__stop_program>:
+ 17a:	ff cf       	rjmp	.-2      	; 0x17a <__stop_program>

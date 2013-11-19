@@ -1,0 +1,19 @@
+currentNode=startNode;
+while(currentNode~=endNode)
+    nextNode=getNextNode(currentNode);      %%
+    nodeDir=findSlope(nextpoNode,currentNode);        
+    botNode=findBotNode(botPos());      %%      %%
+%     if(f())
+    while(botNode~=nextNode)
+        getImageFeed;       %%should return botDir
+        angle=deviation(nodeDir,botDir);    
+    if(deviation(23,botSlope())>20)
+         driveMotorFunc(5);
+    else
+        if(deviation(23,botSlope())<-20)
+        driveMotorFunc(1);
+        else
+            driveMotorFunc(3);
+        end
+    end
+    

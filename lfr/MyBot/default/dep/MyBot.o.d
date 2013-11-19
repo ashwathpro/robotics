@@ -1,0 +1,1 @@
+MyBot.o: ../MyBot.c

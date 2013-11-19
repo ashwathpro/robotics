@@ -1,0 +1,112 @@
+%%%% testing mines
+
+global rawArena
+global toCirc
+
+%           uncomment target to move as frontcordi
+
+
+%               IF UR GETTTING A GRAPH WID WIERD AND LONGER PATHS THEN MAKE
+%               DA CONSTRAINTS MORE STRONG..... PARTICULARLY DA COLOR
+%               DETECTING
+%               
+
+global maxRed
+global maxGreen
+global minBlue
+
+global blueOverRed
+global blueOverGreen
+
+global offset
+global maxi
+global tolCircVal
+
+%% Set Values
+
+maxRed=60;
+maxGreen=70;
+minBlue=130;
+
+blueOverRed=50;
+blueOverGreen=50;
+
+minesMinDia =  14;
+minesMaxDia =  26; 
+
+offset = 0;
+tolCircVal=.3;
+
+
+%% finding partition
+
+close all;
+
+imRows =size(rawArena,1);
+imCols =size(rawArena,2);
+
+toCirc=(rawArena(:,:,1)<=maxRed) & ((rawArena(:,:,2)<=maxGreen)) & ((rawArena(:,:,3)>=minBlue) ...
+        & rawArena(:,:,3)-rawArena(:,:,1) >= blueOverRed & rawArena(:,:,3)-rawArena(:,:,2) >= blueOverGreen);
+arenaImage=toCirc;
+
+%%
+
+se = strel('disk',5);
+ arenaImage = imdilate(arenaImage,se);
+ imshow(arenaImage);
+ pause
+ 
+ % remove all object containing fewer than 30 pixels
+ % arenaImage = bwareaopen(arenaImage,100);
+ % imshow(arenaImage);
+ % pause
+ 
+
+ 
+%% 
+%  [ maxi temp] = getpts;
+%  maxi = maxi(1);
+  
+%%
+
+max1 = 0;
+for  i = 1 : size(arenaImage,2)
+    temp = length(find(arenaImage(:,i)));
+    
+    if temp > max1
+        max1= temp;
+        maxi = i;
+    end
+end
+
+imshow(rawArena);
+hold on;
+line([ maxi maxi] , [1 size(arenaImage,1)],'Color','r' )
+
+% offset = -imCols/40;
+
+maxi = maxi + offset;
+
+
+hold on;
+line([ maxi  maxi] , [1 imRows],'Color','y' )
+pause
+close all;
+
+%%
+
+[cnt centres dia]=findcircles(toCirc,tolCircVal);            % increase 2nd argument to detect small circles...... change below also
+ 
+cnt = sum(logical(dia(:) > repmat(minesMinDia,size(dia,1),1) & dia(:) < repmat(minesMaxDia,size(dia,1),1)));
+centres = centres(logical(dia(:) > repmat(minesMinDia,size(dia,1),1) & dia(:) < repmat(minesMaxDia,size(dia,1),1)),:);
+dia = dia(logical(dia(:) > repmat(minesMinDia,size(dia,1),1) & dia(:) < repmat(minesMaxDia,size(dia,1),1)));
+
+disp('No of Mines:');
+disp(cnt);
+
+
+figure,imshow(toCirc);
+hold on;
+plot(centres(:,2) , centres(:,1), '*red');
+pause
+close all;

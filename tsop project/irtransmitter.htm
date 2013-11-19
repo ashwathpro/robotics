@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+
+<title>IR transmitter</title>
+<meta name="description" content="Simple IR transmitter and receiver circuits">
+<meta name="keywords" content="IR,remote control,remote,3D,glass,LCD,LED,circuit,schematic,transmitter,receiver,computer,simple,interface">
+<meta name="distribution" content="global">
+<meta name="copyright" content="1997 Tomi Engdahl">
+<meta name="author" contents="Tomi Engdahl">
+<meta name="GENERATOR" content="Emacs">
+</head><body>
+<h1>Simple IR transmitter circuit</h1>
+<p>
+</p><h2>Transmitter circuit information</h2>
+<p>
+This is an IR transmitting circuit which can be used
+in many projects (I designed this to try to make my 3D glasses
+wireless). This IR transmitter sends 40 kHz (frequency can be
+adjusted using R2) carrier under computer control (computer can
+turn the IR transmission on and off). IR carriers at
+around 40 kHz carrier frequency are widely used in TV remote
+controlling and ICs for receiving these signals are quite
+easily available.
+</p><p>
+The circuit can be controlled using any TTL or RS-232C
+level control signal which makes the interfacing very simple.
+The circuit can be used for example for using computer to generate
+IR remote control signals or experimental IR data transmission.
+</p><p>
+<a href="http://www.tkk.fi/Misc/Electronics/circuits/ir_send.gif"><img src="irtransmitter_files/ir_send.gif" alt="IR transmitter circuit"></a>
+</p><p>
+</p><p>
+The circuit works so that when the input (LEFT/RIGHT CONTROL) pin
+is in logic high state (+4..15V) the transmitter is on and when
+it is in logic low state (+1V..-15V) the transmitter is off.
+</p><p>
+</p><h3>Component list for IR transmitter</h3>
+<pre>C1     1 nF
+C2     10 nF
+C3     220 nF
+D1,D2  1N4148
+D3     TIL31B (or other suitable IR LED)
+R1     1 kohm
+R2     22 kohm trimmer
+R3     120 ohm
+U1     NE555, LM555 or similar
+</pre>
+<p>
+</p><h3>IR receiver and sega glass interface circuit</h3>
+<p>
+I designed the circuit to make my Sega 3D glasses wireless, but
+system did not work as well as I wanted it to work. I used the
+circuit below to receiving the IR signals and controlling the
+IR glasses.
+</p><p>
+<a href="http://www.tkk.fi/Misc/Electronics/circuits/sega_ir.gif"><img src="irtransmitter_files/sega_ir.gif" alt="Sega 3D glass IR receiver"></a>
+</p><p>
+</p><h4>Component list</h4>
+<pre>Amount  Component
+  2     10 kohm resistor
+  2     22 kohm resistor
+  1     10 uF electrolytic capacitor
+  1     100 nF capacitor
+  1     10 nF capacitor
+  1     78L05 regulator (normal 7805 works also)
+  1     GP1U52X receiver module
+  3     1N4148 diode
+  1     2N2222 transistor (BC547 works also)
+  1     3.5 mm stereo jack
+</pre>
+<h3>Modification ideas</h3>
+<p>
+The circuit can be also used for slow serial data transfer by connecting
+RS-232 data output to the transmitter module left/right control pin and
+connect the output of GP1U52X receiver module to RS-232 data input through
+suitable RS-232 buffer circuit. Maximum data rates achievable are
+at around 1200-2400 bps speed.
+</p><p>
+<a href="http://support.tandy.com/support_supplies/17533.htm">GP1U52X</a> is quite hard component to get outside USA (in USA Radio Shack sells it cat. No. 276-0137). European experiments
+can try to replace it with SFH 506 or SFH 507
+from <a href="http://www.siemens.de/">Siemens</a>.
+According some comments I have got none of the components I mentioned
+(GP1U52H, SFH506, SFH507) are no longer available, so you might not be able
+to get those. I don't know what would be a good more modern component
+replacement, because I have not tried other types than those myself.
+</p><p>
+</p><hr>
+<address><a href="http://www.hut.fi/%7Ethen/">Tomi Engdahl</a> &lt;Tomi.Engdahl@iki.fi&gt;</address>
+<br>
+<a href="http://www.tkk.fi/Misc/Electronics/index.html"><img src="irtransmitter_files/marble-l.gif" alt="" align="center">Back to electronics home page</a>
+
+</body></html>
